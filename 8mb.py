@@ -4,7 +4,6 @@ import subprocess
 import os
 
 def get_duration(fileInput):
-
     return float(
         subprocess.check_output([
             "ffprobe",
@@ -54,17 +53,17 @@ attempt = 0
 while (factor > 1.0 + (tolerance/100)) or (factor < 1):
     attempt = attempt + 1
     bitrate = round(bitrate * (factor or 1))
-    print("Attempt", attempt, ": Transcoding", fileInput, "at bitrate", bitrate)
+    print(f"Attempt {attempt}: Transcoding {fileInput} at bitrate {bitrate}bps")
 
     transcode(fileInput, fileOutput, bitrate)
     afterSizeBytes = os.stat(fileOutput).st_size
     percentOfTarget = (100/targetSizeBytes)*afterSizeBytes
     factor = 100/percentOfTarget
     print(
-        "Attempt",attempt,
-        ": Original size:", '{:.2f}'.format(beforeSizeBytes/1024/1024), "MB",
-        "New size:", '{:.2f}'.format(afterSizeBytes/1024/1024), "MB",
-        "Percentage of target:", '{:.0f}'.format(percentOfTarget),
-        "and bitrate", bitrate
+        f"Attempt {attempt}:",
+        f"Original size: {'{:.2f}'.format(beforeSizeBytes/1024/1024)}MB,",
+        f"New size: {'{:.2f}'.format(afterSizeBytes/1024/1024)}MB,",
+        f"Percentage of target: {'{:.0f}'.format(percentOfTarget)}%,",
+        f"and bitrate {bitrate}bps"
     )
-print("Completed in", attempt, "attempts.")
+print(f"Completed in {attempt} attempts.")
