@@ -50,7 +50,8 @@ support more video formats
 argParser = argparse.ArgumentParser("constrict")
 argParser.add_argument(
     'file_path',
-    help='Location of the video file to be compressed'
+    help='Location of the video file to be compressed',
+    type=str
 )
 argParser.add_argument(
     'target_size',
