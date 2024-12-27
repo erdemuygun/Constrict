@@ -8,10 +8,10 @@ def get_duration(fileInput):
     return float(
         subprocess.check_output([
             "ffprobe",
-            "-v", "error",
-            "-show_entries", "format=duration",
-            "-of", "default=noprint_wrappers=1:nokey=1",
-            fileInput
+                "-v", "error",
+                "-show_entries", "format=duration",
+                "-of", "default=noprint_wrappers=1:nokey=1",
+                fileInput
         ])[:-1]
     )
 
@@ -28,13 +28,13 @@ def transcode(fileInput, fileOutput, bitrate):
             '-c:a',
             'copy',
             fileOutput
-      ]
+    ]
     #print(command)
     proc = subprocess.run(
-                command,
-                capture_output=True,
-                # avoid having to explicitly encode
-                text=True
+        command,
+        capture_output=True,
+        # avoid having to explicitly encode
+        text=True
     )
     #print(proc.stdout)
 
@@ -80,7 +80,7 @@ targetSizeMB = args.target_size
 targetSizeKB = targetSizeMB * 1024
 targetSizeBytes = targetSizeKB * 1024
 durationSeconds = get_duration(args.file_path)
-bitrate = round( targetSizeBytes / durationSeconds)
+bitrate = round(targetSizeBytes / durationSeconds)
 beforeSizeBytes = os.stat(fileInput).st_size
 
 if beforeSizeBytes <= targetSizeBytes:
@@ -88,22 +88,21 @@ if beforeSizeBytes <= targetSizeBytes:
     sys.exit(1)
 
 factor = 0
-
 attempt = 0
-while (factor > 1.0 + (tolerance/100)) or (factor < 1):
+while (factor > 1.0 + (tolerance / 100)) or (factor < 1):
     attempt = attempt + 1
     bitrate = round(bitrate * (factor or 1))
-    print(f"Attempt {attempt}: Transcoding {fileInput} at bitrate {bitrate}bps")
+    print(f"Attempt {attempt} -- transcoding {fileInput} at bitrate {bitrate}bps")
 
     transcode(fileInput, fileOutput, bitrate)
     afterSizeBytes = os.stat(fileOutput).st_size
-    percentOfTarget = (100/targetSizeBytes)*afterSizeBytes
-    factor = 100/percentOfTarget
+    percentOfTarget = (100 / targetSizeBytes) * afterSizeBytes
+    factor = 100 / percentOfTarget
     print(
-        f"Attempt {attempt}:",
-        f"Original size: {'{:.2f}'.format(beforeSizeBytes/1024/1024)}MB,",
-        f"New size: {'{:.2f}'.format(afterSizeBytes/1024/1024)}MB,",
-        f"Percentage of target: {'{:.0f}'.format(percentOfTarget)}%,",
-        f"and bitrate {bitrate}bps"
+        f"Attempt {attempt} --",
+        f"original size: {'{:.2f}'.format(beforeSizeBytes/1024/1024)}MB,",
+        f"new size: {'{:.2f}'.format(afterSizeBytes/1024/1024)}MB,",
+        f"percentage of target: {'{:.0f}'.format(percentOfTarget)}%,",
+        f"bitrate: {bitrate}bps"
     )
 print(f"Completed in {attempt} attempts.")
