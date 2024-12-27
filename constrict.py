@@ -46,6 +46,7 @@ add arugment for output destination
 add more error checking for very low target file sizes
 see about audio compression?
 add support for bulk compression
+support more video formats
 """
 
 argParser = argparse.ArgumentParser("constrict")

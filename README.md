@@ -1,39 +1,17 @@
-# 8mb
-8MB video compression bash script for ffmpeg. 
+# constrict-cli
+A command-line tool to easily compress videos to target file sizes. Useful for uploading videos to services with specific file size limits.
 
-I refuse to pay for Discord Nitro. Stop giving them money. They've raised [$0.9945 Bn of Venture Capital](https://www.crunchbase.com/organization/discord/company_financials). They don't need your money.
+See also Constrict (TBA), a GUI wrapper for this script for Linux. You can't see it now though because I haven't started making it yet.
 
-New, iterative process usage:
+## Usage
 ```
-matthewbaggett@exploding-bolts:~$ 8mb.py ~/Downloads/chooch.mp4
-Attempt 1 : Transcoding /home/geusebio/Downloads/chooch.mp4 at bitrate 52667
-Attempt 1 : Original size: 48.30 MB New size: 3.59 MB Percentage of target: 45 and bitrate 52667
-Attempt 2 : Transcoding /home/geusebio/Downloads/chooch.mp4 at bitrate 117441
-Attempt 2 : Original size: 48.30 MB New size: 4.80 MB Percentage of target: 60 and bitrate 117441
-Attempt 3 : Transcoding /home/geusebio/Downloads/chooch.mp4 at bitrate 195825
-Attempt 3 : Original size: 48.30 MB New size: 6.28 MB Percentage of target: 78 and bitrate 195825
-Attempt 4 : Transcoding /home/geusebio/Downloads/chooch.mp4 at bitrate 249600
-Attempt 4 : Original size: 48.30 MB New size: 7.30 MB Percentage of target: 91 and bitrate 249600
-Completed in 4 attempts.
+$ constrict [-t TOLERANCE] [-o OUTPUT] file_path target_size
 ```
 
-Now with ~~gusto~~ docker:
-```
-matthewbaggett@exploding-bolts:~$ docker run -v ~/Downloads:/vidja matthewbaggett/8mb /vidja/chooch.mp4
-Attempt 1 : Transcoding /home/geusebio/Downloads/chooch.mp4 at bitrate 52667
-Attempt 1 : Original size: 48.30 MB New size: 3.59 MB Percentage of target: 45 and bitrate 52667
-Attempt 2 : Transcoding /home/geusebio/Downloads/chooch.mp4 at bitrate 117441
-Attempt 2 : Original size: 48.30 MB New size: 4.80 MB Percentage of target: 60 and bitrate 117441
-Attempt 3 : Transcoding /home/geusebio/Downloads/chooch.mp4 at bitrate 195825
-Attempt 3 : Original size: 48.30 MB New size: 6.28 MB Percentage of target: 78 and bitrate 195825
-Attempt 4 : Transcoding /home/geusebio/Downloads/chooch.mp4 at bitrate 249600
-Attempt 4 : Original size: 48.30 MB New size: 7.30 MB Percentage of target: 91 and bitrate 249600
-Completed in 4 attempts.
-```
+- `file_path` is the location of the original video file to be compressed.
+- `target_size` is the desired file size of the compressed video.
+- Optional argument `-t` takes the tolerance of the target file size, a percentage of how much the compressed file size can be under target. A lower tolerance can result in a higher file size closer to target, thus slightly increasing the video quality, but means the script takes longer to run. Default value is 10.
+- Optional argument `-o` takes the destination path of the compressed video file. Default value is `[input_file_path].compressed.mp4`.
 
-Old Usage:
-```
-matthewbaggett@bidness:~$ 8mb Downloads/video_2021-05-04_04-50-36.mp4
-Shrinking Downloads/video_2021-05-04_04-50-36.mp4 to 8192KB. Bitrate: 1420k
-Rebuilt file as Downloads/video_2021-05-04_04-50-36.mp4.shrunk.mp4, shrank to 14% of original size
-```
+## Acknowledgements
+Thanks to Matthew Baggett for creating the original ['8mb' repository](https://github.com/matthewbaggett/8mb) which this project used as its foundation.
