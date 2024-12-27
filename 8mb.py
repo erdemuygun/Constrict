@@ -2,6 +2,7 @@
 import sys
 import subprocess
 import os
+import argparse
 
 def get_duration(fileInput):
     return float(
@@ -44,12 +45,19 @@ add arugment for output destination
 """
 
 # Tolerance below 8mb
+argParser = argparse.ArgumentParser("constrict")
+argParser.add_argument(
+    'file_path',
+    help='Location of the video file to be compressed'
+)
+args = argParser.parse_args()
+
 tolerance = 10
-fileInput = sys.argv[1]
+fileInput = args.file_path
 fileOutput = fileInput + ".crushed.mp4"
 targetSizeKilobytes = 8192
 targetSizeBytes = targetSizeKilobytes * 1024
-durationSeconds = get_duration(sys.argv[1])
+durationSeconds = get_duration(args.file_path)
 bitrate = round( targetSizeBytes / durationSeconds)
 beforeSizeBytes = os.stat(fileInput).st_size
 
