@@ -87,8 +87,7 @@ bitrate = round(targetSizeBytes / durationSeconds)
 beforeSizeBytes = os.stat(fileInput).st_size
 
 if beforeSizeBytes <= targetSizeBytes:
-    print("File already meets the target size.")
-    sys.exit(1)
+    sys.exit("File already meets the target size.")
 
 factor = 0
 attempt = 0
