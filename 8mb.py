@@ -37,6 +37,12 @@ def transcode(fileInput, fileOutput, bitrate):
     )
     #print(proc.stdout)
 
+""" TODO:
+add argument for file size
+add argument for tolerance level
+add arugment for output destination
+"""
+
 # Tolerance below 8mb
 tolerance = 10
 fileInput = sys.argv[1]
