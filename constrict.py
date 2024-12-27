@@ -43,6 +43,7 @@ def transcode(fileInput, fileOutput, bitrate):
 check for non-existent files (or non-video files) -- exit 1 with error msg
 allow different units for desired file size
 add more error checking for very low target file sizes
+perhaps resize video instead of only relying on bitrate?
 see about audio compression?
 add support for bulk compression
 support more video formats
@@ -94,6 +95,10 @@ attempt = 0
 while (factor > 1.0 + (tolerance / 100)) or (factor < 1):
     attempt = attempt + 1
     bitrate = round(bitrate * (factor or 1))
+
+    if (bitrate < 1000):
+        sys.exit("Bitrate got too low; aborting")
+
     print(f"Attempt {attempt} -- transcoding {fileInput} at bitrate {bitrate}bps")
 
     transcode(fileInput, fileOutput, bitrate)
