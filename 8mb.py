@@ -39,24 +39,33 @@ def transcode(fileInput, fileOutput, bitrate):
     #print(proc.stdout)
 
 """ TODO:
-add argument for file size
+check for non-existent files (or non-video files) -- exit 1 with error msg
+allow different units for desired file size
 add argument for tolerance level
 add arugment for output destination
+add more error checking for very low target file sizes
+see about audio compression?
 """
 
-# Tolerance below 8mb
 argParser = argparse.ArgumentParser("constrict")
 argParser.add_argument(
     'file_path',
     help='Location of the video file to be compressed'
 )
+argParser.add_argument(
+    'target_size',
+    help='Desired size of the compressed video in MB',
+    type=int
+)
 args = argParser.parse_args()
 
+# Tolerance below 8mb
 tolerance = 10
 fileInput = args.file_path
 fileOutput = fileInput + ".crushed.mp4"
-targetSizeKilobytes = 8192
-targetSizeBytes = targetSizeKilobytes * 1024
+targetSizeMB = args.target_size
+targetSizeKB = targetSizeMB * 1024
+targetSizeBytes = targetSizeKB * 1024
 durationSeconds = get_duration(args.file_path)
 bitrate = round( targetSizeBytes / durationSeconds)
 beforeSizeBytes = os.stat(fileInput).st_size
