@@ -41,8 +41,6 @@ def transcode(fileInput, fileOutput, bitrate):
 """ TODO:
 check for non-existent files (or non-video files) -- exit 1 with error msg
 allow different units for desired file size
-add argument for tolerance level
-add arugment for output destination
 add more error checking for very low target file sizes
 see about audio compression?
 add support for bulk compression
