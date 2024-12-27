@@ -45,6 +45,7 @@ add argument for tolerance level
 add arugment for output destination
 add more error checking for very low target file sizes
 see about audio compression?
+add support for bulk compression
 """
 
 argParser = argparse.ArgumentParser("constrict")
@@ -63,13 +64,19 @@ argParser.add_argument(
     type=int,
     help='Tolerance of end file size under target in percent (default 10)'
 )
+argParser.add_argument(
+    '-o',
+    dest='output',
+    type=str,
+    help='Destination path of the compressed video file'
+)
 args = argParser.parse_args()
 
 # Tolerance below 8mb
 tolerance = args.tolerance or 10
 #print(f'Tolerance: {tolerance}')
 fileInput = args.file_path
-fileOutput = fileInput + ".crushed.mp4"
+fileOutput = args.output or (fileInput + ".crushed.mp4")
 targetSizeMB = args.target_size
 targetSizeKB = targetSizeMB * 1024
 targetSizeBytes = targetSizeKB * 1024
