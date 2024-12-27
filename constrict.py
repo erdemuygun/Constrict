@@ -44,6 +44,7 @@ check for non-existent files (or non-video files) -- exit 1 with error msg
 allow different units for desired file size
 add more error checking for very low target file sizes
 perhaps resize video instead of only relying on bitrate?
+change framerate to 30fps by default
 see about audio compression?
 add support for bulk compression
 support more video formats
@@ -82,8 +83,9 @@ fileOutput = args.output or (fileInput + ".crushed.mp4")
 targetSizeMB = args.target_size
 targetSizeKB = targetSizeMB * 1024
 targetSizeBytes = targetSizeKB * 1024
+targetSizeBits = targetSizeBytes * 8
 durationSeconds = get_duration(args.file_path)
-bitrate = round(targetSizeBytes / durationSeconds)
+bitrate = round(targetSizeBits / durationSeconds)
 beforeSizeBytes = os.stat(fileInput).st_size
 
 if beforeSizeBytes <= targetSizeBytes:
@@ -93,7 +95,7 @@ factor = 0
 attempt = 0
 while (factor > 1.0 + (tolerance / 100)) or (factor < 1):
     attempt = attempt + 1
-    bitrate = round(bitrate * (factor or 1))
+    bitrate = round((bitrate - 50000) * (factor or 1))
 
     if (bitrate < 1000):
         sys.exit("Bitrate got too low; aborting")
