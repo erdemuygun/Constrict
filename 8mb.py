@@ -57,10 +57,17 @@ argParser.add_argument(
     help='Desired size of the compressed video in MB',
     type=int
 )
+argParser.add_argument(
+    '-t',
+    dest='tolerance',
+    type=int,
+    help='Tolerance of end file size under target in percent (default 10)'
+)
 args = argParser.parse_args()
 
 # Tolerance below 8mb
-tolerance = 10
+tolerance = args.tolerance or 10
+#print(f'Tolerance: {tolerance}')
 fileInput = args.file_path
 fileOutput = fileInput + ".crushed.mp4"
 targetSizeMB = args.target_size
