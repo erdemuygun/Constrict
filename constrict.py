@@ -68,6 +68,8 @@ add more error checking for very low target file sizes
 perhaps resize video instead of only relying on bitrate?
 change framerate to 30fps by default
 see about audio compression?
+take away audio bitrate from bitrate calculation
+add HEVC support
 add support for bulk compression
 support more video formats
 """
