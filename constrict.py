@@ -3,6 +3,7 @@ import sys
 import subprocess
 import os
 import argparse
+import struct
 
 def get_duration(fileInput):
     return float(
@@ -38,6 +39,27 @@ def transcode(fileInput, fileOutput, bitrate):
         text=True
     )
     #print(proc.stdout)
+
+def get_framerate(fileInput):
+    command = [
+        'ffprobe',
+        '-v', '0',
+        '-of',
+        'csv=p=0',
+        '-select_streams', 'v:0',
+        '-show_entries',
+        'stream=r_frame_rate',
+        fileInput
+    ]
+    fps_bytes = subprocess.check_output(
+        command
+    )
+    fps_fraction = fps_bytes.decode('utf-8')
+    fps_fraction_split = fps_fraction.split('/')
+    fps_numerator = int(fps_fraction_split[0])
+    fps_denominator = int(fps_fraction_split[1])
+    fps_float = round(fps_numerator / fps_denominator)
+    return(fps_float)
 
 """ TODO:
 check for non-existent files (or non-video files) -- exit 1 with error msg
@@ -90,6 +112,9 @@ beforeSizeBytes = os.stat(fileInput).st_size
 
 if beforeSizeBytes <= targetSizeBytes:
     sys.exit("File already meets the target size.")
+
+framerate = get_framerate(fileInput)
+print(framerate)
 
 factor = 0
 attempt = 0
