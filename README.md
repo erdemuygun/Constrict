@@ -13,5 +13,9 @@ $ constrict [-t TOLERANCE] [-o OUTPUT] file_path target_size
 - Optional argument `-t` takes the tolerance of the target file size, a percentage of how much the compressed file size can be under target. A lower tolerance can result in a higher file size closer to target, thus slightly increasing the video quality, but means the script takes longer to run. Default value is 10.
 - Optional argument `-o` takes the destination path of the compressed video file. Default value is `[input_file_path].compressed.mp4`.
 
+## Dependencies
+- Python
+- FFmpeg
+
 ## Acknowledgements
 Thanks to Matthew Baggett for creating the original ['8mb' repository](https://github.com/matthewbaggett/8mb) which this project used as its foundation.
