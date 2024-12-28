@@ -95,6 +95,11 @@ argParser.add_argument(
     type=str,
     help='Destination path of the compressed video file'
 )
+argParser.add_argument(
+    '--keep-framerate',
+    action='store_true',
+    help='Keep the source framerate; do not lower to 30FPS'
+)
 args = argParser.parse_args()
 
 # Tolerance below 8mb
@@ -113,8 +118,10 @@ beforeSizeBytes = os.stat(fileInput).st_size
 if beforeSizeBytes <= targetSizeBytes:
     sys.exit("File already meets the target size.")
 
+keepFramerate = args.keep_framerate
+print(f'keep framerate: {keepFramerate}')
 framerate = get_framerate(fileInput)
-print(framerate)
+print(f'framerate: {framerate}')
 
 factor = 0
 attempt = 0
