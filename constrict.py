@@ -43,13 +43,13 @@ def transcode(fileInput, fileOutput, bitrate):
 def get_framerate(fileInput):
     command = [
         'ffprobe',
-        '-v', '0',
-        '-of',
-        'csv=p=0',
-        '-select_streams', 'v:0',
-        '-show_entries',
-        'stream=r_frame_rate',
-        fileInput
+            '-v', '0',
+            '-of',
+            'csv=p=0',
+            '-select_streams', 'v:0',
+            '-show_entries',
+            'stream=r_frame_rate',
+            fileInput
     ]
     fps_bytes = subprocess.check_output(
         command
