@@ -99,6 +99,7 @@ def apply_30fps(fileInput):
 check for non-existent files (or non-video files) -- exit 1 with error msg
 allow different units for desired file size
 add input validation for arguments
+add overwrite confirmation and argument
 change output file format
 check for when file size doesnt change
 add more error checking for very low target file sizes
