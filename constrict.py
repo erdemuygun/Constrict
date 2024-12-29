@@ -4,6 +4,7 @@ import subprocess
 import os
 import argparse
 import struct
+import shutil
 
 def get_duration(fileInput):
     return float(
@@ -61,9 +62,45 @@ def get_framerate(fileInput):
     fps_float = round(fps_numerator / fps_denominator)
     return(fps_float)
 
+def get_cache_dir():
+    homeDir = os.path.expanduser('~')
+    cacheDir = os.path.join(homeDir, '.cache/constrict/')
+    return cacheDir
+
+def make_cache_dir():
+    os.makedirs(get_cache_dir(), exist_ok=True)
+
+def clear_cached_file(filename):
+    file = os.path.join(get_cache_dir(), filename)
+    os.remove(file)
+
+def apply_30fps(fileInput):
+    fileOutput = os.path.join(get_cache_dir(), fileInput)
+
+    command = [
+        'ffmpeg',
+            '-i', fileInput,
+            '-filter:v', 'fps=30',
+            '-cpu-used', str(os.cpu_count()),
+            '-y',
+            fileOutput
+    ]
+
+    make_cache_dir()
+    print(f'cache file output: {fileOutput}')
+    proc = subprocess.run(
+        command,
+        capture_output=True,
+        text=True
+    )
+    return fileOutput
+
 """ TODO:
 check for non-existent files (or non-video files) -- exit 1 with error msg
 allow different units for desired file size
+add input validation for arguments
+change output file format
+check for when file size doesnt change
 add more error checking for very low target file sizes
 perhaps resize video instead of only relying on bitrate?
 change framerate to 30fps by default
@@ -125,6 +162,31 @@ print(f'keep framerate: {keepFramerate}')
 framerate = get_framerate(fileInput)
 print(f'framerate: {framerate}')
 
+cacheOccupied = False
+
+if (not keepFramerate and framerate > 30):
+    print(f'Changing framerate to 30 FPS (at {get_cache_dir()})...')
+    reducedFpsFile = apply_30fps(fileInput)
+    cacheOccupied = True
+    reducedFpsSizeBytes = os.stat(reducedFpsFile).st_size
+
+    if reducedFpsSizeBytes <= targetSizeBytes:
+        percentOfTarget = (100 / targetSizeBytes) * reducedFpsSizeBytes
+        print(f'30 FPS file percentage of target: {percentOfTarget}%')
+        factor = 100 / percentOfTarget
+        if factor <= 1.0 + (tolerance / 100):
+            print('Target reached after applying 30 FPS.')
+            shutil.move(reducedFpsFile, fileOutput)
+            sys.exit(0)
+        else:
+            print('End file size too low; sticking with original framerate')
+            # if the 30 FPS file size is much lower than target, then the
+            # bitrate of the video with the original framerate will just be
+            # lowered later in the script.
+    else:
+        print('Applied 30 FPS; target not yet reached.')
+        fileInput = reducedFpsFile
+
 factor = 0
 attempt = 0
 while (factor > 1.0 + (tolerance / 100)) or (factor < 1):
@@ -132,6 +194,8 @@ while (factor > 1.0 + (tolerance / 100)) or (factor < 1):
     bitrate = round((bitrate - 50000) * (factor or 1))
 
     if (bitrate < 1000):
+        if cacheOccupied:
+            clear_cached_file(reducedFpsFile)
         sys.exit("Bitrate got too low; aborting")
 
     print(f"Attempt {attempt} -- transcoding {fileInput} at bitrate {bitrate}bps")
@@ -147,4 +211,6 @@ while (factor > 1.0 + (tolerance / 100)) or (factor < 1):
         f"percentage of target: {'{:.0f}'.format(percentOfTarget)}%,",
         f"bitrate: {bitrate}bps"
     )
+if cacheOccupied:
+    clear_cached_file(reducedFpsFile)
 print(f"Completed in {attempt} attempts.")
