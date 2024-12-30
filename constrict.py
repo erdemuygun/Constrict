@@ -95,6 +95,24 @@ def apply_30fps(fileInput):
     )
     return fileOutput
 
+def getResolution(fileInput):
+    command = [
+        'ffprobe',
+            '-v', 'error',
+            '-select_streams', 'v:0',
+            '-show_entries', 'stream=width,height',
+            '-of', 'csv=s=x:p=0',
+            fileInput
+    ]
+
+    res_bytes = subprocess.check_output(command)
+    res = res_bytes.decode('utf-8')
+    res_array = res.split('x')
+    width = int(res_array[0])
+    height = int(res_array[1])
+
+    return (width, height)
+
 """ TODO:
 check for non-existent files (or non-video files) -- exit 1 with error msg
 allow different units for desired file size
@@ -162,6 +180,11 @@ keepFramerate = args.keep_framerate
 print(f'keep framerate: {keepFramerate}')
 framerate = get_framerate(fileInput)
 print(f'framerate: {framerate}')
+
+width, height = getResolution(fileInput)
+print(f'Resolution: {width}x{height}')
+pixels = width * height
+print(f'Total pixels: {pixels}')
 
 cacheOccupied = False
 
