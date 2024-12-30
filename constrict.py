@@ -263,7 +263,7 @@ factor = 0
 attempt = 0
 while (factor > 1.0 + (tolerance / 100)) or (factor < 1):
     attempt = attempt + 1
-    bitrate = round((bitrate - 50000) * (factor or 1))
+    bitrate = round((bitrate) * (factor or 1))
 
     if (bitrate < 1000):
         if cacheOccupied:
