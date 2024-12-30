@@ -95,7 +95,7 @@ def apply_30fps(fileInput):
     )
     return fileOutput
 
-def getResolution(fileInput):
+def get_resolution(fileInput):
     command = [
         'ffprobe',
             '-v', 'error',
@@ -184,7 +184,7 @@ print(f'keep framerate: {keepFramerate}')
 framerate = get_framerate(fileInput)
 print(f'framerate: {framerate}')
 
-width, height = getResolution(fileInput)
+width, height = get_resolution(fileInput)
 print(f'Resolution: {width}x{height}')
 pixels = width * height
 print(f'Total pixels: {pixels}')
