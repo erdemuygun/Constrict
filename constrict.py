@@ -113,6 +113,9 @@ def getResolution(fileInput):
 
     return (width, height)
 
+def is_portrait_video(width, height):
+    return width < height
+
 """ TODO:
 check for non-existent files (or non-video files) -- exit 1 with error msg
 allow different units for desired file size
@@ -185,6 +188,8 @@ width, height = getResolution(fileInput)
 print(f'Resolution: {width}x{height}')
 pixels = width * height
 print(f'Total pixels: {pixels}')
+
+print(f'Is portrait: {is_portrait_video(width, height)}')
 
 cacheOccupied = False
 
