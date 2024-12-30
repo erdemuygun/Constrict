@@ -17,8 +17,54 @@ def get_duration(fileInput):
         ])[:-1]
     )
 
+"""
+Returns a suitable resolution preset (i.e. 1080p, 720p, etc.) from a given
+bitrate and source resolution. Allows source videos to be shrunk according to
+a new, reduced bitrate for optimal perceived video quality. This function should
+not return a resolution preset larger than the source resolution (i.e. an
+upscaled or stretched resolution).
 
-def transcode(fileInput, fileOutput, bitrate):
+If -1 is returned, then the video's source resolution is recommended.
+"""
+def get_res_preset(bitrate, sourceWidth, sourceHeight):
+    sourceRes = sourceWidth * sourceHeight # Resolution in terms of pixel count
+    bitrateKbps = bitrate / 1000 # Convert to kilobits
+    print(f'kbps -- {bitrateKbps}')
+    """
+    Bitrate-resolution recommendations are taken from:
+    https://support.video.ibm.com/hc/en-us/articles/207852117-Internet-connection-and-recommended-encoding-settings
+    """
+    bitrateResMap = {
+        14000 : -1, # Native
+        8000 : 2160, # 4K
+        4000 : 1080, # 1080p
+        1500 : 720, # 720p
+        1200 : 480, # 480p
+        800 : 360, # 360p
+        0 : 270 # 270p
+    }
+
+    for bitrateLowerBound, widthPreset in bitrateResMap.items():
+        presetRes = widthPreset ** 2 * (16 / 9)
+        if bitrateKbps >= bitrateLowerBound and sourceRes >= presetRes:
+            return widthPreset
+
+    return -1
+
+def transcode(fileInput, fileOutput, bitrate, sourceWidth, sourceHeight):
+    resPreset = get_res_preset(bitrate, sourceWidth, sourceHeight)
+    filterFlag = ''
+    scaleArgument = ''
+    if resPreset != -1:
+        portrait = sourceHeight > sourceWidth
+        filterWidth = resPreset if portrait else -1
+        filterHeight = -1 if portrait else resPreset
+
+        print(f'Video will be shrunk to {resPreset}p.')
+
+        filterFlag = '-filter:v'
+        scaleArgument = f'scale={filterWidth}:{filterHeight}'
+
     command = [
         'ffmpeg',
             '-y',
@@ -28,11 +74,11 @@ def transcode(fileInput, fileOutput, bitrate):
             '-b:v', str(bitrate) + '',
             '-b:a', str(bitrate) + '',
             '-cpu-used', str(os.cpu_count()),
+            filterFlag, scaleArgument,
             '-c:a',
             'copy',
             fileOutput
     ]
-    #print(command)
     proc = subprocess.run(
         command,
         capture_output=True,
@@ -112,9 +158,6 @@ def get_resolution(fileInput):
     height = int(res_array[1])
 
     return (width, height)
-
-def is_portrait_video(width, height):
-    return width < height
 
 """ TODO:
 check for non-existent files (or non-video files) -- exit 1 with error msg
@@ -216,31 +259,6 @@ if (not keepFramerate and framerate > 30):
         print('Applied 30 FPS; target not yet reached.')
         fileInput = reducedFpsFile
 
-def get_res_preset(bitrate):
-    """
-    Bitrate-resolution recommendations are taken from:
-    https://support.video.ibm.com/hc/en-us/articles/207852117-Internet-connection-and-recommended-encoding-settings
-    """
-    bitrateKbps = bitrate / 1000 # Convert to kilobits
-    print(f'kbps -- {bitrateKbps}')
-    bitrateResMap = {
-        14000 : -1, # Native
-        8000 : 2160, # 4K
-        4000 : 1080, # 1080p
-        1500 : 720, # 720p
-        1200 : 480, # 480p
-        800 : 360, # 360p
-        0 : 270 # 270p
-    }
-
-    for bitrateLowerBound, resPreset in bitrateResMap.items():
-        if bitrateKbps >= bitrateLowerBound:
-            return resPreset
-
-    # Not sure how it'd be possible to end up here, but here's a return value
-    # just in case.
-    return -1
-
 factor = 0
 attempt = 0
 while (factor > 1.0 + (tolerance / 100)) or (factor < 1):
@@ -254,10 +272,7 @@ while (factor > 1.0 + (tolerance / 100)) or (factor < 1):
 
     print(f"Attempt {attempt} -- transcoding {fileInput} at bitrate {bitrate}bps")
 
-    resPreset = get_res_preset(bitrate)
-    print(f'Res preset: {resPreset}')
-
-    transcode(fileInput, fileOutput, bitrate)
+    transcode(fileInput, fileOutput, bitrate, width, height)
     afterSizeBytes = os.stat(fileOutput).st_size
     percentOfTarget = (100 / targetSizeBytes) * afterSizeBytes
     factor = 100 / percentOfTarget
