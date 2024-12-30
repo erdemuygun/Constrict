@@ -170,10 +170,10 @@ add overwrite confirmation and argument
 change output file format
 check for when file size doesnt change
 add more error checking for very low target file sizes
-perhaps resize video instead of only relying on bitrate?
 change framerate to 30fps by default
-see about audio compression?
+see about audio compression / changing sample rate?
 take away audio bitrate from bitrate calculation
+improve bitrate recalculation
 add HEVC support
 add support for bulk compression
 support more video formats
