@@ -41,7 +41,8 @@ def get_res_preset(bitrate, sourceWidth, sourceHeight):
         1500 : 720, # 720p
         1200 : 480, # 480p
         800 : 360, # 360p
-        0 : 270 # 270p
+        400 : 270, # 270p
+        0 : 144 # 144p
     }
 
     for bitrateLowerBound, widthPreset in bitrateResMap.items():
