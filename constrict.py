@@ -52,18 +52,20 @@ def get_res_preset(bitrate, sourceWidth, sourceHeight):
     return -1
 
 def transcode(fileInput, fileOutput, bitrate, sourceWidth, sourceHeight):
-    resPreset = get_res_preset(bitrate, sourceWidth, sourceHeight)
-    filterFlag = ''
-    scaleArgument = ''
-    if resPreset != -1:
-        portrait = sourceHeight > sourceWidth
-        filterWidth = resPreset if portrait else -1
-        filterHeight = -1 if portrait else resPreset
+    resPresetHeight = get_res_preset(bitrate, sourceWidth, sourceHeight)
+    needsDownscaling = resPresetHeight != -1 # -1 means use native resolution
 
-        print(f'Video will be shrunk to {resPreset}p.')
+    resPresetWidth = -1
+    if needsDownscaling:
+        scalingFactor = sourceHeight / resPresetHeight
+        resPresetWidthFloat = sourceWidth / scalingFactor
+        resPresetWidth = int(((resPresetWidthFloat + 1) // 2) * 2)
+                         # Keeps the width divisble by 2 for ffmpeg
+        print(f'Video will be shrunk to {resPresetHeight}p.')
 
-        filterFlag = '-filter:v'
-        scaleArgument = f'scale={filterWidth}:{filterHeight}'
+    portrait = sourceHeight > sourceWidth
+    filterWidth = resPresetHeight if portrait else resPresetWidth
+    filterHeight = resPresetWidth if portrait else resPresetHeight
 
     command = [
         'ffmpeg',
@@ -74,7 +76,7 @@ def transcode(fileInput, fileOutput, bitrate, sourceWidth, sourceHeight):
             '-b:v', str(bitrate) + '',
             '-b:a', str(bitrate) + '',
             '-cpu-used', str(os.cpu_count()),
-            filterFlag, scaleArgument,
+            '-vf', f'scale={filterWidth}:{filterHeight}',
             '-c:a',
             'copy',
             fileOutput
