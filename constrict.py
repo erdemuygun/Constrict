@@ -232,8 +232,6 @@ print(f'Resolution: {width}x{height}')
 pixels = width * height
 print(f'Total pixels: {pixels}')
 
-print(f'Is portrait: {is_portrait_video(width, height)}')
-
 cacheOccupied = False
 
 if (not keepFramerate and framerate > 30):
