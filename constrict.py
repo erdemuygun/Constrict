@@ -216,6 +216,31 @@ if (not keepFramerate and framerate > 30):
         print('Applied 30 FPS; target not yet reached.')
         fileInput = reducedFpsFile
 
+def get_res_preset(bitrate):
+    """
+    Bitrate-resolution recommendations are taken from:
+    https://support.video.ibm.com/hc/en-us/articles/207852117-Internet-connection-and-recommended-encoding-settings
+    """
+    bitrateKbps = bitrate / 1000 # Convert to kilobits
+    print(f'kbps -- {bitrateKbps}')
+    bitrateResMap = {
+        14000 : -1, # Native
+        8000 : 2160, # 4K
+        4000 : 1080, # 1080p
+        1500 : 720, # 720p
+        1200 : 480, # 480p
+        800 : 360, # 360p
+        0 : 270 # 270p
+    }
+
+    for bitrateLowerBound, resPreset in bitrateResMap.items():
+        if bitrateKbps >= bitrateLowerBound:
+            return resPreset
+
+    # Not sure how it'd be possible to end up here, but here's a return value
+    # just in case.
+    return -1
+
 factor = 0
 attempt = 0
 while (factor > 1.0 + (tolerance / 100)) or (factor < 1):
@@ -228,6 +253,9 @@ while (factor > 1.0 + (tolerance / 100)) or (factor < 1):
         sys.exit("Bitrate got too low; aborting")
 
     print(f"Attempt {attempt} -- transcoding {fileInput} at bitrate {bitrate}bps")
+
+    resPreset = get_res_preset(bitrate)
+    print(f'Res preset: {resPreset}')
 
     transcode(fileInput, fileOutput, bitrate)
     afterSizeBytes = os.stat(fileOutput).st_size
