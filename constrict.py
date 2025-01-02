@@ -162,6 +162,23 @@ def get_resolution(fileInput):
 
     return (width, height)
 
+def get_audio_bitrate(fileInput):
+    command = [
+        'ffprobe',
+            '-v', 'error',
+            '-select_streams', 'a:0',
+            '-show_entries', 'stream=bit_rate',
+            '-of', 'default=noprint_wrappers=1:nokey=1',
+            fileInput
+    ]
+
+    try:
+        bitrateStr = subprocess.check_output(command)
+        return int(bitrateStr)
+    except ValueError:
+        print('Could not get valid bitrate.')
+        return None
+
 """ TODO:
 check for non-existent files (or non-video files) -- exit 1 with error msg
 allow different units for desired file size
@@ -219,7 +236,16 @@ targetSizeKB = targetSizeMB * 1024
 targetSizeBytes = targetSizeKB * 1024
 targetSizeBits = targetSizeBytes * 8
 durationSeconds = get_duration(args.file_path)
-bitrate = round(targetSizeBits / durationSeconds)
+
+targetVideoBitrate = round(targetSizeBits / durationSeconds)
+audioBitrate = get_audio_bitrate(fileInput)
+
+if audioBitrate == None:
+    print('No audio bitrate found')
+else:
+    print(f'Audio bitrate: {audioBitrate}bps')
+    targetVideoBitrate -= audioBitrate
+
 beforeSizeBytes = os.stat(fileInput).st_size
 
 if beforeSizeBytes <= targetSizeBytes:
@@ -264,16 +290,16 @@ factor = 0
 attempt = 0
 while (factor > 1.0 + (tolerance / 100)) or (factor < 1):
     attempt = attempt + 1
-    bitrate = round((bitrate) * (factor or 1))
+    targetVideoBitrate = round((targetVideoBitrate) * (factor or 1))
 
-    if (bitrate < 1000):
+    if (targetVideoBitrate < 1000):
         if cacheOccupied:
             clear_cached_file(reducedFpsFile)
-        sys.exit("Bitrate got too low; aborting")
+        sys.exit(f"Bitrate got too low ({targetVideoBitrate}bps); aborting")
 
-    print(f"Attempt {attempt} -- transcoding {fileInput} at bitrate {bitrate}bps")
+    print(f"Attempt {attempt} -- transcoding {fileInput} at bitrate {targetVideoBitrate}bps")
 
-    transcode(fileInput, fileOutput, bitrate, width, height)
+    transcode(fileInput, fileOutput, targetVideoBitrate, width, height)
     afterSizeBytes = os.stat(fileOutput).st_size
     percentOfTarget = (100 / targetSizeBytes) * afterSizeBytes
     factor = 100 / percentOfTarget
@@ -282,7 +308,7 @@ while (factor > 1.0 + (tolerance / 100)) or (factor < 1):
         f"original size: {'{:.2f}'.format(beforeSizeBytes/1024/1024)}MB,",
         f"new size: {'{:.2f}'.format(afterSizeBytes/1024/1024)}MB,",
         f"percentage of target: {'{:.0f}'.format(percentOfTarget)}%,",
-        f"bitrate: {bitrate}bps"
+        f"bitrate: {targetVideoBitrate}bps"
     )
 if cacheOccupied:
     clear_cached_file(reducedFpsFile)
