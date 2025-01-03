@@ -52,7 +52,14 @@ def get_res_preset(bitrate, sourceWidth, sourceHeight):
 
     return -1
 
-def transcode(fileInput, fileOutput, bitrate, sourceWidth, sourceHeight):
+def transcode(
+    fileInput,
+    fileOutput,
+    bitrate,
+    sourceWidth,
+    sourceHeight,
+    keepFramerate
+):
     resPresetHeight = get_res_preset(bitrate, sourceWidth, sourceHeight)
     needsDownscaling = resPresetHeight != -1 # -1 means use native resolution
 
@@ -68,6 +75,8 @@ def transcode(fileInput, fileOutput, bitrate, sourceWidth, sourceHeight):
     filterWidth = resPresetHeight if portrait else resPresetWidth
     filterHeight = resPresetWidth if portrait else resPresetHeight
 
+    fpsFilter = '' if keepFramerate else ',fps=30'
+
     command = [
         'ffmpeg',
             '-y',
@@ -77,7 +86,7 @@ def transcode(fileInput, fileOutput, bitrate, sourceWidth, sourceHeight):
             '-b:v', str(bitrate) + '',
             '-b:a', str(bitrate) + '',
             '-cpu-used', str(os.cpu_count()),
-            '-vf', f'scale={filterWidth}:{filterHeight}',
+            '-vf', f'scale={filterWidth}:{filterHeight}{fpsFilter}',
             '-c:a',
             'copy',
             fileOutput
@@ -249,10 +258,10 @@ beforeSizeBytes = os.stat(fileInput).st_size
 if beforeSizeBytes <= targetSizeBytes:
     sys.exit("File already meets the target size.")
 
-keepFramerate = args.keep_framerate
-print(f'keep framerate: {keepFramerate}')
 framerate = get_framerate(fileInput)
 print(f'framerate: {framerate}')
+keepFramerate = framerate <= 30 or args.keep_framerate
+print(f'keep framerate: {keepFramerate}')
 
 width, height = get_resolution(fileInput)
 print(f'Resolution: {width}x{height}')
@@ -260,29 +269,6 @@ pixels = width * height
 print(f'Total pixels: {pixels}')
 
 cacheOccupied = False
-
-if (not keepFramerate and framerate > 30):
-    print(f'Changing framerate to 30 FPS (at {get_cache_dir()})...')
-    reducedFpsFile = apply_30fps(fileInput)
-    cacheOccupied = True
-    reducedFpsSizeBytes = os.stat(reducedFpsFile).st_size
-
-    if reducedFpsSizeBytes <= targetSizeBytes:
-        percentOfTarget = (100 / targetSizeBytes) * reducedFpsSizeBytes
-        print(f'30 FPS file percentage of target: {percentOfTarget}%')
-        factor = 100 / percentOfTarget
-        if factor <= 1.0 + (tolerance / 100):
-            print('Target reached after applying 30 FPS.')
-            shutil.move(reducedFpsFile, fileOutput)
-            sys.exit(0)
-        else:
-            print('End file size too low; sticking with original framerate')
-            # if the 30 FPS file size is much lower than target, then the
-            # bitrate of the video with the original framerate will just be
-            # lowered later in the script.
-    else:
-        print('Applied 30 FPS; target not yet reached.')
-        fileInput = reducedFpsFile
 
 factor = 0
 attempt = 0
@@ -297,7 +283,14 @@ while (factor > 1.0 + (tolerance / 100)) or (factor < 1):
 
     print(f"Attempt {attempt} -- transcoding {fileInput} at bitrate {targetVideoBitrate}bps")
 
-    transcode(fileInput, fileOutput, targetVideoBitrate, width, height)
+    transcode(
+        fileInput,
+        fileOutput,
+        targetVideoBitrate,
+        width,
+        height,
+        keepFramerate
+    )
     afterSizeBytes = os.stat(fileOutput).st_size
     percentOfTarget = (100 / targetSizeBytes) * afterSizeBytes
 
