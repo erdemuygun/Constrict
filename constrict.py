@@ -84,11 +84,9 @@ def transcode(
             '-loglevel', 'error',
             '-i', fileInput,
             '-b:v', str(bitrate) + '',
-            '-b:a', str(bitrate) + '',
             '-cpu-used', str(os.cpu_count()),
             '-vf', f'scale={filterWidth}:{filterHeight}{fpsFilter}',
-            '-c:a',
-            'copy',
+            '-c:a', 'libopus',
             fileOutput
     ]
     proc = subprocess.run(
