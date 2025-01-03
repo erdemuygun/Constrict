@@ -240,7 +240,7 @@ durationSeconds = get_duration(args.file_path)
 targetVideoBitrate = round(targetSizeBits / durationSeconds)
 audioBitrate = get_audio_bitrate(fileInput)
 
-if audioBitrate == None:
+if audioBitrate is None:
     print('No audio bitrate found')
 else:
     print(f'Audio bitrate: {audioBitrate}bps')
@@ -302,7 +302,29 @@ while (factor > 1.0 + (tolerance / 100)) or (factor < 1):
     transcode(fileInput, fileOutput, targetVideoBitrate, width, height)
     afterSizeBytes = os.stat(fileOutput).st_size
     percentOfTarget = (100 / targetSizeBytes) * afterSizeBytes
+
     factor = 100 / percentOfTarget
+
+    if (percentOfTarget > 100):
+        # Prevent a lot of attempts resulting in above-target sizes
+        if (attempt == 1 and audioBitrate is None):
+            audioBitrate = get_audio_bitrate(fileOutput)
+            # Output file may have audio bitrate info that input file didn't
+            # have (e.g. MKV -> MP4 conversion), so try getting and using this
+            # once.
+            print(f'Output audio bitrate: {audioBitrate}')
+            if (audioBitrate is not None):
+                targetVideoBitrate -= audioBitrate
+                factor = 0
+            else:
+                if factor > 0.1:
+                    factor -= 0.1
+                    print(f'Reducing factor by 10%')
+        else:
+            if factor > 0.1:
+                factor -= 0.1
+                print(f'Reducing factor by 10%')
+
     print(
         f"Attempt {attempt} --",
         f"original size: {'{:.2f}'.format(beforeSizeBytes/1024/1024)}MB,",
