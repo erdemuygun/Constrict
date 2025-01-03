@@ -296,15 +296,15 @@ while (factor > 1.0 + (tolerance / 100)) or (factor < 1):
 
     if (percentOfTarget > 100):
         # Prevent a lot of attempts resulting in above-target sizes
-        if (attempt == 1 and audioBitrate is None):
+        if (attempt == 1):
             audioBitrate = get_audio_bitrate(fileOutput)
-            # Output file may have audio bitrate info that input file didn't
-            # have (e.g. MKV -> MP4 conversion), so try getting and using this
-            # once.
+            # Output file may have an updated audio bitrate due to the codec
+            # change, so try to get and use this value once more.
             print(f'Output audio bitrate: {audioBitrate}')
             if (audioBitrate is not None):
                 targetVideoBitrate -= audioBitrate
                 factor = 0
+                print(f'Factor remains 0')
             else:
                 if factor > 0.1:
                     factor -= 0.1
