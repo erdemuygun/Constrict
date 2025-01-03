@@ -95,7 +95,7 @@ def get_framerate(fileInput):
         'ffprobe',
             '-v', '0',
             '-of',
-            'csv=p=0',
+            'default=noprint_wrappers=1:nokey=1',
             '-select_streams', 'v:0',
             '-show_entries',
             'stream=r_frame_rate',
