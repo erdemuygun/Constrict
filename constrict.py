@@ -177,18 +177,32 @@ def get_resolution(fileInput):
 
     return (width, height)
 
-def get_audio_bitrate(fileInput):
-    command = [
+"""
+Returns the audio bitrate of input file, once it's re-encoded with Opus codec.
+"""
+def get_audio_bitrate(fileInput, fileOutput):
+    transcodeCommand = [
+        'ffmpeg',
+            '-y',
+            '-i', fileInput,
+            '-vn',
+            '-c:a', 'libopus',
+            fileOutput
+    ]
+
+    subprocess.run(transcodeCommand, capture_output=True, text=True)
+
+    probeCommand = [
         'ffprobe',
             '-v', 'error',
             '-select_streams', 'a:0',
             '-show_entries', 'stream=bit_rate',
             '-of', 'default=noprint_wrappers=1:nokey=1',
-            fileInput
+            fileOutput
     ]
 
     try:
-        bitrateStr = subprocess.check_output(command)
+        bitrateStr = subprocess.check_output(probeCommand)
         return int(bitrateStr)
     except ValueError:
         print('Could not get valid bitrate.')
@@ -252,25 +266,15 @@ targetSizeBytes = targetSizeKB * 1024
 targetSizeBits = targetSizeBytes * 8
 durationSeconds = get_duration(args.file_path)
 
-targetBitrate = round(targetSizeBits / durationSeconds)
-targetVideoBitrate = targetBitrate
-audioBitrate = get_audio_bitrate(fileInput)
-
-"""
-Note: subtracting audio bitrate (of the input file) from target bitrate is a bit
-of guesswork at this stage of the script, because the audio bitrate will likely
-change when transcoding the file. Still, it's better than nothing for the first
-attempt, and it's still possible for the target to be reached in one try.
-Attempt 2+ of transcoding uses a more accurate target bitrate, since it uses the
-audio bitrate of Attempt 1's output file in its calculation.
-"""
+targetVideoBitrate = round(targetSizeBits / durationSeconds)
+audioBitrate = get_audio_bitrate(fileInput, fileOutput)
 
 if audioBitrate is None:
     print('No audio bitrate found')
 else:
     print(f'Audio bitrate: {audioBitrate}bps')
-    if (targetBitrate - audioBitrate >= 1000):
-        targetVideoBitrate = targetBitrate - audioBitrate
+    if (targetVideoBitrate - audioBitrate >= 1000):
+        targetVideoBitrate -= audioBitrate
         print('Subtracting audio bitrate from target video bitrate')
 
 beforeSizeBytes = os.stat(fileInput).st_size
@@ -318,23 +322,8 @@ while (factor > 1.0 + (tolerance / 100)) or (factor < 1):
 
     if (percentOfTarget > 100):
         # Prevent a lot of attempts resulting in above-target sizes
-        if (attempt == 1):
-            audioBitrate = get_audio_bitrate(fileOutput)
-            # Output file may have an updated audio bitrate due to the codec
-            # change, so try to get and use this value once more.
-            print(f'Output audio bitrate: {audioBitrate}')
-            if (audioBitrate is not None):
-                targetVideoBitrate = targetBitrate - audioBitrate
-                factor = 0
-                print(f'Factor remains 0')
-            else:
-                if factor > 0.1:
-                    factor -= 0.1
-                    print(f'Reducing factor by 10%')
-        else:
-            if factor > 0.1:
-                factor -= 0.1
-                print(f'Reducing factor by 10%')
+        factor -= 0.1
+        print(f'Reducing factor by 10%')
 
     print(
         f"Attempt {attempt} --",
