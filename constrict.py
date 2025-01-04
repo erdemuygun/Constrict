@@ -32,16 +32,16 @@ def get_res_preset(bitrate, sourceWidth, sourceHeight):
     print(f'kbps -- {bitrateKbps}')
     """
     Bitrate-resolution recommendations are taken from:
-    https://support.video.ibm.com/hc/en-us/articles/207852117-Internet-connection-and-recommended-encoding-settings
+    https://developers.google.com/media/vp9/settings/vod
     """
     bitrateResMap = {
-        14000 : -1, # Native
-        8000 : 2160, # 4K
-        4000 : 1080, # 1080p
-        1500 : 720, # 720p
-        1200 : 480, # 480p
-        800 : 360, # 360p
-        400 : 270, # 270p
+        12000 : 2160, # 4K
+        6000 : 1440, # 2K
+        1800 : 1080, # 1080p
+        1024 : 720, # 720p
+        512 : 480, # 480p
+        276 : 360, # 360p
+        150 : 240, # 240p
         0 : 144 # 144p
     }
 
@@ -77,18 +77,26 @@ def transcode(
 
     fpsFilter = '' if keepFramerate else ',fps=30'
 
+    cpuCount = os.cpu_count()
+    if cpuCount > 8:
+        cpuCount = 8 # VP9 encoder only supports up to 8 cores.
+
     command = [
         'ffmpeg',
             '-y',
             '-hide_banner',
             '-loglevel', 'error',
             '-i', fileInput,
-            '-b:v', str(bitrate) + '',
-            '-cpu-used', str(os.cpu_count()),
+            '-cpu-used', str(cpuCount),
             '-vf', f'scale={filterWidth}:{filterHeight}{fpsFilter}',
+            '-c:v', 'libvpx-vp9',
+            '-b:v', str(bitrate) + '',
+            '-minrate', str(bitrate * 0.5),
+            '-maxrate', str(bitrate * 1.45),
             '-c:a', 'libopus',
             fileOutput
     ]
+    print(" ".join(command))
     proc = subprocess.run(
         command,
         capture_output=True,
@@ -199,6 +207,8 @@ see about audio compression / changing sample rate?
 add HEVC support
 add support for bulk compression
 support more video formats
+add different preset resolutions for 60fps
+perhaps add a fast/slow option?
 """
 
 argParser = argparse.ArgumentParser("constrict")
@@ -242,14 +252,26 @@ targetSizeBytes = targetSizeKB * 1024
 targetSizeBits = targetSizeBytes * 8
 durationSeconds = get_duration(args.file_path)
 
-targetVideoBitrate = round(targetSizeBits / durationSeconds)
+targetBitrate = round(targetSizeBits / durationSeconds)
+targetVideoBitrate = targetBitrate
 audioBitrate = get_audio_bitrate(fileInput)
+
+"""
+Note: subtracting audio bitrate (of the input file) from target bitrate is a bit
+of guesswork at this stage of the script, because the audio bitrate will likely
+change when transcoding the file. Still, it's better than nothing for the first
+attempt, and it's still possible for the target to be reached in one try.
+Attempt 2+ of transcoding uses a more accurate target bitrate, since it uses the
+audio bitrate of Attempt 1's output file in its calculation.
+"""
 
 if audioBitrate is None:
     print('No audio bitrate found')
 else:
     print(f'Audio bitrate: {audioBitrate}bps')
-    targetVideoBitrate -= audioBitrate
+    if (targetBitrate - audioBitrate >= 1000):
+        targetVideoBitrate = targetBitrate - audioBitrate
+        print('Subtracting audio bitrate from target video bitrate')
 
 beforeSizeBytes = os.stat(fileInput).st_size
 
@@ -302,7 +324,7 @@ while (factor > 1.0 + (tolerance / 100)) or (factor < 1):
             # change, so try to get and use this value once more.
             print(f'Output audio bitrate: {audioBitrate}')
             if (audioBitrate is not None):
-                targetVideoBitrate -= audioBitrate
+                targetVideoBitrate = targetBitrate - audioBitrate
                 factor = 0
                 print(f'Factor remains 0')
             else:
