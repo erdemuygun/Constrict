@@ -77,33 +77,48 @@ def transcode(
 
     fpsFilter = '' if keepFramerate else ',fps=30'
 
-    cpuCount = os.cpu_count()
-    if cpuCount > 8:
-        cpuCount = 8 # VP9 encoder only supports up to 8 cores.
-
-    command = [
+    pass1Command = [
         'ffmpeg',
             '-y',
             '-hide_banner',
             '-loglevel', 'error',
             '-i', fileInput,
-            '-cpu-used', str(cpuCount),
+            '-row-mt', '1',
+            #'-deadline', 'realtime',
             '-vf', f'scale={filterWidth}:{filterHeight}{fpsFilter}',
             '-c:v', 'libvpx-vp9',
             '-b:v', str(bitrate) + '',
             '-minrate', str(bitrate * 0.5),
             '-maxrate', str(bitrate * 1.45),
+            '-pass', '1',
+            '-an',
+            '-f', 'null',
+            '/dev/null'
+    ]
+    print(" ".join(pass1Command))
+    subprocess.run(pass1Command, capture_output=True, text=True)
+
+    pass2Command = [
+        'ffmpeg',
+            '-y',
+            '-hide_banner',
+            '-loglevel', 'error',
+            '-i', fileInput,
+            '-row-mt', '1',
+            '-cpu-used', '8',
+            '-deadline', 'realtime',
+            '-vf', f'scale={filterWidth}:{filterHeight}{fpsFilter}',
+            '-c:v', 'libvpx-vp9',
+            '-b:v', str(bitrate) + '',
+            '-minrate', str(bitrate * 0.5),
+            '-maxrate', str(bitrate * 1.45),
+            '-pass', '2',
             '-c:a', 'libopus',
             fileOutput
     ]
-    print(" ".join(command))
-    proc = subprocess.run(
-        command,
-        capture_output=True,
-        # avoid having to explicitly encode
-        text=True
-    )
-    #print(proc.stdout)
+
+    print(" ".join(pass2Command))
+    subprocess.run(pass2Command, capture_output=True, text=True)
 
 def get_framerate(fileInput):
     command = [
@@ -216,13 +231,12 @@ add overwrite confirmation and argument
 change output file format
 check for when file size doesnt change
 add more error checking for very low target file sizes
-change framerate to 30fps by default
 see about audio compression / changing sample rate?
-add HEVC support
 add support for bulk compression
 support more video formats
 add different preset resolutions for 60fps
 perhaps add a fast/slow option?
+add 'keep resolution' argument?
 """
 
 argParser = argparse.ArgumentParser("constrict")
@@ -267,6 +281,7 @@ targetSizeBits = targetSizeBytes * 8
 durationSeconds = get_duration(args.file_path)
 
 targetVideoBitrate = round(targetSizeBits / durationSeconds)
+print(f'Target total bitrate: {targetVideoBitrate}bps')
 audioBitrate = get_audio_bitrate(fileInput, fileOutput)
 
 if audioBitrate is None:
@@ -276,6 +291,18 @@ else:
     if (targetVideoBitrate - audioBitrate >= 1000):
         targetVideoBitrate -= audioBitrate
         print('Subtracting audio bitrate from target video bitrate')
+
+targetVideoBitrate *= 0.99
+# To account for metadata and such... shouldn't try to use a bitrate EXACTLY on
+# target as it'll likely overshoot, and another attempt will have to be made.
+
+# if targetSizeMB < 25:
+    #targetVideoBitrate *= 0.95
+#     print('Bitrate lowered by 5%')
+    # Slightly lower bitrate target to account for file metadata and such.
+# elif targetSizeMB > 75:
+#     targetVideoBitrate *= 1.05
+#     print('Bitrate increased by 5%')
 
 beforeSizeBytes = os.stat(fileInput).st_size
 
