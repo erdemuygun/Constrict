@@ -52,6 +52,11 @@ def get_res_preset(bitrate, sourceWidth, sourceHeight):
 
     return -1
 
+def getProgress(fileInput, ffmpegCmd):
+    pvCmd = subprocess.Popen(['pv', fileInput], stdout=subprocess.PIPE)
+    ffmpegCmd = subprocess.check_output(ffmpegCmd, stdin=pvCmd.stdout)
+    pvCmd.wait()
+
 def transcode(
     fileInput,
     fileOutput,
@@ -82,7 +87,7 @@ def transcode(
             '-y',
             '-hide_banner',
             '-loglevel', 'error',
-            '-i', fileInput,
+            '-i', 'pipe:0',
             '-row-mt', '1',
             #'-deadline', 'realtime',
             '-vf', f'scale={filterWidth}:{filterHeight}{fpsFilter}',
@@ -96,14 +101,14 @@ def transcode(
             '/dev/null'
     ]
     print(" ".join(pass1Command))
-    subprocess.run(pass1Command, capture_output=True, text=True)
+    getProgress(fileInput, pass1Command)
 
     pass2Command = [
         'ffmpeg',
             '-y',
             '-hide_banner',
             '-loglevel', 'error',
-            '-i', fileInput,
+            '-i', 'pipe:0',
             '-row-mt', '1',
             '-cpu-used', '8',
             '-deadline', 'realtime',
@@ -118,7 +123,7 @@ def transcode(
     ]
 
     print(" ".join(pass2Command))
-    subprocess.run(pass2Command, capture_output=True, text=True)
+    getProgress(fileInput, pass2Command)
 
 def get_framerate(fileInput):
     command = [
