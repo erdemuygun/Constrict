@@ -29,7 +29,6 @@ If -1 is returned, then the video's source resolution is recommended.
 def get_res_preset(bitrate, sourceWidth, sourceHeight):
     sourceRes = sourceWidth * sourceHeight # Resolution in terms of pixel count
     bitrateKbps = bitrate / 1000 # Convert to kilobits
-    print(f'kbps -- {bitrateKbps}')
     """
     Bitrate-resolution recommendations are taken from:
     https://developers.google.com/media/vp9/settings/vod
@@ -50,9 +49,9 @@ def get_res_preset(bitrate, sourceWidth, sourceHeight):
         if bitrateKbps >= bitrateLowerBound and sourceRes >= presetRes:
             return widthPreset
 
-    return -1
+    return -2
 
-def getProgress(fileInput, ffmpegCmd):
+def get_progress(fileInput, ffmpegCmd):
     pvCmd = subprocess.Popen(['pv', fileInput], stdout=subprocess.PIPE)
     ffmpegCmd = subprocess.check_output(ffmpegCmd, stdin=pvCmd.stdout)
     pvCmd.wait()
@@ -61,25 +60,10 @@ def transcode(
     fileInput,
     fileOutput,
     bitrate,
-    sourceWidth,
-    sourceHeight,
+    width,
+    height,
     keepFramerate
 ):
-    resPresetHeight = get_res_preset(bitrate, sourceWidth, sourceHeight)
-    needsDownscaling = resPresetHeight != -1 # -1 means use native resolution
-
-    resPresetWidth = -1
-    if needsDownscaling:
-        scalingFactor = sourceHeight / resPresetHeight
-        resPresetWidthFloat = sourceWidth / scalingFactor
-        resPresetWidth = int(((resPresetWidthFloat + 1) // 2) * 2)
-                         # Keeps the width divisble by 2 for ffmpeg
-        print(f'Video will be shrunk to {resPresetHeight}p.')
-
-    portrait = sourceHeight > sourceWidth
-    filterWidth = resPresetHeight if portrait else resPresetWidth
-    filterHeight = resPresetWidth if portrait else resPresetHeight
-
     fpsFilter = '' if keepFramerate else ',fps=30'
 
     pass1Command = [
@@ -90,7 +74,7 @@ def transcode(
             '-i', 'pipe:0',
             '-row-mt', '1',
             #'-deadline', 'realtime',
-            '-vf', f'scale={filterWidth}:{filterHeight}{fpsFilter}',
+            '-vf', f'scale={width}:{height}{fpsFilter}',
             '-c:v', 'libvpx-vp9',
             '-b:v', str(bitrate) + '',
             '-minrate', str(bitrate * 0.5),
@@ -100,8 +84,9 @@ def transcode(
             '-f', 'null',
             '/dev/null'
     ]
-    print(" ".join(pass1Command))
-    getProgress(fileInput, pass1Command)
+    #print(" ".join(pass1Command))
+    print(f' Transcoding... (pass 1/2)')
+    get_progress(fileInput, pass1Command)
 
     pass2Command = [
         'ffmpeg',
@@ -112,7 +97,7 @@ def transcode(
             '-row-mt', '1',
             '-cpu-used', '8',
             '-deadline', 'realtime',
-            '-vf', f'scale={filterWidth}:{filterHeight}{fpsFilter}',
+            '-vf', f'scale={width}:{height}{fpsFilter}',
             '-c:v', 'libvpx-vp9',
             '-b:v', str(bitrate) + '',
             '-minrate', str(bitrate * 0.5),
@@ -122,8 +107,9 @@ def transcode(
             fileOutput
     ]
 
-    print(" ".join(pass2Command))
-    getProgress(fileInput, pass2Command)
+    #print(" ".join(pass2Command))
+    print(f' Transcoding... (pass 2/2)')
+    get_progress(fileInput, pass2Command)
 
 def get_framerate(fileInput):
     command = [
@@ -158,27 +144,6 @@ def clear_cached_file(filename):
     file = os.path.join(get_cache_dir(), filename)
     os.remove(file)
 
-def apply_30fps(fileInput):
-    fileOutput = os.path.join(get_cache_dir(), fileInput)
-
-    command = [
-        'ffmpeg',
-            '-i', fileInput,
-            '-filter:v', 'fps=30',
-            '-cpu-used', str(os.cpu_count()),
-            '-y',
-            fileOutput
-    ]
-
-    make_cache_dir()
-    print(f'cache file output: {fileOutput}')
-    proc = subprocess.run(
-        command,
-        capture_output=True,
-        text=True
-    )
-    return fileOutput
-
 def get_resolution(fileInput):
     command = [
         'ffprobe',
@@ -204,13 +169,16 @@ def get_audio_bitrate(fileInput, fileOutput):
     transcodeCommand = [
         'ffmpeg',
             '-y',
-            '-i', fileInput,
+            '-v', 'error',
+            '-i', 'pipe:0',
             '-vn',
             '-c:a', 'libopus',
             fileOutput
     ]
 
-    subprocess.run(transcodeCommand, capture_output=True, text=True)
+    display_heading('Getting audio bitrate...')
+    get_progress(fileInput, transcodeCommand)
+    #subprocess.run(transcodeCommand, capture_output=True, text=True)
 
     probeCommand = [
         'ffprobe',
@@ -225,8 +193,14 @@ def get_audio_bitrate(fileInput, fileOutput):
         bitrateStr = subprocess.check_output(probeCommand)
         return int(bitrateStr)
     except ValueError:
-        print('Could not get valid bitrate.')
-        return None
+        print(' Could not get valid bitrate.')
+        return 0
+
+def bold(text):
+    return f'\033[1m{text}\033[0m'
+
+def display_heading(text):
+    print(f':: {bold(text)}')
 
 """ TODO:
 check for non-existent files (or non-video files) -- exit 1 with error msg
@@ -242,6 +216,8 @@ support more video formats
 add different preset resolutions for 60fps
 perhaps add a fast/slow option?
 add 'keep resolution' argument?
+remove 'pv' command, as it doesn't work with all file types; find another way
+add table style to attempt results and all the rest of it
 """
 
 argParser = argparse.ArgumentParser("constrict")
@@ -286,16 +262,16 @@ targetSizeBits = targetSizeBytes * 8
 durationSeconds = get_duration(args.file_path)
 
 targetVideoBitrate = round(targetSizeBits / durationSeconds)
-print(f'Target total bitrate: {targetVideoBitrate}bps')
+#print(f'Target total bitrate: {targetVideoBitrate}bps')
 audioBitrate = get_audio_bitrate(fileInput, fileOutput)
 
 if audioBitrate is None:
-    print('No audio bitrate found')
+    print('\n No audio bitrate found')
 else:
-    print(f'Audio bitrate: {audioBitrate}bps')
+    print(f'\n Audio bitrate: {audioBitrate // 1000}Kbps')
     if (targetVideoBitrate - audioBitrate >= 1000):
         targetVideoBitrate -= audioBitrate
-        print('Subtracting audio bitrate from target video bitrate')
+        #print('Subtracting audio bitrate from target video bitrate')
 
 targetVideoBitrate *= 0.99
 # To account for metadata and such... shouldn't try to use a bitrate EXACTLY on
@@ -315,14 +291,16 @@ if beforeSizeBytes <= targetSizeBytes:
     sys.exit("File already meets the target size.")
 
 framerate = get_framerate(fileInput)
-print(f'framerate: {framerate}')
+#print(f'framerate: {framerate}')
 keepFramerate = framerate <= 30 or args.keep_framerate
-print(f'keep framerate: {keepFramerate}')
+#print(f'keep framerate: {keepFramerate}')
+targetFramerate = framerate if keepFramerate else 30
 
 width, height = get_resolution(fileInput)
-print(f'Resolution: {width}x{height}')
+#print(f'Resolution: {width}x{height}')
 pixels = width * height
-print(f'Total pixels: {pixels}')
+#print(f'Total pixels: {pixels}')
+portrait = width < height
 
 cacheOccupied = False
 
@@ -335,16 +313,34 @@ while (factor > 1.0 + (tolerance / 100)) or (factor < 1):
     if (targetVideoBitrate < 1000):
         if cacheOccupied:
             clear_cached_file(reducedFpsFile)
-        sys.exit(f"Bitrate got too low ({targetVideoBitrate}bps); aborting")
+        sys.exit(f"Bitrate got too low (<1000bps); aborting")
 
-    print(f"Attempt {attempt} -- transcoding {fileInput} at bitrate {targetVideoBitrate}bps")
+    targetHeight = -2
+    targetWidth = -2
+    displayedRes = None
+
+    if True: # if (!keep resolution), later on
+        targetHeight = get_res_preset(targetVideoBitrate, width, height)
+
+    if (targetHeight == -2):
+        displayedRes = width if portrait else height
+    else:
+        displayedRes = targetHeight
+
+        targetWidth = targetHeight if portrait else -2
+        targetHeight = -2 if portrait else targetHeight
+
+    print()
+    display_heading(f'(Attempt {attempt}) compressing to {targetVideoBitrate // 1000}Kbps / {displayedRes}@{targetFramerate}...')
+
+    #print(f"Attempt {attempt} -- transcoding {fileInput} at bitrate {targetVideoBitrate}bps")
 
     transcode(
         fileInput,
         fileOutput,
         targetVideoBitrate,
-        width,
-        height,
+        targetWidth,
+        targetHeight,
         keepFramerate
     )
     afterSizeBytes = os.stat(fileOutput).st_size
@@ -355,15 +351,13 @@ while (factor > 1.0 + (tolerance / 100)) or (factor < 1):
     if (percentOfTarget > 100):
         # Prevent a lot of attempts resulting in above-target sizes
         factor -= 0.1
-        print(f'Reducing factor by 10%')
+        #print(f'Reducing factor by 10%')
 
     print(
-        f"Attempt {attempt} --",
-        f"original size: {'{:.2f}'.format(beforeSizeBytes/1024/1024)}MB,",
-        f"new size: {'{:.2f}'.format(afterSizeBytes/1024/1024)}MB,",
-        f"percentage of target: {'{:.0f}'.format(percentOfTarget)}%,",
-        f"bitrate: {targetVideoBitrate}bps"
+        f"\n New Size: {'{:.2f}'.format(afterSizeBytes/1024/1024)}MB",
+        f"\n Percentage of Target: {'{:.0f}'.format(percentOfTarget)}%"
     )
 if cacheOccupied:
     clear_cached_file(reducedFpsFile)
-print(f"Completed in {attempt} attempts.")
+print(f"\nCompleted in {attempt} attempts.")
+
