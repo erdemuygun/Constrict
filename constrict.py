@@ -144,6 +144,39 @@ def clear_cached_file(filename):
     file = os.path.join(get_cache_dir(), filename)
     os.remove(file)
 
+def is_streamable(fileInput):
+    command = ['head', fileInput]
+    fileHead = subprocess.check_output(command)
+
+    moovBytes = 'moov'.encode('utf-8')
+    mdatBytes = 'mdat'.encode('utf-8')
+
+    #print(f'moov found: {moovBytes in fileHead}')
+    #print(f'mdat found: {mdatBytes in fileHead}')
+
+    if moovBytes not in fileHead:
+        return mdatBytes not in fileHead
+
+    # moov is now confirmed to be present
+
+    if mdatBytes not in fileHead:
+        return True
+
+    # mdia is now confirmed to be present
+
+    moovIndex = fileHead.index(moovBytes)
+    mdatIndex = fileHead.index(mdatBytes)
+
+    # print(moovIndex)
+    # print(mdatIndex)
+
+    # faststart enabled if 'moov' shows up before 'mdia'
+    return moovIndex < mdatIndex
+
+def make_streamable(fileInput, fileOutput):
+    command = ['qt-faststart', fileInput, fileOutput]
+    subprocess.run(command, stdout=subprocess.DEVNULL)
+
 def get_resolution(fileInput):
     command = [
         'ffprobe',
@@ -207,6 +240,7 @@ check for non-existent files (or non-video files) -- exit 1 with error msg
 allow different units for desired file size
 add input validation for arguments
 add overwrite confirmation and argument
+add 'source overwrite' mode: -o value same as input file path
 change output file format
 check for when file size doesnt change
 add more error checking for very low target file sizes
@@ -216,10 +250,14 @@ support more video formats
 add different preset resolutions for 60fps
 perhaps add a fast/slow option?
 add 'keep resolution' argument?
-remove 'pv' command, as it doesn't work with all file types; find another way
 add table style to attempt results and all the rest of it
 add 'general compression' mode - no target file size
 add time elapsed at the end.
+reconsider where log and streamable files go (output dir rather than PWD?)
+add verbosity options (GUI and quiet)
+don't use streamable temp file with quiet verbosity mode
+add overwrite-safe default file outputs (streamable file and compressed file)
+re-adjust bitrate re-calculation
 """
 
 argParser = argparse.ArgumentParser("constrict")
@@ -257,11 +295,21 @@ tolerance = args.tolerance or 10
 #print(f'Tolerance: {tolerance}')
 fileInput = args.file_path
 fileOutput = args.output or (fileInput + ".crushed.mp4")
-targetSizeMB = args.target_size
-targetSizeKB = targetSizeMB * 1024
-targetSizeBytes = targetSizeKB * 1024
+targetSizeMiB = args.target_size
+targetSizeKiB = targetSizeMiB * 1024
+targetSizeBytes = targetSizeKiB * 1024
 targetSizeBits = targetSizeBytes * 8
-durationSeconds = get_duration(args.file_path)
+durationSeconds = get_duration(fileInput)
+
+isInputStreamable = is_streamable(fileInput)
+streamableInput = 'streamable_input'
+
+if not isInputStreamable:
+    display_heading('Creating input stream...')
+    make_streamable(fileInput, streamableInput)
+    fileInput = streamableInput
+
+#print(f'Fast start enabled: {isInputStreamable}')
 
 targetVideoBitrate = round(targetSizeBits / durationSeconds)
 #print(f'Target total bitrate: {targetVideoBitrate}bps')
@@ -361,5 +409,8 @@ while (factor > 1.0 + (tolerance / 100)) or (factor < 1):
     )
 if cacheOccupied:
     clear_cached_file(reducedFpsFile)
+if not isInputStreamable:
+    os.remove(streamableInput)
+
 print(f"\nCompleted in {attempt} attempts.")
 
