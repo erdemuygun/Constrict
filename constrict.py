@@ -5,6 +5,7 @@ import os
 import argparse
 import struct
 import shutil
+import datetime
 
 def get_duration(fileInput):
     return float(
@@ -263,7 +264,6 @@ perhaps add a fast/slow option?
 add 'keep resolution' argument?
 add table style to attempt results and all the rest of it
 add 'general compression' mode - no target file size
-add time elapsed at the end.
 reconsider where log and streamable files go (output dir rather than PWD?)
 add verbosity options (GUI and quiet)
 don't use streamable temp file with quiet verbosity mode
@@ -300,6 +300,8 @@ argParser.add_argument(
     help='Keep the source framerate; do not lower to 30FPS'
 )
 args = argParser.parse_args()
+
+startTime = datetime.datetime.now().replace(microsecond=0)
 
 # Tolerance below 8mb
 tolerance = args.tolerance or 10
@@ -428,5 +430,7 @@ if cacheOccupied:
 if not isInputStreamable:
     os.remove(streamableInput)
 
-print(f"\nCompleted in {attempt} attempts.")
+timeTaken = datetime.datetime.now().replace(microsecond=0) - startTime
+print(f"\nCompleted in {timeTaken}.")
+
 
