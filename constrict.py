@@ -218,6 +218,8 @@ perhaps add a fast/slow option?
 add 'keep resolution' argument?
 remove 'pv' command, as it doesn't work with all file types; find another way
 add table style to attempt results and all the rest of it
+add 'general compression' mode - no target file size
+add time elapsed at the end.
 """
 
 argParser = argparse.ArgumentParser("constrict")
