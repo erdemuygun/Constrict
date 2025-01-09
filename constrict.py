@@ -26,14 +26,14 @@ upscaled or stretched resolution).
 
 If -1 is returned, then the video's source resolution is recommended.
 """
-def get_res_preset(bitrate, sourceWidth, sourceHeight):
+def get_res_preset(bitrate, sourceWidth, sourceHeight, framerate):
     sourceRes = sourceWidth * sourceHeight # Resolution in terms of pixel count
     bitrateKbps = bitrate / 1000 # Convert to kilobits
     """
     Bitrate-resolution recommendations are taken from:
     https://developers.google.com/media/vp9/settings/vod
     """
-    bitrateResMap = {
+    bitrateResMap30 = {
         12000 : 2160, # 4K
         6000 : 1440, # 2K
         1800 : 1080, # 1080p
@@ -43,6 +43,18 @@ def get_res_preset(bitrate, sourceWidth, sourceHeight):
         150 : 240, # 240p
         0 : 144 # 144p
     }
+    bitrateResMap60 = {
+        18000 : 2160, # 4K
+        9000 : 1440, # 2K
+        3000 : 1080, # 1080p
+        1800 : 720, # 720p
+        750 : 480, # 480p
+        276 : 360, # 360p
+        150 : 240, # 240p
+        0 : 144 # 144p
+    }
+
+    bitrateResMap = bitrateResMap30 if framerate <= 30 else bitrateResMap60
 
     for bitrateLowerBound, widthPreset in bitrateResMap.items():
         presetRes = widthPreset ** 2 * (16 / 9)
@@ -247,7 +259,6 @@ add more error checking for very low target file sizes
 see about audio compression / changing sample rate?
 add support for bulk compression
 support more video formats
-add different preset resolutions for 60fps
 perhaps add a fast/slow option?
 add 'keep resolution' argument?
 add table style to attempt results and all the rest of it
@@ -370,7 +381,12 @@ while (factor > 1.0 + (tolerance / 100)) or (factor < 1):
     displayedRes = None
 
     if True: # if (!keep resolution), later on
-        targetHeight = get_res_preset(targetVideoBitrate, width, height)
+        targetHeight = get_res_preset(
+            targetVideoBitrate,
+            width,
+            height,
+            targetFramerate
+        )
 
     if (targetHeight == -2):
         displayedRes = width if portrait else height
