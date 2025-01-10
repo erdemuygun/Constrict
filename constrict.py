@@ -25,7 +25,7 @@ a new, reduced bitrate for optimal perceived video quality. This function should
 not return a resolution preset larger than the source resolution (i.e. an
 upscaled or stretched resolution).
 
-If -1 is returned, then the video's source resolution is recommended.
+If -2 is returned, then the video's source resolution is recommended.
 """
 def get_res_preset(bitrate, sourceWidth, sourceHeight, framerate):
     sourceRes = sourceWidth * sourceHeight # Resolution in terms of pixel count
@@ -398,7 +398,7 @@ while (factor > 1.0 + (tolerance / 100)) or (factor < 1):
         targetHeight = -2 if portrait else targetHeight
 
     print()
-    display_heading(f'(Attempt {attempt}) compressing to {targetVideoBitrate // 1000}Kbps / {displayedRes}@{targetFramerate}...')
+    display_heading(f'(Attempt {attempt}) compressing to {targetVideoBitrate // 1000}Kbps / {displayedRes}p@{targetFramerate}...')
 
     #print(f"Attempt {attempt} -- transcoding {fileInput} at bitrate {targetVideoBitrate}bps")
 
