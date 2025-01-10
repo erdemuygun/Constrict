@@ -268,7 +268,6 @@ reconsider where log and streamable files go (output dir rather than PWD?)
 add verbosity options (GUI and quiet)
 don't use streamable temp file with quiet verbosity mode
 add overwrite-safe default file outputs (streamable file and compressed file)
-re-adjust bitrate re-calculation
 """
 
 argParser = argparse.ArgumentParser("constrict")
@@ -418,8 +417,8 @@ while (factor > 1.0 + (tolerance / 100)) or (factor < 1):
 
     if (percentOfTarget > 100):
         # Prevent a lot of attempts resulting in above-target sizes
-        factor -= 0.1
-        #print(f'Reducing factor by 10%')
+        factor -= 0.05
+        #print(f'Reducing factor by 5%')
 
     print(
         f"\n New Size: {'{:.2f}'.format(afterSizeBytes/1024/1024)}MB",
