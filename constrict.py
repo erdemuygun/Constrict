@@ -248,6 +248,30 @@ def bold(text):
 def display_heading(text):
     print(f':: {bold(text)}')
 
+def print_table(data):
+    maxKeyLen = 0
+    maxValueLen = 0
+
+    for row in data:
+        row[0] += ':'
+
+        if len(row[0]) > maxKeyLen:
+            maxKeyLen
+
+        maxKeyLen = len(row[0]) if len(row[0]) > maxKeyLen else maxKeyLen
+        maxValueLen = len(row[1]) if len(row[1]) > maxValueLen else maxValueLen
+
+    for row in data:
+        spacesToAdd = maxKeyLen - len(row[0])
+        for i in range(spacesToAdd):
+            row[0] += ' '
+
+        spacesToAdd = maxValueLen - len(row[1])
+        for i in range(spacesToAdd):
+            row[1] = ' ' + row[1]
+
+        print(f' {row[0]}  {row[1]}')
+
 """ TODO:
 check for non-existent files (or non-video files) -- exit 1 with error msg
 allow different units for desired file size
@@ -262,7 +286,6 @@ add support for bulk compression
 support more video formats
 perhaps add a fast/slow option?
 add 'keep resolution' argument?
-add table style to attempt results and all the rest of it
 add 'general compression' mode - no target file size
 reconsider where log and streamable files go (output dir rather than PWD?)
 add verbosity options (GUI and quiet)
@@ -420,10 +443,12 @@ while (factor > 1.0 + (tolerance / 100)) or (factor < 1):
         factor -= 0.05
         #print(f'Reducing factor by 5%')
 
-    print(
-        f"\n New Size: {'{:.2f}'.format(afterSizeBytes/1024/1024)}MB",
-        f"\n Percentage of Target: {'{:.0f}'.format(percentOfTarget)}%"
-    )
+    print()
+    print_table([
+        ['New Size', f"{'{:.2f}'.format(afterSizeBytes/1024/1024)}MB"],
+        ['Percentage of Target', f"{'{:.0f}'.format(percentOfTarget)}%"]
+    ])
+
 if cacheOccupied:
     clear_cached_file(reducedFpsFile)
 if not isInputStreamable:
