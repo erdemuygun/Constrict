@@ -295,6 +295,7 @@ reconsider where log and streamable files go (output dir rather than PWD?)
 add verbosity options (GUI and quiet)
 don't use streamable temp file with quiet verbosity mode
 add overwrite-safe default file outputs (streamable file and compressed file)
+Add check when video bitrate calculation goes over original bitrate
 """
 
 argParser = argparse.ArgumentParser("constrict")
@@ -356,7 +357,28 @@ if not isInputStreamable:
 
 #print(f'Fast start enabled: {isInputStreamable}')
 
-targetVideoBitrate = round(targetSizeBits / durationSeconds)
+# A method to try to reduce number of attempts taken to compress a file.
+# These hardcoded values are based on a 185MiB video I compressed to various
+# target sizes. They will later be changed to percentages or a formula (TODO).
+shrunkSize = targetSizeBits
+if targetSizeMiB < 18:
+    print('shrinking by 10%')
+    shrunkSize *= 0.9
+elif targetSizeMiB > 160:
+    print('increasing by 30%')
+    targetSizeMiB *= 1.3
+elif targetSizeMiB > 85:
+    print('increasing by 30%')
+    shrunkSize *= 1.3
+elif targetSizeMiB > 52:
+    print('increasing by 20%')
+    shrunkSize *= 1.2
+elif targetSizeMiB > 30:
+    print('increasing by 10%')
+    shrunkSize *= 1.1
+
+targetVideoBitrate = round(shrunkSize / durationSeconds)
+
 #print(f'Target total bitrate: {targetVideoBitrate}bps')
 audioBitrate = get_audio_bitrate(fileInput, fileOutput)
 
