@@ -75,7 +75,8 @@ def transcode(
     bitrate,
     width,
     height,
-    keepFramerate
+    keepFramerate,
+    extraQuality
 ):
     fpsFilter = '' if keepFramerate else ',fps=30'
 
@@ -101,6 +102,9 @@ def transcode(
     print(f' Transcoding... (pass 1/2)')
     get_progress(fileInput, pass1Command)
 
+    deadline = 'good' if extraQuality else 'realtime'
+    cpuUsed = '0' if extraQuality else '8'
+
     pass2Command = [
         'ffmpeg',
             '-y',
@@ -108,8 +112,8 @@ def transcode(
             '-loglevel', 'error',
             '-i', 'pipe:0',
             '-row-mt', '1',
-            '-cpu-used', '8',
-            '-deadline', 'realtime',
+            '-cpu-used', cpuUsed,
+            '-deadline', deadline,
             '-vf', f'scale={width}:{height}{fpsFilter}',
             '-c:v', 'libvpx-vp9',
             '-b:v', str(bitrate) + '',
@@ -321,6 +325,11 @@ argParser.add_argument(
     action='store_true',
     help='Keep the source framerate; do not lower to 30FPS'
 )
+argParser.add_argument(
+    '--extra-quality',
+    action='store_true',
+    help='Increase image quality at the cost of longer encoding times'
+)
 args = argParser.parse_args()
 
 startTime = datetime.datetime.now().replace(microsecond=0)
@@ -335,6 +344,7 @@ targetSizeKiB = targetSizeMiB * 1024
 targetSizeBytes = targetSizeKiB * 1024
 targetSizeBits = targetSizeBytes * 8
 durationSeconds = get_duration(fileInput)
+extraQuality = args.extra_quality
 
 isInputStreamable = is_streamable(fileInput)
 streamableInput = 'streamable_input'
@@ -431,7 +441,8 @@ while (factor > 1.0 + (tolerance / 100)) or (factor < 1):
         targetVideoBitrate,
         targetWidth,
         targetHeight,
-        keepFramerate
+        keepFramerate,
+        extraQuality
     )
     afterSizeBytes = os.stat(fileOutput).st_size
     percentOfTarget = (100 / targetSizeBytes) * afterSizeBytes
