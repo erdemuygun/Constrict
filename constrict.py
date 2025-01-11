@@ -357,24 +357,33 @@ if not isInputStreamable:
 
 #print(f'Fast start enabled: {isInputStreamable}')
 
+beforeSizeBytes = os.stat(fileInput).st_size
+
+if beforeSizeBytes <= targetSizeBytes:
+    sys.exit("File already meets the target size.")
+
+reductionFactor = targetSizeBytes / beforeSizeBytes
+
 # A method to try to reduce number of attempts taken to compress a file.
 # These hardcoded values are based on a 185MiB video I compressed to various
-# target sizes. They will later be changed to percentages or a formula (TODO).
+# target sizes, seeing where the compression would start to go over the target
+# size or under the target size with 10% tolerance.
+
 shrunkSize = targetSizeBits
-if targetSizeMiB < 18:
-    print('shrinking by 10%')
+if reductionFactor < (18 / 185):
+    print('reducing target by 10%')
     shrunkSize *= 0.9
-elif targetSizeMiB > 160:
-    print('increasing by 30%')
-    targetSizeMiB *= 1.3
-elif targetSizeMiB > 85:
-    print('increasing by 30%')
+# elif reductionFactor > (160 / 185):
+#     print('increasing by 30%')
+#     targetSizeMiB *= 1.3
+elif reductionFactor > (85 / 185):
+    print('increasing target by 30%')
     shrunkSize *= 1.3
-elif targetSizeMiB > 52:
-    print('increasing by 20%')
+elif reductionFactor > (52 / 185):
+    print('increasing target by 20%')
     shrunkSize *= 1.2
-elif targetSizeMiB > 30:
-    print('increasing by 10%')
+elif reductionFactor > (30 / 185):
+    print('increasing target by 10%')
     shrunkSize *= 1.1
 
 targetVideoBitrate = round(shrunkSize / durationSeconds)
@@ -401,11 +410,6 @@ targetVideoBitrate *= 0.99
 # elif targetSizeMB > 75:
 #     targetVideoBitrate *= 1.05
 #     print('Bitrate increased by 5%')
-
-beforeSizeBytes = os.stat(fileInput).st_size
-
-if beforeSizeBytes <= targetSizeBytes:
-    sys.exit("File already meets the target size.")
 
 framerate = get_framerate(fileInput)
 #print(f'framerate: {framerate}')
