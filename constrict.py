@@ -25,7 +25,7 @@ a new, reduced bitrate for optimal perceived video quality. This function should
 not return a resolution preset larger than the source resolution (i.e. an
 upscaled or stretched resolution).
 
-If -2 is returned, then the video's source resolution is recommended.
+-If -1 is returned, then the video's source resolution is recommended.
 """
 def get_res_preset(bitrate, sourceWidth, sourceHeight, framerate):
     sourceRes = sourceWidth * sourceHeight # Resolution in terms of pixel count
@@ -57,12 +57,15 @@ def get_res_preset(bitrate, sourceWidth, sourceHeight, framerate):
 
     bitrateResMap = bitrateResMap30 if framerate <= 30 else bitrateResMap60
 
-    for bitrateLowerBound, widthPreset in bitrateResMap.items():
-        presetRes = widthPreset ** 2 * (16 / 9)
+    for bitrateLowerBound, heightPreset in bitrateResMap.items():
+        presetRes = heightPreset ** 2 * (16 / 9)
         if bitrateKbps >= bitrateLowerBound and sourceRes >= presetRes:
-            return widthPreset
+            return heightPreset
 
-    return -2
+    return -1
+
+def get_encoding_speed(frameHeight):
+    return '2' if frameHeight > 480 else '1'
 
 def get_progress(fileInput, ffmpegCmd):
     pvCmd = subprocess.Popen(['pv', fileInput], stdout=subprocess.PIPE)
@@ -87,7 +90,8 @@ def transcode(
             '-loglevel', 'error',
             '-i', 'pipe:0',
             '-row-mt', '1',
-            #'-deadline', 'realtime',
+            '-deadline', 'good',
+            '-cpu-used', '4',
             '-vf', f'scale={width}:{height}{fpsFilter}',
             '-c:v', 'libvpx-vp9',
             '-b:v', str(bitrate) + '',
@@ -98,12 +102,16 @@ def transcode(
             '-f', 'null',
             '/dev/null'
     ]
-    #print(" ".join(pass1Command))
+    print(" ".join(pass1Command))
     print(f' Transcoding... (pass 1/2)')
     get_progress(fileInput, pass1Command)
 
-    deadline = 'good' if extraQuality else 'realtime'
-    cpuUsed = '0' if extraQuality else '8'
+    portrait = height > width
+    frameHeight = width if portrait else height
+
+    print(f' frame height: {frameHeight}')
+
+    cpuUsed = get_encoding_speed(frameHeight) if extraQuality else '4'
 
     pass2Command = [
         'ffmpeg',
@@ -112,8 +120,8 @@ def transcode(
             '-loglevel', 'error',
             '-i', 'pipe:0',
             '-row-mt', '1',
+            '-deadline', 'good',
             '-cpu-used', cpuUsed,
-            '-deadline', deadline,
             '-vf', f'scale={width}:{height}{fpsFilter}',
             '-c:v', 'libvpx-vp9',
             '-b:v', str(bitrate) + '',
@@ -124,7 +132,7 @@ def transcode(
             fileOutput
     ]
 
-    #print(" ".join(pass2Command))
+    print(" ".join(pass2Command))
     print(f' Transcoding... (pass 2/2)')
     get_progress(fileInput, pass2Command)
 
@@ -296,6 +304,8 @@ add verbosity options (GUI and quiet)
 don't use streamable temp file with quiet verbosity mode
 add overwrite-safe default file outputs (streamable file and compressed file)
 Add check when video bitrate calculation goes over original bitrate
+change how tolerance works
+change res preset function to use full width*height resolutions
 """
 
 argParser = argparse.ArgumentParser("constrict")
@@ -367,7 +377,10 @@ reductionFactor = targetSizeBytes / beforeSizeBytes
 # A method to try to reduce number of attempts taken to compress a file.
 # These hardcoded values are based on a 185MiB video I compressed to various
 # target sizes, seeing where the compression would start to go over the target
-# size or under the target size with 10% tolerance.
+# size or under the target size with 10% tolerance. Anyone with a more
+# sophisticated solution to this is welcome to submit a pull request.
+
+# TODO: revisit this (esp. with extra quality mode and keep framerate)
 
 shrunkSize = targetSizeBits
 if reductionFactor < (18 / 185):
@@ -436,25 +449,29 @@ while (factor > 1.0 + (tolerance / 100)) or (factor < 1):
             clear_cached_file(reducedFpsFile)
         sys.exit(f"Bitrate got too low (<1000bps); aborting")
 
-    targetHeight = -2
-    targetWidth = -2
-    displayedRes = None
+    targetHeight = height
+    targetWidth = width
 
     if True: # if (!keep resolution), later on
-        targetHeight = get_res_preset(
+        presetHeight = get_res_preset(
             targetVideoBitrate,
             width,
             height,
             targetFramerate
         )
 
-    if (targetHeight == -2):
-        displayedRes = width if portrait else height
-    else:
-        displayedRes = targetHeight
+        if presetHeight != -1: # If being downscaled:
+            targetHeight = presetHeight
+            scalingFactor = height / targetHeight
+            targetWidth = int(((width / scalingFactor + 1) // 2) * 2)
 
-        targetWidth = targetHeight if portrait else -2
-        targetHeight = -2 if portrait else targetHeight
+            if portrait:
+                # Swap height and width
+                buffer = targetWidth
+                targetWidth = targetHeight
+                targetHeight = buffer
+
+    displayedRes = targetWidth if portrait else targetHeight
 
     print()
     display_heading(f'(Attempt {attempt}) compressing to {targetVideoBitrate // 1000}Kbps / {displayedRes}p@{targetFramerate}...')
