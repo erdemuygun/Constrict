@@ -28,39 +28,40 @@ upscaled or stretched resolution).
 -If -1 is returned, then the video's source resolution is recommended.
 """
 def get_res_preset(bitrate, sourceWidth, sourceHeight, framerate):
-    sourceRes = sourceWidth * sourceHeight # Resolution in terms of pixel count
+    sourcePixels = sourceWidth * sourceHeight # Get pixel count
     bitrateKbps = bitrate / 1000 # Convert to kilobits
     """
     Bitrate-resolution recommendations are taken from:
     https://developers.google.com/media/vp9/settings/vod
     """
     bitrateResMap30 = {
-        12000 : 2160, # 4K
-        6000 : 1440, # 2K
-        1800 : 1080, # 1080p
-        1024 : 720, # 720p
-        512 : 480, # 480p
-        276 : 360, # 360p
-        150 : 240, # 240p
-        0 : 144 # 144p
+        12000 : (3840, 2160), # 4K
+        6000 : (2560, 1440), # 2K
+        1800 : (1920, 1080), # 1080p
+        1024 : (1280, 720), # 720p
+        512 : (640, 480), # 480p
+        276 : (640, 360), # 360p
+        150 : (320, 240), # 240p
+        0 : (144, 192) # 144p
     }
     bitrateResMap60 = {
-        18000 : 2160, # 4K
-        9000 : 1440, # 2K
-        3000 : 1080, # 1080p
-        1800 : 720, # 720p
-        750 : 480, # 480p
-        276 : 360, # 360p
-        150 : 240, # 240p
-        0 : 144 # 144p
+        18000 : (3840, 2160), # 4K
+        9000 : (2560, 1440), # 2K
+        3000 : (1920, 1080), # 1080p
+        1800 : (1280, 720), # 720p
+        750 : (640, 480), # 480p
+        276 : (640, 360), # 360p
+        150 : (320, 240), # 240p
+        0 : (144, 192) # 144p
     }
 
     bitrateResMap = bitrateResMap30 if framerate <= 30 else bitrateResMap60
 
-    for bitrateLowerBound, heightPreset in bitrateResMap.items():
-        presetRes = heightPreset ** 2 * (16 / 9)
-        if bitrateKbps >= bitrateLowerBound and sourceRes >= presetRes:
-            return heightPreset
+    for bitrateLowerBound, resPreset in bitrateResMap.items():
+        presetWidth, presetHeight = resPreset[0], resPreset[1]
+        presetPixels = presetWidth * presetHeight
+        if bitrateKbps >= bitrateLowerBound and sourcePixels >= presetPixels:
+            return presetHeight
 
     return -1
 
