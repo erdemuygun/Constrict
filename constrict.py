@@ -61,7 +61,7 @@ def get_res_preset(bitrate, sourceWidth, sourceHeight, framerate):
         512 : (640, 480), # 480p
         276 : (640, 360), # 360p
         150 : (320, 240), # 240p
-        0 : (144, 192) # 144p
+        0 : (192, 144) # 144p
     }
     bitrateResMap60 = {
         18000 : (3840, 2160), # 4K
@@ -71,7 +71,7 @@ def get_res_preset(bitrate, sourceWidth, sourceHeight, framerate):
         750 : (640, 480), # 480p
         276 : (640, 360), # 360p
         150 : (320, 240), # 240p
-        0 : (144, 192) # 144p
+        0 : (192, 144) # 144p
     }
 
     bitrateResMap = bitrateResMap30 if framerate <= 30 else bitrateResMap60
@@ -488,6 +488,8 @@ while (factor > 1.0 + (tolerance / 100)) or (factor < 1):
             height,
             targetFramerate
         )
+
+        print(f'Target height {presetHeight}')
 
         if presetHeight != -1: # If being downscaled:
             targetHeight = presetHeight
