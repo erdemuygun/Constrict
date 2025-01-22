@@ -19,6 +19,25 @@ def get_duration(fileInput):
     )
 
 """
+Returns a unique file path for the file path given. Ensures that no file is
+overwritten, as if the input file path already exists, the file path output
+will be in the form of '{file_root}-{n}{file_ext}' where n incremented with every
+existing file in the directory.
+
+Do not use if you *want* to overwrite something.
+"""
+def new_file(file_path):
+    final_path = file_path
+    root_ext = os.path.splitext(file_path)
+
+    counter = 0
+    while os.path.exists(final_path):
+        counter += 1
+        final_path = f'{root_ext[0]}-{counter}{root_ext[1]}'
+
+    return(final_path)
+
+"""
 Returns a suitable resolution preset (i.e. 1080p, 720p, etc.) from a given
 bitrate and source resolution. Allows source videos to be shrunk according to
 a new, reduced bitrate for optimal perceived video quality. This function should
@@ -350,7 +369,12 @@ startTime = datetime.datetime.now().replace(microsecond=0)
 tolerance = args.tolerance or 10
 #print(f'Tolerance: {tolerance}')
 fileInput = args.file_path
-fileOutput = args.output or (fileInput + ".crushed.mp4")
+fileOutput = args.output
+
+if fileOutput == None: # i.e., if -o hasn't been passed
+    root_ext = os.path.splitext(fileInput)
+    fileOutput = new_file(f'{root_ext[0]} (compressed){root_ext[1]}')
+
 targetSizeMiB = args.target_size
 targetSizeKiB = targetSizeMiB * 1024
 targetSizeBytes = targetSizeKiB * 1024
@@ -363,6 +387,10 @@ streamableInput = 'streamable_input'
 
 if not isInputStreamable:
     display_heading('Creating input stream...')
+
+    root_ext = os.path.splitext(fileInput)
+    streamableInput = new_file(f'{root_ext[0]}-stream{root_ext[1]}')
+
     make_streamable(fileInput, streamableInput)
     fileInput = streamableInput
 
