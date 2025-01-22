@@ -411,24 +411,24 @@ reductionFactor = targetSizeBytes / beforeSizeBytes
 
 # TODO: revisit this (esp. with extra quality mode and keep framerate)
 
-shrunkSize = targetSizeBits
-if reductionFactor < (18 / 185):
-    print('reducing target by 10%')
-    shrunkSize *= 0.9
+# shrunkSize = targetSizeBits
+# if reductionFactor < (18 / 185):
+#     print('reducing target by 10%')
+#     shrunkSize *= 0.9
 # elif reductionFactor > (160 / 185):
 #     print('increasing by 30%')
 #     targetSizeMiB *= 1.3
-elif reductionFactor > (85 / 185):
-    print('increasing target by 30%')
-    shrunkSize *= 1.3
-elif reductionFactor > (52 / 185):
-    print('increasing target by 20%')
-    shrunkSize *= 1.2
-elif reductionFactor > (30 / 185):
-    print('increasing target by 10%')
-    shrunkSize *= 1.1
+# elif reductionFactor > (85 / 185):
+#     print('increasing target by 30%')
+#     shrunkSize *= 1.3
+# elif reductionFactor > (52 / 185):
+#     print('increasing target by 20%')
+#     shrunkSize *= 1.2
+# elif reductionFactor > (30 / 185):
+#     print('increasing target by 10%')
+#     shrunkSize *= 1.1
 
-targetVideoBitrate = round(shrunkSize / durationSeconds)
+targetVideoBitrate = round(targetSizeBits / durationSeconds)
 
 #print(f'Target total bitrate: {targetVideoBitrate}bps')
 audioBitrate = get_audio_bitrate(fileInput, fileOutput)
