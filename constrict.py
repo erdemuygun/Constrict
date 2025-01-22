@@ -373,7 +373,7 @@ fileOutput = args.output
 
 if fileOutput == None: # i.e., if -o hasn't been passed
     root_ext = os.path.splitext(fileInput)
-    fileOutput = new_file(f'{root_ext[0]} (compressed){root_ext[1]}')
+    fileOutput = new_file(f'{root_ext[0]} (compressed).mp4')
 
 targetSizeMiB = args.target_size
 targetSizeKiB = targetSizeMiB * 1024
