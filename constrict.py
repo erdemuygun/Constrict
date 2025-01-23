@@ -110,13 +110,13 @@ def transcode(
             '-loglevel', 'error',
             '-i', 'pipe:0',
             '-row-mt', '1',
-            '-deadline', 'good',
-            '-cpu-used', '4',
+            '-frame-parallel', '1',
+            #'-deadline', 'good',
+            #'-cpu-used', '4',
+            #'-threads', '24',
             '-vf', f'scale={width}:{height}{fpsFilter}',
-            '-c:v', 'libvpx-vp9',
+            '-c:v', 'libx264',
             '-b:v', str(bitrate) + '',
-            '-minrate', str(bitrate * 0.5),
-            '-maxrate', str(bitrate * 1.45),
             '-pass', '1',
             '-an',
             '-f', 'null',
@@ -140,15 +140,18 @@ def transcode(
             '-loglevel', 'error',
             '-i', 'pipe:0',
             '-row-mt', '1',
-            '-deadline', 'good',
-            '-cpu-used', cpuUsed,
+            '-frame-parallel', '1',
+            #'-threads', '24',
+            #'-deadline', 'good',
+            #'-cpu-used', cpuUsed,
             '-vf', f'scale={width}:{height}{fpsFilter}',
-            '-c:v', 'libvpx-vp9',
+            '-c:v', 'libx264',
             '-b:v', str(bitrate) + '',
-            '-minrate', str(bitrate * 0.5),
-            '-maxrate', str(bitrate * 1.45),
             '-pass', '2',
+            #'-x265-params', 'pass=1',
             '-c:a', 'libopus',
+            #'-b:a', '6k',
+            #'-ac', '1',
             fileOutput
     ]
 
@@ -251,6 +254,7 @@ def get_audio_bitrate(fileInput, fileOutput):
             '-i', 'pipe:0',
             '-vn',
             '-c:a', 'libopus',
+            #'-b:a', '12k',
             fileOutput
     ]
 
@@ -326,6 +330,7 @@ add overwrite-safe default file outputs (streamable file and compressed file)
 Add check when video bitrate calculation goes over original bitrate
 change how tolerance works
 change res preset function to use full width*height resolutions
+add AV1 option parameter
 """
 
 argParser = argparse.ArgumentParser("constrict")
