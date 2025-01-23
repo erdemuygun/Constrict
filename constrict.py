@@ -99,7 +99,8 @@ def transcode(
     width,
     height,
     keepFramerate,
-    extraQuality
+    extraQuality,
+    crush_audio
 ):
     fpsFilter = '' if keepFramerate else ',fps=30'
 
@@ -149,12 +150,13 @@ def transcode(
             '-b:v', str(bitrate) + '',
             '-pass', '2',
             #'-x265-params', 'pass=1',
-            '-c:a', 'libopus',
+            '-c:a', 'libopus'
             #'-b:a', '6k',
             #'-ac', '1',
-            fileOutput
     ]
-
+    if crush_audio:
+        pass2Command.extend(['-b:a', '6k', '-ac', '1'])
+    pass2Command.append(fileOutput)
     print(" ".join(pass2Command))
     print(f' Transcoding... (pass 2/2)')
     get_progress(fileInput, pass2Command)
@@ -331,6 +333,13 @@ Add check when video bitrate calculation goes over original bitrate
 change how tolerance works
 change res preset function to use full width*height resolutions
 add AV1 option parameter
+inhibit suspend while running
+mess around with different presets for h264
+fix variable naming conventions
+get rid of all this unused and commented out code
+investigate error messages and performance further
+use some kind of maths magic to reduce number of attempts at low file sizes
+further reduce framerate at 144p
 """
 
 argParser = argparse.ArgumentParser("constrict")
@@ -433,10 +442,19 @@ reductionFactor = targetSizeBytes / beforeSizeBytes
 #     print('increasing target by 10%')
 #     shrunkSize *= 1.1
 
-targetVideoBitrate = round(targetSizeBits / durationSeconds)
+targetTotalBitrate = round(targetSizeBits / durationSeconds)
+targetVideoBitrate = targetTotalBitrate
+audioBitrate = None
 
-#print(f'Target total bitrate: {targetVideoBitrate}bps')
-audioBitrate = get_audio_bitrate(fileInput, fileOutput)
+crush_mode = False
+
+if (targetTotalBitrate / 1000) < 150: # If target bitrate less than 150Kbps:
+    audioBitrate = 6000
+    crush_mode = True
+else:
+    audioBitrate = get_audio_bitrate(fileInput, fileOutput)
+
+#print(f'Target total bitrate: {targetTotalBitrate}bps')
 
 if audioBitrate is None:
     print('\n No audio bitrate found')
@@ -494,6 +512,9 @@ while (factor > 1.0 + (tolerance / 100)) or (factor < 1):
             targetFramerate
         )
 
+        if presetHeight <= 144:
+            crush_mode = True
+
         print(f'Target height {presetHeight}')
 
         if presetHeight != -1: # If being downscaled:
@@ -521,7 +542,8 @@ while (factor > 1.0 + (tolerance / 100)) or (factor < 1):
         targetWidth,
         targetHeight,
         keepFramerate,
-        extraQuality
+        extraQuality,
+        crush_mode
     )
     afterSizeBytes = os.stat(fileOutput).st_size
     percentOfTarget = (100 / targetSizeBytes) * afterSizeBytes
