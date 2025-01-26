@@ -354,8 +354,13 @@ inhibit suspend while running
 get rid of all this unused and commented out code
 investigate error messages and performance further
 use some kind of maths magic to reduce number of attempts at low file sizes
+improve bitrate recalculation, change from simple multiplication (!!)
 further reduce framerate at 144p
 add ffmpeg tune options maybe?
+readjust audio bitrate calculation (no scanning)
+check calculations for bitrate etc. are correct (i.e. MiB vs MB etc)
+add checkers for codecs
+clean up ffmpeg 2pass logs after compression
 """
 
 arg_parser = argparse.ArgumentParser("constrict")
