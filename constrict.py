@@ -96,7 +96,8 @@ def get_res_preset(bitrate, source_width, source_height, framerate):
 
 
 def get_encoding_speed(frame_height):
-    return '2' if frame_height > 480 else '1'
+    return 'medium' if frame_height > 480 else 'slower'  # H.264 version
+    # return '2' if frame_height > 480 else '1'  # VP9 version
 
 
 def get_progress(file_input, ffmpeg_cmd):
@@ -115,6 +116,12 @@ def transcode(
     extra_quality,
     crush_audio
 ):
+    portrait = height > width
+    frame_height = width if portrait else height
+
+    print(f' frame height: {frame_height}')
+
+    preset = get_encoding_speed(frame_height)
     fps_filter = '' if keep_framerate else ',fps=30'
 
     pass1_cmd = [
@@ -125,6 +132,7 @@ def transcode(
         '-i', 'pipe:0',
         '-row-mt', '1',
         '-frame-parallel', '1',
+        '-preset', f'{preset}',
         # '-deadline', 'good',
         # '-cpu-used', '4',
         # '-threads', '24',
@@ -140,12 +148,7 @@ def transcode(
     print(' Transcoding... (pass 1/2)')
     get_progress(file_input, pass1_cmd)
 
-    portrait = height > width
-    frame_height = width if portrait else height
-
-    print(f' frame height: {frame_height}')
-
-    cpu_used = get_encoding_speed(frame_height) if extra_quality else '4'
+    # cpu_used = get_encoding_speed(frame_height) if extra_quality else '4'
 
     pass2_cmd = [
         'ffmpeg',
@@ -155,6 +158,7 @@ def transcode(
         '-i', 'pipe:0',
         '-row-mt', '1',
         '-frame-parallel', '1',
+        '-preset', f'{preset}',
         # '-threads', '24',
         # '-deadline', 'good',
         # '-cpu-used', cpuUsed,
@@ -347,12 +351,11 @@ change how tolerance works
 change res preset function to use full width*height resolutions
 add AV1 option parameter
 inhibit suspend while running
-mess around with different presets for h264
-fix variable naming conventions
 get rid of all this unused and commented out code
 investigate error messages and performance further
 use some kind of maths magic to reduce number of attempts at low file sizes
 further reduce framerate at 144p
+add ffmpeg tune options maybe?
 """
 
 arg_parser = argparse.ArgumentParser("constrict")
