@@ -112,7 +112,7 @@ def transcode(
     bitrate,
     width,
     height,
-    keep_framerate,
+    framerate,
     extra_quality,
     crush_audio
 ):
@@ -122,7 +122,7 @@ def transcode(
     print(f' frame height: {frame_height}')
 
     preset = get_encoding_speed(frame_height)
-    fps_filter = '' if keep_framerate else ',fps=30'
+    fps_filter = '' if framerate == -1 else f',fps={framerate}'
 
     pass1_cmd = [
         'ffmpeg',
@@ -361,6 +361,7 @@ readjust audio bitrate calculation (no scanning)
 check calculations for bitrate etc. are correct (i.e. MiB vs MB etc)
 add checkers for codecs
 clean up ffmpeg 2pass logs after compression
+change 'keep-framerate' to 'prefer-smoothness' and lock to 60 FPS
 """
 
 arg_parser = argparse.ArgumentParser("constrict")
@@ -485,6 +486,9 @@ else:
         target_video_bitrate -= audio_bitrate
         #  print('Subtracting audio bitrate from target video bitrate')
 
+if crush_mode:
+    print('Target should be adjusted here...')
+
 target_video_bitrate *= 0.99
 # To account for metadata and such... shouldn't try to use a bitrate EXACTLY on
 # target as it'll likely overshoot, and another attempt will have to be made.
@@ -497,12 +501,7 @@ target_video_bitrate *= 0.99
 #     target_video_bitrate *= 1.05
 #     print('Bitrate increased by 5%')
 
-framerate = get_framerate(file_input)
-# print(f'framerate: {framerate}')
-keep_framerate = framerate <= 30 or args.keep_framerate
-# print(f'keep framerate: {keep_framerate}')
-target_framerate = framerate if keep_framerate else 30
-
+source_fps = get_framerate(file_input)
 width, height = get_resolution(file_input)
 # print(f'Resolution: {width}x{height}')
 pixels = width * height
@@ -521,16 +520,20 @@ while (factor > 1.0 + (tolerance / 100)) or (factor < 1):
     target_height = height
     target_width = width
 
+    if (target_video_bitrate / 1000) <= 150:  # If vid bitrate 150Kbps or less
+        crush_mode = True
+
+    compressed_fps = 24 if crush_mode else 30
+    keep_fps = source_fps <= compressed_fps or args.keep_framerate
+    target_fps = source_fps if keep_fps else compressed_fps
+
     if True:  # if (!keep resolution), later on
         preset_height = get_res_preset(
             target_video_bitrate,
             width,
             height,
-            target_framerate
+            target_fps
         )
-
-        if preset_height <= 144:
-            crush_mode = True
 
         print(f'Target height {preset_height}')
 
@@ -551,7 +554,7 @@ while (factor > 1.0 + (tolerance / 100)) or (factor < 1):
     display_heading((
         f'(Attempt {attempt}) '
         f'compressing to {target_video_bitrate // 1000}Kbps / '
-        f'{displayed_res}p@{target_framerate}...'
+        f'{displayed_res}p@{target_fps}...'
     ))
 
     transcode(
@@ -560,7 +563,7 @@ while (factor > 1.0 + (tolerance / 100)) or (factor < 1):
         target_video_bitrate,
         target_width,
         target_height,
-        keep_framerate,
+        -1 if keep_fps else target_fps,
         extra_quality,
         crush_mode
     )
