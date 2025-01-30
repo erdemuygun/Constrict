@@ -388,9 +388,12 @@ arg_parser.add_argument(
     help='Destination path of the compressed video file'
 )
 arg_parser.add_argument(
-    '--keep-framerate',
+    '--prefer-60fps',
     action='store_true',
-    help='Keep the source framerate; do not lower to 30FPS'
+    help=(
+        'Increase the output framerate limit from 30 FPS to 60 FPS at a cost '
+        'to image quality'
+    )
 )
 arg_parser.add_argument(
     '--extra-quality',
@@ -523,9 +526,8 @@ while (factor > 1.0 + (tolerance / 100)) or (factor < 1):
     if (target_video_bitrate / 1000) <= 150:  # If vid bitrate 150Kbps or less
         crush_mode = True
 
-    compressed_fps = 24 if crush_mode else 30
-    keep_fps = source_fps <= compressed_fps or args.keep_framerate
-    target_fps = source_fps if keep_fps else compressed_fps
+    target_fps = 24 if crush_mode else (60 if args.prefer_60fps else 30)
+    keep_fps = source_fps <= target_fps  # Don't 'increase' FPS from source
 
     if True:  # if (!keep resolution), later on
         preset_height = get_res_preset(
