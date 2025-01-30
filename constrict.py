@@ -362,6 +362,8 @@ check calculations for bitrate etc. are correct (i.e. MiB vs MB etc)
 add checkers for codecs
 clean up ffmpeg 2pass logs after compression
 change 'keep-framerate' to 'prefer-smoothness' and lock to 60 FPS
+improve text formatting
+check framerate text indicator
 """
 
 arg_parser = argparse.ArgumentParser("constrict")
@@ -388,11 +390,22 @@ arg_parser.add_argument(
     help='Destination path of the compressed video file'
 )
 arg_parser.add_argument(
-    '--prefer-60fps',
-    action='store_true',
+    '--framerate',
+    dest='framerate_option',
+    choices=['auto', 'prefer-clear', 'prefer-smooth'],
+    default='auto',
     help=(
-        'Increase the output framerate limit from 30 FPS to 60 FPS at a cost '
-        'to image quality'
+        'The maximum framerate to apply to the output file. NOTE: this option '
+        'has no bearing on source videos at 30 FPS or below, and the output '
+        'will be the same regardless of the option set. Additionally, videos '
+        'compressed to very low bitrates will have their framerate capped to '
+        '24 FPS regardless of the option set.\n\n'
+        'auto: auto-apply a 60 FPS maximum framerate in cases where the '
+        'percieved reduction in image clarity from 30 FPS is negligable.\n\n'
+        'prefer-clear: apply a 30 FPS framerate cap, ensuring higher image '
+        'clarity in fewer frames.\n\n'
+        'prefer-smooth: apply a 60 FPS framerate cap, ensuring smoothness '
+        'at a cost to image clarity and sometimes resolution'
     )
 )
 arg_parser.add_argument(
@@ -526,16 +539,48 @@ while (factor > 1.0 + (tolerance / 100)) or (factor < 1):
     if (target_video_bitrate / 1000) <= 150:  # If vid bitrate 150Kbps or less
         crush_mode = True
 
-    target_fps = 24 if crush_mode else (60 if args.prefer_60fps else 30)
-    keep_fps = source_fps <= target_fps  # Don't 'increase' FPS from source
+    preset_height = None
+    max_fps = None
 
-    if True:  # if (!keep resolution), later on
-        preset_height = get_res_preset(
+    if crush_mode:
+        print('max fps set to 24')
+        max_fps = 24
+    elif args.framerate_option == 'prefer-clear' or source_fps <= 30:
+        print('max fps set to 30')
+        max_fps = 30
+    elif args.framerate_option == 'prefer-smooth':
+        print('max fps set to 60')
+        max_fps = 60
+    elif args.framerate_option == 'auto':
+        print('auto fps mode...')
+        preset_height_30fps = get_res_preset(
             target_video_bitrate,
             width,
             height,
-            target_fps
+            30
         )
+        preset_height_60fps = get_res_preset(
+            target_video_bitrate,
+            width,
+            height,
+            60
+        )
+
+        preset_height = preset_height_30fps
+        heights_match = preset_height_30fps == preset_height_60fps
+        max_fps = 60 if heights_match and preset_height >= 720 else 30
+
+    keep_fps = source_fps <= max_fps  # Don't 'increase' FPS from source
+    target_fps = source_fps if source_fps <= max_fps else max_fps
+
+    if True:  # if (!keep resolution), later on
+        if preset_height is None:
+            preset_height = get_res_preset(
+                target_video_bitrate,
+                width,
+                height,
+                target_fps
+            )
 
         print(f'Target height {preset_height}')
 
