@@ -109,12 +109,12 @@ def get_progress(file_input, ffmpeg_cmd):
 def transcode(
     file_input,
     file_output,
-    bitrate,
+    video_bitrate,
+    audio_bitrate,
     width,
     height,
     framerate,
     extra_quality,
-    crush_audio
 ):
     portrait = height > width
     frame_height = width if portrait else height
@@ -138,7 +138,7 @@ def transcode(
         # '-threads', '24',
         '-vf', f'scale={width}:{height}{fps_filter}',
         '-c:v', 'libx264',
-        '-b:v', str(bitrate) + '',
+        '-b:v', str(video_bitrate) + '',
         '-pass', '1',
         '-an',
         '-f', 'null',
@@ -148,7 +148,7 @@ def transcode(
     print(' Transcoding... (pass 1/2)')
     get_progress(file_input, pass1_cmd)
 
-    # cpu_used = get_encoding_speed(frame_height) if extra_quality else '4'
+    audio_channels = 1 if audio_bitrate < 12000 else 2
 
     pass2_cmd = [
         'ffmpeg',
@@ -164,16 +164,14 @@ def transcode(
         # '-cpu-used', cpuUsed,
         '-vf', f'scale={width}:{height}{fps_filter}',
         '-c:v', 'libx264',
-        '-b:v', str(bitrate) + '',
+        '-b:v', str(video_bitrate) + '',
         '-pass', '2',
         # '-x265-params', 'pass=1',
-        '-c:a', 'libopus'
-        # '-b:a', '6k',
-        # '-ac', '1',
+        '-c:a', 'libopus',
+        '-b:a', f'{audio_bitrate}',
+        '-ac', f'{audio_channels}',
+        file_output
     ]
-    if crush_audio:
-        pass2_cmd.extend(['-b:a', '6k', '-ac', '1'])
-    pass2_cmd.append(file_output)
     print(" ".join(pass2_cmd))
     print(' Transcoding... (pass 2/2)')
     get_progress(file_input, pass2_cmd)
@@ -253,43 +251,6 @@ def get_resolution(file_input):
     return (width, height)
 
 
-def get_audio_bitrate(file_input, file_output):
-    """
-    Returns the audio bitrate of input file, once it's re-encoded with Opus
-    codec.
-    """
-    transcode_cmd = [
-        'ffmpeg',
-        '-y',
-        '-v', 'error',
-        '-i', 'pipe:0',
-        '-vn',
-        '-c:a', 'libopus',
-        #  '-b:a', '12k',
-        file_output
-    ]
-
-    display_heading('Getting audio bitrate...')
-    get_progress(file_input, transcode_cmd)
-    #  subprocess.run(transcode_cmd, capture_output=True, text=True)
-
-    probe_cmd = [
-        'ffprobe',
-        '-v', 'error',
-        '-select_streams', 'a:0',
-        '-show_entries', 'stream=bit_rate',
-        '-of', 'default=noprint_wrappers=1:nokey=1',
-        file_output
-    ]
-
-    try:
-        bitrate_str = subprocess.check_output(probe_cmd)
-        return int(bitrate_str)
-    except ValueError:
-        print(' Could not get valid bitrate.')
-        return 0
-
-
 def bold(text):
     return f'\033[1m{text}\033[0m'
 
@@ -354,7 +315,6 @@ investigate error messages and performance further
 use some kind of maths magic to reduce number of attempts at low file sizes
 improve bitrate recalculation, change from simple multiplication (!!)
 add ffmpeg tune options maybe?
-readjust audio bitrate calculation (no scanning)
 check calculations for bitrate etc. are correct (i.e. MiB vs MB etc)
 add checkers for codecs
 clean up ffmpeg 2pass logs after compression
@@ -415,7 +375,7 @@ args = arg_parser.parse_args()
 
 start_time = datetime.datetime.now().replace(microsecond=0)
 
-# Tolerance below 8mb
+# Tolerance below target
 tolerance = args.tolerance or 10
 # print(f'Tolerance: {tolerance}')
 file_input = args.file_path
@@ -453,89 +413,56 @@ if before_size_bytes <= target_size_bytes:
 
 reduction_factor = target_size_bytes / before_size_bytes
 
-# A method to try to reduce number of attempts taken to compress a file.
-# These hardcoded values are based on a 185MiB video I compressed to various
-# target sizes, seeing where the compression would start to go over the target
-# size or under the target size with 10% tolerance. Anyone with a more
-# sophisticated solution to this is welcome to submit a pull request.
-
-# TODO: revisit this (esp. with extra quality mode and keep framerate)
-
-# shrunkSize = target_size_bits
-# if reduction_factor < (18 / 185):
-#     print('reducing target by 10%')
-#     shrunkSize *= 0.9
-# elif reduction_factor > (160 / 185):
-#     print('increasing by 30%')
-#     target_size_MiB *= 1.3
-# elif reduction_factor > (85 / 185):
-#     print('increasing target by 30%')
-#     shrunkSize *= 1.3
-# elif reduction_factor > (52 / 185):
-#     print('increasing target by 20%')
-#     shrunkSize *= 1.2
-# elif reduction_factor > (30 / 185):
-#     print('increasing target by 10%')
-#     shrunkSize *= 1.1
-
 target_total_bitrate = round(target_size_bits / duration_seconds)
-target_video_bitrate = target_total_bitrate
-audio_bitrate = None
-
-crush_mode = False
-
-if (target_total_bitrate / 1000) < 150:  # If target bitrate less than 150Kbps:
-    audio_bitrate = 6000
-    crush_mode = True
-else:
-    audio_bitrate = get_audio_bitrate(file_input, file_output)
-
-# print(f'Target total bitrate: {target_total_bitrate}bps')
-
-if audio_bitrate is None:
-    print('\n No audio bitrate found')
-else:
-    print(f'\n Audio bitrate: {audio_bitrate // 1000}Kbps')
-    if (target_video_bitrate - audio_bitrate >= 1000):
-        target_video_bitrate -= audio_bitrate
-        #  print('Subtracting audio bitrate from target video bitrate')
-
-if crush_mode:
-    print('Target should be adjusted here...')
-
-target_video_bitrate *= 0.99
-# To account for metadata and such... shouldn't try to use a bitrate EXACTLY on
-# target as it'll likely overshoot, and another attempt will have to be made.
-
-# if targetSizeMB < 25:
-#   target_video_bitrate *= 0.95
-#     print('Bitrate lowered by 5%')
-# Slightly lower bitrate target to account for file metadata and such.
-# elif targetSizeMB > 75:
-#     target_video_bitrate *= 1.05
-#     print('Bitrate increased by 5%')
-
 source_fps = get_framerate(file_input)
 width, height = get_resolution(file_input)
 # print(f'Resolution: {width}x{height}')
-pixels = width * height
-# print(f'Total pixels: {pixels}')
 portrait = width < height
 
 factor = 0
 attempt = 0
 while (factor > 1.0 + (tolerance / 100)) or (factor < 1):
     attempt = attempt + 1
-    target_video_bitrate = round((target_video_bitrate) * (factor or 1))
+    target_total_bitrate = round((target_total_bitrate) * (factor or 1))
+    print(f'target total {target_total_bitrate // 1000}Kbps')
+
+    '''
+    crush mode tries to save some image clarity by significantly reducing audio
+    quality and introducing a 24 FPS framerate cap. This makes the footage look
+    slightly less blurry at 144p, and can sometimes save it from being
+    downgraded to 144p as a preset resolution due to the boost in video
+    bitrate.
+
+    Why is the threshold 150 + 96 (= 246)? It's the sum of the lowest
+    recommended bitrate for 240p (150Kbps), plus a 'good quality' bitrate for
+    Opus audio (96Kbps). It means that it shouldn't be possible to 'downgrade'
+    the video to 144p without applying crush mode. Additionally, footage can be
+    'saved' from being downgraded to 144p where, for example:
+
+    Total target bitrate = 200Kbps
+    Bitrate less than threshold, therefore apply crush mode.
+    Target audio bitrate set to 6Kbps (rather than 96Kbps) due to crush mode.
+    Therefore, video bitrate is 194Kbps
+    This is *above* 150Kbps, therefore preset resolution is 240p@24
+
+    And if there was no crush mode:
+    Total target bitrate = 200Kbps
+    Target audio bitrate set to 96Kbps
+    Therefore, video bitrate is 104Kbps
+    This is *below* 150Kbps, therefore preset resolution is 144p@?
+    '''
+    crush_mode = (target_total_bitrate / 1000) < 150 + 96
+    target_audio_bitrate = 6000 if crush_mode else 96000
+    target_video_bitrate = target_total_bitrate - target_audio_bitrate
+
+    # To account for metadata and such to prevent overshooting
+    target_video_bitrate = round(target_video_bitrate * 0.99)
 
     if (target_video_bitrate < 1000):
-        sys.exit("Bitrate got too low (<1000bps); aborting")
+        sys.exit("Video bitrate got too low (<1kbps); aborting")
 
     target_height = height
     target_width = width
-
-    if (target_video_bitrate / 1000) <= 150:  # If vid bitrate 150Kbps or less
-        crush_mode = True
 
     preset_height = None
     max_fps = None
@@ -605,11 +532,11 @@ while (factor > 1.0 + (tolerance / 100)) or (factor < 1):
         file_input,
         file_output,
         target_video_bitrate,
+        target_audio_bitrate,
         target_width,
         target_height,
         -1 if keep_fps else target_fps,
         extra_quality,
-        crush_mode
     )
     after_size_bytes = os.stat(file_output).st_size
     percent_of_target = (100 / target_size_bytes) * after_size_bytes
