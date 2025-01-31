@@ -333,13 +333,11 @@ allow different units for desired file size
 add input validation for arguments
 add overwrite confirmation and argument
 add 'source overwrite' mode: -o value same as input file path
-change output file format
 check for when file size doesnt change
 add more error checking for very low target file sizes
 see about audio compression / changing sample rate?
 add support for bulk compression
-support more video formats
-perhaps add a fast/slow option?
+force container on any file name
 add 'keep resolution' argument?
 add 'general compression' mode - no target file size
 reconsider where log and streamable files go (output dir rather than PWD?)
@@ -355,15 +353,15 @@ get rid of all this unused and commented out code
 investigate error messages and performance further
 use some kind of maths magic to reduce number of attempts at low file sizes
 improve bitrate recalculation, change from simple multiplication (!!)
-further reduce framerate at 144p
 add ffmpeg tune options maybe?
 readjust audio bitrate calculation (no scanning)
 check calculations for bitrate etc. are correct (i.e. MiB vs MB etc)
 add checkers for codecs
 clean up ffmpeg 2pass logs after compression
-change 'keep-framerate' to 'prefer-smoothness' and lock to 60 FPS
 improve text formatting
 check framerate text indicator
+Fix 'Application provided invalid, non monotonically increasing dts to muxer in stream'
+Add speed options
 """
 
 arg_parser = argparse.ArgumentParser("constrict")
@@ -573,27 +571,26 @@ while (factor > 1.0 + (tolerance / 100)) or (factor < 1):
     keep_fps = source_fps <= max_fps  # Don't 'increase' FPS from source
     target_fps = source_fps if source_fps <= max_fps else max_fps
 
-    if True:  # if (!keep resolution), later on
-        if preset_height is None:
-            preset_height = get_res_preset(
-                target_video_bitrate,
-                width,
-                height,
-                target_fps
-            )
+    if preset_height is None:
+        preset_height = get_res_preset(
+            target_video_bitrate,
+            width,
+            height,
+            target_fps
+        )
 
-        print(f'Target height {preset_height}')
+    print(f'Target height {preset_height}')
 
-        if preset_height != -1:  # If being downscaled:
-            target_height = preset_height
-            scaling_factor = height / target_height
-            target_width = int(((width / scaling_factor + 1) // 2) * 2)
+    if preset_height != -1:  # If being downscaled:
+        target_height = preset_height
+        scaling_factor = height / target_height
+        target_width = int(((width / scaling_factor + 1) // 2) * 2)
 
-            if portrait:
-                # Swap height and width
-                buffer = target_width
-                target_width = target_height
-                target_height = buffer
+        if portrait:
+            # Swap height and width
+            buffer = target_width
+            target_width = target_height
+            target_height = buffer
 
     displayed_res = target_width if portrait else target_height
 
