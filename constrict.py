@@ -296,25 +296,21 @@ add overwrite confirmation and argument
 add 'source overwrite' mode: -o value same as input file path
 check for when file size doesnt change
 add more error checking for very low target file sizes
-see about audio compression / changing sample rate?
 add support for bulk compression
 force container on any file name
-add 'keep resolution' argument?
-add 'general compression' mode - no target file size
+add 'general compression' mode - no target file size(?)
 reconsider where log and streamable files go (output dir rather than PWD?)
 add verbosity options (GUI and quiet)
 don't use streamable temp file with quiet verbosity mode
 add overwrite-safe default file outputs (streamable file and compressed file)
 Add check when video bitrate calculation goes over original bitrate
 change how tolerance works
-change res preset function to use full width*height resolutions
 add AV1 option parameter
 inhibit suspend while running
 get rid of all this unused and commented out code
 investigate error messages and performance further
 use some kind of maths magic to reduce number of attempts at low file sizes
 improve bitrate recalculation, change from simple multiplication (!!)
-add ffmpeg tune options maybe?
 check calculations for bitrate etc. are correct (i.e. MiB vs MB etc)
 add checkers for codecs
 clean up ffmpeg 2pass logs after compression
@@ -322,6 +318,9 @@ improve text formatting
 check framerate text indicator
 Fix 'Application provided invalid, non monotonically increasing dts to muxer in stream'
 Add speed options
+See about 64K audio? and capping audio based on original audio bitrate...
+Add preview mode for GUI version
+Lower to 16 FPS instead of 24?
 """
 
 arg_parser = argparse.ArgumentParser("constrict")
