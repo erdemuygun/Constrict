@@ -95,9 +95,16 @@ def get_res_preset(bitrate, source_width, source_height, framerate):
     return -1
 
 
-def get_encoding_speed(frame_height):
-    return 'medium' if frame_height > 480 else 'slower'  # H.264 version
-    # return '2' if frame_height > 480 else '1'  # VP9 version
+def get_encoding_speed(frame_height, codec):
+    hd = frame_height > 480
+
+    match codec:
+        case 'h264':
+            return 'medium' if hd else 'slower'
+        case 'av1':
+            return '10' if hd else '8'
+        case _:
+            sys.exit('Error: unknown codec passed to get_encoding_speed')
 
 
 def get_progress(file_input, ffmpeg_cmd):
@@ -114,6 +121,7 @@ def transcode(
     width,
     height,
     framerate,
+    codec,
     extra_quality,
 ):
     portrait = height > width
@@ -121,8 +129,13 @@ def transcode(
 
     print(f' frame height: {frame_height}')
 
-    preset = get_encoding_speed(frame_height)
+    preset = get_encoding_speed(frame_height, codec)
     fps_filter = '' if framerate == -1 else f',fps={framerate}'
+
+    cv_params = {
+        'h264': 'libx264',
+        'av1': 'libsvtav1'
+    }
 
     pass1_cmd = [
         'ffmpeg',
@@ -137,7 +150,7 @@ def transcode(
         # '-cpu-used', '4',
         # '-threads', '24',
         '-vf', f'scale={width}:{height}{fps_filter}',
-        '-c:v', 'libx264',
+        '-c:v', f'{cv_params[codec]}',
         '-b:v', str(video_bitrate) + '',
         '-pass', '1',
         '-an',
@@ -163,7 +176,7 @@ def transcode(
         # '-deadline', 'good',
         # '-cpu-used', cpuUsed,
         '-vf', f'scale={width}:{height}{fps_filter}',
-        '-c:v', 'libx264',
+        '-c:v', f'{cv_params[codec]}',
         '-b:v', str(video_bitrate) + '',
         '-pass', '2',
         # '-x265-params', 'pass=1',
@@ -305,7 +318,6 @@ don't use streamable temp file with quiet verbosity mode
 add overwrite-safe default file outputs (streamable file and compressed file)
 Add check when video bitrate calculation goes over original bitrate
 change how tolerance works
-add AV1 option parameter
 inhibit suspend while running
 get rid of all this unused and commented out code
 investigate error messages and performance further
@@ -370,6 +382,20 @@ arg_parser.add_argument(
     action='store_true',
     help='Increase image quality at the cost of longer encoding times'
 )
+arg_parser.add_argument(
+    '--codec',
+    dest='codec',
+    choices=['h264', 'av1'],
+    default='h264',
+    help=(
+        'The codec used to encode the compressed video.\n'
+        'h264: uses the H.264 codec. Compatible with most devices and '
+        'services.\n'
+        'av1: uses the AV1 codec. Has higher compression efficiency than '
+        'H.264, and is open source and royalty free. However, it is less '
+        'widely supported, and may not embed properly on some services.'
+    )
+)
 args = arg_parser.parse_args()
 
 start_time = datetime.datetime.now().replace(microsecond=0)
@@ -390,6 +416,7 @@ target_size_bytes = target_size_KiB * 1024
 target_size_bits = target_size_bytes * 8
 duration_seconds = get_duration(file_input)
 extra_quality = args.extra_quality
+codec = args.codec
 
 is_input_streamable = is_streamable(file_input)
 streamable_input = 'streamable_input'
@@ -535,6 +562,7 @@ while (factor > 1.0 + (tolerance / 100)) or (factor < 1):
         target_width,
         target_height,
         -1 if keep_fps else target_fps,
+        codec,
         extra_quality,
     )
     after_size_bytes = os.stat(file_output).st_size
