@@ -130,7 +130,6 @@ def transcode(
     print(f' frame height: {frame_height}')
 
     preset = get_encoding_speed(frame_height, codec)
-    fps_filter = '' if framerate == -1 else f',fps={framerate}'
 
     cv_params = {
         'h264': 'libx264',
@@ -149,14 +148,21 @@ def transcode(
         # '-deadline', 'good',
         # '-cpu-used', '4',
         # '-threads', '24',
-        '-vf', f'scale={width}:{height}{fps_filter}',
+        '-vf', f'scale={width}:{height}',
+    ]
+
+    if framerate != -1:
+        pass1_cmd.extend(['-r', f'{framerate}'])
+
+    pass1_cmd.extend([
         '-c:v', f'{cv_params[codec]}',
         '-b:v', str(video_bitrate) + '',
         '-pass', '1',
         '-an',
         '-f', 'null',
         '/dev/null'
-    ]
+    ])
+
     print(" ".join(pass1_cmd))
     print(' Transcoding... (pass 1/2)')
     get_progress(file_input, pass1_cmd)
@@ -175,7 +181,13 @@ def transcode(
         # '-threads', '24',
         # '-deadline', 'good',
         # '-cpu-used', cpuUsed,
-        '-vf', f'scale={width}:{height}{fps_filter}',
+        '-vf', f'scale={width}:{height}',
+    ]
+
+    if framerate != -1:
+        pass2_cmd.extend(['-r', f'{framerate}'])
+
+    pass2_cmd.extend([
         '-c:v', f'{cv_params[codec]}',
         '-b:v', str(video_bitrate) + '',
         '-pass', '2',
@@ -184,7 +196,7 @@ def transcode(
         '-b:a', f'{audio_bitrate}',
         '-ac', f'{audio_channels}',
         file_output
-    ]
+    ])
     print(" ".join(pass2_cmd))
     print(' Transcoding... (pass 2/2)')
     get_progress(file_input, pass2_cmd)
@@ -313,6 +325,7 @@ add support for bulk compression
 force container on any file name
 add 'general compression' mode - no target file size(?)
 reconsider where log and streamable files go (output dir rather than PWD?)
+check for output file directory permissions
 add verbosity options (GUI and quiet)
 don't use streamable temp file with quiet verbosity mode
 add overwrite-safe default file outputs (streamable file and compressed file)
@@ -329,10 +342,11 @@ clean up ffmpeg 2pass logs after compression
 improve text formatting
 check framerate text indicator
 Fix 'Application provided invalid, non monotonically increasing dts to muxer in stream'
-Add speed options
+Add speed options (CONSIDER HANDBRAKE PRESETS)
 See about 64K audio? and capping audio based on original audio bitrate...
 Add preview mode for GUI version
 Lower to 16 FPS instead of 24?
+add 10 bit support?
 """
 
 arg_parser = argparse.ArgumentParser("constrict")
