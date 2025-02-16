@@ -95,14 +95,21 @@ def get_res_preset(bitrate, source_width, source_height, framerate):
     return -1
 
 
-def get_encoding_speed(frame_height, codec):
+def get_encoding_speed(frame_height, codec, extra_quality):
     hd = frame_height > 480
 
     match codec:
         case 'h264':
-            return 'medium' if hd else 'slower'
+            if extra_quality:
+                return 'veryslow'
+            else:
+                return 'medium' if hd else 'slower'
         case 'av1':
-            return '10' if hd else '8'
+            if extra_quality:
+                return '5'
+            else:
+                return '10' if hd else '8'
+
         case _:
             sys.exit('Error: unknown codec passed to get_encoding_speed')
 
@@ -129,7 +136,7 @@ def transcode(
 
     print(f' frame height: {frame_height}')
 
-    preset = get_encoding_speed(frame_height, codec)
+    preset = get_encoding_speed(frame_height, codec, extra_quality)
 
     cv_params = {
         'h264': 'libx264',
@@ -347,6 +354,7 @@ See about 64K audio? and capping audio based on original audio bitrate...
 Add preview mode for GUI version
 Lower to 16 FPS instead of 24?
 add 10 bit support?
+Clean up AV1 text output
 """
 
 arg_parser = argparse.ArgumentParser("constrict")
@@ -394,7 +402,7 @@ arg_parser.add_argument(
 arg_parser.add_argument(
     '--extra-quality',
     action='store_true',
-    help='Increase image quality at the cost of longer encoding times'
+    help='Increase image quality at the cost of much longer encoding times'
 )
 arg_parser.add_argument(
     '--codec',
