@@ -104,6 +104,11 @@ def get_encoding_speed(frame_height, codec, extra_quality):
                 return 'veryslow'
             else:
                 return 'medium' if hd else 'slower'
+        case 'hevc':
+            if extra_quality:
+                return 'veryslow'
+            else:
+                return 'medium' if hd else 'slow'
         case 'av1':
             if extra_quality:
                 return '5'
@@ -140,6 +145,7 @@ def transcode(
 
     cv_params = {
         'h264': 'libx264',
+        'hevc': 'libx265',
         'av1': 'libsvtav1'
     }
 
@@ -408,15 +414,18 @@ arg_parser.add_argument(
 arg_parser.add_argument(
     '--codec',
     dest='codec',
-    choices=['h264', 'av1'],
+    choices=['h264', 'hevc', 'av1'],
     default='h264',
     help=(
         'The codec used to encode the compressed video.\n'
         'h264: uses the H.264 codec. Compatible with most devices and '
-        'services.\n'
-        'av1: uses the AV1 codec. Has higher compression efficiency than '
-        'H.264, and is open source and royalty free. However, it is less '
-        'widely supported, and may not embed properly on some services.'
+        'services, but with relatively low compression efficiency.\n'
+        'hevc: uses the H.265 (HEVC) codec. Less compatible with devices and '
+        'services, and is slower to encode, but has higher compression '
+        'efficiency.\n'
+        'av1: uses the AV1 codec. High compression efficiency, and is open '
+        'source and royalty free. However, it is less widely supported, and '
+        'may not embed properly on some services.'
     )
 )
 args = arg_parser.parse_args()
