@@ -355,6 +355,7 @@ Add preview mode for GUI version
 Lower to 16 FPS instead of 24?
 add 10 bit support?
 Clean up AV1 text output
+revisit qt-faststart (doesn't work on fedora)
 """
 
 arg_parser = argparse.ArgumentParser("constrict")
