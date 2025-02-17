@@ -111,7 +111,7 @@ def get_encoding_speed(frame_height, codec, extra_quality):
                 return 'medium' if hd else 'slow'
         case 'av1':
             if extra_quality:
-                return '5'
+                return '4'
             else:
                 return '10' if hd else '8'
 
