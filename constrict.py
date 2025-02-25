@@ -289,6 +289,27 @@ def get_resolution(file_input):
     return (width, height)
 
 
+def get_rotation(file_input):
+    cmd = [
+        'ffprobe',
+        '-v', 'error',
+        '-select_streams', 'v:0',
+        '-show_entries', 'stream_side_data=rotation',
+        '-of', 'csv=s=x:p=0',
+        file_input
+    ]
+
+    rotation_bytes = subprocess.check_output(cmd)
+    rotation = rotation_bytes.decode('utf-8')
+
+    try:
+        rotation = int(rotation)
+    except ValueError:
+        rotation = 0
+
+    return rotation
+
+
 def bold(text):
     return f'\033[1m{text}\033[0m'
 
@@ -475,7 +496,11 @@ target_total_bitrate = round(target_size_bits / duration_seconds)
 source_fps = get_framerate(file_input)
 width, height = get_resolution(file_input)
 # print(f'Resolution: {width}x{height}')
-portrait = width < height
+portrait = (width < height) ^ (get_rotation(file_input) == -90)  # xor gate
+print(f'width heigher than height: {width < height}')
+print(f'rotation = {get_rotation(file_input)}')
+print(f'rotated = {get_rotation(file_input) == -90}')
+print(f'portrait = {portrait}')
 
 factor = 0
 attempt = 0
