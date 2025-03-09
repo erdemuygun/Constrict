@@ -5,6 +5,10 @@ import os
 import argparse
 import datetime
 
+# Module responsible for compression logic. This script can be packaged
+# on its own to provide a CLI compressor *only*. The GTK wrapper depends on
+# this script for its 'business logic' too.
+
 
 def get_duration(file_input):
     return float(
@@ -314,11 +318,11 @@ def bold(text):
     return f'\033[1m{text}\033[0m'
 
 
-def display_heading(text):
-    print(f':: {bold(text)}')
+def heading(text):
+    return f':: {bold(text)}'
 
 
-def print_table(data):
+def table(data):
     max_key_len = 0
     max_value_len = 0
 
@@ -335,6 +339,8 @@ def print_table(data):
             len(row[1]) if len(row[1]) > max_value_len else max_value_len
         )
 
+    msg = ""
+
     for row in data:
         spaces_to_add = max_key_len - len(row[0])
         for i in range(spaces_to_add):
@@ -344,7 +350,9 @@ def print_table(data):
         for i in range(spaces_to_add):
             row[1] = ' ' + row[1]
 
-        print(f' {row[0]}  {row[1]}')
+        msg += f' {row[0]}  {row[1]}'
+
+    return msg
 
 
 """ TODO:
@@ -383,265 +391,286 @@ Lower to 16 FPS instead of 24?
 add 10 bit support?
 Clean up AV1 text output
 revisit qt-faststart (doesn't work on fedora)
+perhaps check out FFmpeg python libraries? revisit using pv for progress
+change output_fn argument to be raw data, not strings (human readable strings
+    should be created on the interface side, not in these functions).
+change 'pv' command to output to output_fn, not writing directly to the
+    terminal.
 """
 
-arg_parser = argparse.ArgumentParser("constrict")
-arg_parser.add_argument(
-    'file_path',
-    help='Location of the video file to be compressed',
-    type=str
-)
-arg_parser.add_argument(
-    'target_size',
-    help='Desired size of the compressed video in MB',
-    type=int
-)
-arg_parser.add_argument(
-    '-t',
-    dest='tolerance',
-    type=int,
-    help='Tolerance of end file size under target in percent (default 10)'
-)
-arg_parser.add_argument(
-    '-o',
-    dest='output',
-    type=str,
-    help='Destination path of the compressed video file'
-)
-arg_parser.add_argument(
-    '--framerate',
-    dest='framerate_option',
-    choices=['auto', 'prefer-clear', 'prefer-smooth'],
-    default='auto',
-    help=(
-        'The maximum framerate to apply to the output file. NOTE: this option '
-        'has no bearing on source videos at 30 FPS or below, and the output '
-        'will be the same regardless of the option set. Additionally, videos '
-        'compressed to very low bitrates will have their framerate capped to '
-        '24 FPS regardless of the option set.\n\n'
-        'auto: auto-apply a 60 FPS maximum framerate in cases where the '
-        'percieved reduction in image clarity from 30 FPS is negligable.\n\n'
-        'prefer-clear: apply a 30 FPS framerate cap, ensuring higher image '
-        'clarity in fewer frames.\n\n'
-        'prefer-smooth: apply a 60 FPS framerate cap, ensuring smoothness '
-        'at a cost to image clarity and sometimes resolution'
-    )
-)
-arg_parser.add_argument(
-    '--extra-quality',
-    action='store_true',
-    help='Increase image quality at the cost of much longer encoding times'
-)
-arg_parser.add_argument(
-    '--codec',
-    dest='codec',
-    choices=['h264', 'hevc', 'av1'],
-    default='h264',
-    help=(
-        'The codec used to encode the compressed video.\n'
-        'h264: uses the H.264 codec. Compatible with most devices and '
-        'services, but with relatively low compression efficiency.\n'
-        'hevc: uses the H.265 (HEVC) codec. Less compatible with devices and '
-        'services, and is slower to encode, but has higher compression '
-        'efficiency.\n'
-        'av1: uses the AV1 codec. High compression efficiency, and is open '
-        'source and royalty free. However, it is less widely supported, and '
-        'may not embed properly on some services.'
-    )
-)
-args = arg_parser.parse_args()
+def compress(
+    file_input,
+    target_size_MiB,
+    framerate_option='auto',
+    extra_quality=False,
+    codec='h264',
+    tolerance=10,
+    file_output=None,
+    output_fn=lambda x: None
+):
+    start_time = datetime.datetime.now().replace(microsecond=0)
 
-start_time = datetime.datetime.now().replace(microsecond=0)
+    if file_output is None:  # i.e., if -o hasn't been passed
+        root_ext = os.path.splitext(file_input)
+        file_output = new_file(f'{root_ext[0]} (compressed).mp4')
 
-# Tolerance below target
-tolerance = args.tolerance or 10
-# print(f'Tolerance: {tolerance}')
-file_input = args.file_path
-file_output = args.output
+    target_size_KiB = target_size_MiB * 1024
+    target_size_bytes = target_size_KiB * 1024
+    target_size_bits = target_size_bytes * 8
+    duration_seconds = get_duration(file_input)
 
-if file_output is None:  # i.e., if -o hasn't been passed
-    root_ext = os.path.splitext(file_input)
-    file_output = new_file(f'{root_ext[0]} (compressed).mp4')
+    is_input_streamable = is_streamable(file_input)
+    streamable_input = 'streamable_input'
 
-target_size_MiB = args.target_size
-target_size_KiB = target_size_MiB * 1024
-target_size_bytes = target_size_KiB * 1024
-target_size_bits = target_size_bytes * 8
-duration_seconds = get_duration(file_input)
-extra_quality = args.extra_quality
-codec = args.codec
+    if not is_input_streamable:
+        output_fn(heading('Creating input stream...'))
 
-is_input_streamable = is_streamable(file_input)
-streamable_input = 'streamable_input'
+        root_ext = os.path.splitext(file_input)
+        streamable_input = new_file(f'{root_ext[0]}-stream{root_ext[1]}')
 
-if not is_input_streamable:
-    display_heading('Creating input stream...')
+        make_streamable(file_input, streamable_input)
+        file_input = streamable_input
 
-    root_ext = os.path.splitext(file_input)
-    streamable_input = new_file(f'{root_ext[0]}-stream{root_ext[1]}')
+    # print(f'Fast start enabled: {is_input_streamable}')
 
-    make_streamable(file_input, streamable_input)
-    file_input = streamable_input
+    before_size_bytes = os.stat(file_input).st_size
 
-# print(f'Fast start enabled: {is_input_streamable}')
+    if before_size_bytes <= target_size_bytes:
+        output_fn("File already meets the target size.")
+        return
 
-before_size_bytes = os.stat(file_input).st_size
+    reduction_factor = target_size_bytes / before_size_bytes
 
-if before_size_bytes <= target_size_bytes:
-    sys.exit("File already meets the target size.")
+    target_total_bitrate = round(target_size_bits / duration_seconds)
+    source_fps = get_framerate(file_input)
+    width, height = get_resolution(file_input)
+    # print(f'Resolution: {width}x{height}')
+    portrait = (width < height) ^ (get_rotation(file_input) == -90)  # xor gate
+    print(f'width heigher than height: {width < height}')
+    print(f'rotation = {get_rotation(file_input)}')
+    print(f'rotated = {get_rotation(file_input) == -90}')
+    print(f'portrait = {portrait}')
 
-reduction_factor = target_size_bytes / before_size_bytes
+    factor = 0
+    attempt = 0
+    while (factor > 1.0 + (tolerance / 100)) or (factor < 1):
+        attempt = attempt + 1
+        target_total_bitrate = round((target_total_bitrate) * (factor or 1))
+        print(f'target total {target_total_bitrate // 1000}Kbps')
 
-target_total_bitrate = round(target_size_bits / duration_seconds)
-source_fps = get_framerate(file_input)
-width, height = get_resolution(file_input)
-# print(f'Resolution: {width}x{height}')
-portrait = (width < height) ^ (get_rotation(file_input) == -90)  # xor gate
-print(f'width heigher than height: {width < height}')
-print(f'rotation = {get_rotation(file_input)}')
-print(f'rotated = {get_rotation(file_input) == -90}')
-print(f'portrait = {portrait}')
+        '''
+        crush mode tries to save some image clarity by significantly reducing audio
+        quality and introducing a 24 FPS framerate cap. This makes the footage look
+        slightly less blurry at 144p, and can sometimes save it from being
+        downgraded to 144p as a preset resolution due to the boost in video
+        bitrate.
 
-factor = 0
-attempt = 0
-while (factor > 1.0 + (tolerance / 100)) or (factor < 1):
-    attempt = attempt + 1
-    target_total_bitrate = round((target_total_bitrate) * (factor or 1))
-    print(f'target total {target_total_bitrate // 1000}Kbps')
+        Why is the threshold 150 + 96 (= 246)? It's the sum of the lowest
+        recommended bitrate for 240p (150Kbps), plus a 'good quality' bitrate for
+        Opus audio (96Kbps). It means that it shouldn't be possible to 'downgrade'
+        the video to 144p without applying crush mode. Additionally, footage can be
+        'saved' from being downgraded to 144p where, for example:
 
-    '''
-    crush mode tries to save some image clarity by significantly reducing audio
-    quality and introducing a 24 FPS framerate cap. This makes the footage look
-    slightly less blurry at 144p, and can sometimes save it from being
-    downgraded to 144p as a preset resolution due to the boost in video
-    bitrate.
+        Total target bitrate = 200Kbps
+        Bitrate less than threshold, therefore apply crush mode.
+        Target audio bitrate set to 6Kbps (rather than 96Kbps) due to crush mode.
+        Therefore, video bitrate is 194Kbps
+        This is *above* 150Kbps, therefore preset resolution is 240p@24
 
-    Why is the threshold 150 + 96 (= 246)? It's the sum of the lowest
-    recommended bitrate for 240p (150Kbps), plus a 'good quality' bitrate for
-    Opus audio (96Kbps). It means that it shouldn't be possible to 'downgrade'
-    the video to 144p without applying crush mode. Additionally, footage can be
-    'saved' from being downgraded to 144p where, for example:
+        And if there was no crush mode:
+        Total target bitrate = 200Kbps
+        Target audio bitrate set to 96Kbps
+        Therefore, video bitrate is 104Kbps
+        This is *below* 150Kbps, therefore preset resolution is 144p@?
+        '''
+        crush_mode = (target_total_bitrate / 1000) < 150 + 96
+        target_audio_bitrate = 6000 if crush_mode else 96000
+        target_video_bitrate = target_total_bitrate - target_audio_bitrate
 
-    Total target bitrate = 200Kbps
-    Bitrate less than threshold, therefore apply crush mode.
-    Target audio bitrate set to 6Kbps (rather than 96Kbps) due to crush mode.
-    Therefore, video bitrate is 194Kbps
-    This is *above* 150Kbps, therefore preset resolution is 240p@24
+        # To account for metadata and such to prevent overshooting
+        target_video_bitrate = round(target_video_bitrate * 0.99)
 
-    And if there was no crush mode:
-    Total target bitrate = 200Kbps
-    Target audio bitrate set to 96Kbps
-    Therefore, video bitrate is 104Kbps
-    This is *below* 150Kbps, therefore preset resolution is 144p@?
-    '''
-    crush_mode = (target_total_bitrate / 1000) < 150 + 96
-    target_audio_bitrate = 6000 if crush_mode else 96000
-    target_video_bitrate = target_total_bitrate - target_audio_bitrate
+        if (target_video_bitrate < 1000):
+            output_fn("Video bitrate got too low (<1kbps); aborting")
+            return
 
-    # To account for metadata and such to prevent overshooting
-    target_video_bitrate = round(target_video_bitrate * 0.99)
+        target_height = height
+        target_width = width
 
-    if (target_video_bitrate < 1000):
-        sys.exit("Video bitrate got too low (<1kbps); aborting")
+        preset_height = None
+        max_fps = None
 
-    target_height = height
-    target_width = width
+        if crush_mode:
+            print('max fps set to 24')
+            max_fps = 24
+        elif framerate_option == 'prefer-clear' or source_fps <= 30:
+            print('max fps set to 30')
+            max_fps = 30
+        elif framerate_option == 'prefer-smooth':
+            print('max fps set to 60')
+            max_fps = 60
+        elif framerate_option == 'auto':
+            print('auto fps mode...')
+            preset_height_30fps = get_res_preset(
+                target_video_bitrate,
+                width,
+                height,
+                30
+            )
+            preset_height_60fps = get_res_preset(
+                target_video_bitrate,
+                width,
+                height,
+                60
+            )
 
-    preset_height = None
-    max_fps = None
+            preset_height = preset_height_30fps
+            heights_match = preset_height_30fps == preset_height_60fps
+            max_fps = 60 if heights_match and preset_height >= 720 else 30
 
-    if crush_mode:
-        print('max fps set to 24')
-        max_fps = 24
-    elif args.framerate_option == 'prefer-clear' or source_fps <= 30:
-        print('max fps set to 30')
-        max_fps = 30
-    elif args.framerate_option == 'prefer-smooth':
-        print('max fps set to 60')
-        max_fps = 60
-    elif args.framerate_option == 'auto':
-        print('auto fps mode...')
-        preset_height_30fps = get_res_preset(
+        keep_fps = source_fps <= max_fps  # Don't 'increase' FPS from source
+        target_fps = source_fps if source_fps <= max_fps else max_fps
+
+        if preset_height is None:
+            preset_height = get_res_preset(
+                target_video_bitrate,
+                width,
+                height,
+                target_fps
+            )
+
+        print(f'Target height {preset_height}')
+
+        if preset_height != -1:  # If being downscaled:
+            target_height = preset_height
+            scaling_factor = height / target_height
+            target_width = int(((width / scaling_factor + 1) // 2) * 2)
+
+            if portrait:
+                # Swap height and width
+                buffer = target_width
+                target_width = target_height
+                target_height = buffer
+
+        displayed_res = target_width if portrait else target_height
+
+        output_fn('')
+        output_fn(heading((
+            f'(Attempt {attempt}) '
+            f'compressing to {target_video_bitrate // 1000}Kbps / '
+            f'{displayed_res}p@{target_fps}...'
+        )))
+
+        transcode(
+            file_input,
+            file_output,
             target_video_bitrate,
-            width,
-            height,
-            30
+            target_audio_bitrate,
+            target_width,
+            target_height,
+            -1 if keep_fps else target_fps,
+            codec,
+            extra_quality,
         )
-        preset_height_60fps = get_res_preset(
-            target_video_bitrate,
-            width,
-            height,
-            60
-        )
+        after_size_bytes = os.stat(file_output).st_size
+        percent_of_target = (100 / target_size_bytes) * after_size_bytes
 
-        preset_height = preset_height_30fps
-        heights_match = preset_height_30fps == preset_height_60fps
-        max_fps = 60 if heights_match and preset_height >= 720 else 30
+        factor = 100 / percent_of_target
 
-    keep_fps = source_fps <= max_fps  # Don't 'increase' FPS from source
-    target_fps = source_fps if source_fps <= max_fps else max_fps
+        if (percent_of_target > 100):
+            # Prevent a lot of attempts resulting in above-target sizes
+            factor -= 0.05
+            #  print(f'Reducing factor by 5%')
 
-    if preset_height is None:
-        preset_height = get_res_preset(
-            target_video_bitrate,
-            width,
-            height,
-            target_fps
-        )
+        output_fn('')
+        output_fn(table([
+            ['New Size', f"{'{:.2f}'.format(after_size_bytes/1024/1024)}MB"],
+            ['Percentage of Target', f"{'{:.0f}'.format(percent_of_target)}%"]
+        ]))
 
-    print(f'Target height {preset_height}')
+    if not is_input_streamable:
+        os.remove(streamable_input)
 
-    if preset_height != -1:  # If being downscaled:
-        target_height = preset_height
-        scaling_factor = height / target_height
-        target_width = int(((width / scaling_factor + 1) // 2) * 2)
+    time_taken = datetime.datetime.now().replace(microsecond=0) - start_time
+    output_fn(f"\nCompleted in {time_taken}.")
 
-        if portrait:
-            # Swap height and width
-            buffer = target_width
-            target_width = target_height
-            target_height = buffer
-
-    displayed_res = target_width if portrait else target_height
-
-    print()
-    display_heading((
-        f'(Attempt {attempt}) '
-        f'compressing to {target_video_bitrate // 1000}Kbps / '
-        f'{displayed_res}p@{target_fps}...'
-    ))
-
-    transcode(
-        file_input,
-        file_output,
-        target_video_bitrate,
-        target_audio_bitrate,
-        target_width,
-        target_height,
-        -1 if keep_fps else target_fps,
-        codec,
-        extra_quality,
+if __name__ == '__main__':
+    arg_parser = argparse.ArgumentParser("constrict")
+    arg_parser.add_argument(
+        'file_path',
+        help='Location of the video file to be compressed',
+        type=str
     )
-    after_size_bytes = os.stat(file_output).st_size
-    percent_of_target = (100 / target_size_bytes) * after_size_bytes
+    arg_parser.add_argument(
+        'target_size',
+        help='Desired size of the compressed video in MB',
+        type=int
+    )
+    arg_parser.add_argument(
+        '-t',
+        dest='tolerance',
+        type=int,
+        default=10,
+        help='Tolerance of end file size under target in percent (default 10)'
+    )
+    arg_parser.add_argument(
+        '-o',
+        dest='output',
+        type=str,
+        help='Destination path of the compressed video file'
+    )
+    arg_parser.add_argument(
+        '--framerate',
+        dest='framerate_option',
+        choices=['auto', 'prefer-clear', 'prefer-smooth'],
+        default='auto',
+        help=(
+            'The maximum framerate to apply to the output file. NOTE: this '
+            'option has no bearing on source videos at 30 FPS or below, and '
+            'the output will be the same regardless of the option set. '
+            'Additionally, videos compressed to very low bitrates will have '
+            'their framerate capped to 24 FPS regardless of the option '
+            'set.\n\n'
+            'auto: auto-apply a 60 FPS maximum framerate in cases where the '
+            'percieved reduction in image clarity from 30 FPS is '
+            'negligable.\n\n'
+            'prefer-clear: apply a 30 FPS framerate cap, ensuring higher '
+            'image clarity in fewer frames.\n\n'
+            'prefer-smooth: apply a 60 FPS framerate cap, ensuring smoothness '
+            'at a cost to image clarity and sometimes resolution'
+        )
+    )
+    arg_parser.add_argument(
+        '--extra-quality',
+        action='store_true',
+        help='Increase image quality at the cost of much longer encoding times'
+    )
+    arg_parser.add_argument(
+        '--codec',
+        dest='codec',
+        choices=['h264', 'hevc', 'av1'],
+        default='h264',
+        help=(
+            'The codec used to encode the compressed video.\n'
+            'h264: uses the H.264 codec. Compatible with most devices and '
+            'services, but with relatively low compression efficiency.\n'
+            'hevc: uses the H.265 (HEVC) codec. Less compatible with devices '
+            'and services, and is slower to encode, but has higher '
+            'compression efficiency.\n'
+            'av1: uses the AV1 codec. High compression efficiency, and is '
+            'open source and royalty free. However, it is less widely '
+            'supported, and may not embed properly on some services.'
+        )
+    )
+    args = arg_parser.parse_args()
 
-    factor = 100 / percent_of_target
-
-    if (percent_of_target > 100):
-        # Prevent a lot of attempts resulting in above-target sizes
-        factor -= 0.05
-        #  print(f'Reducing factor by 5%')
-
-    print()
-    print_table([
-        ['New Size', f"{'{:.2f}'.format(after_size_bytes/1024/1024)}MB"],
-        ['Percentage of Target', f"{'{:.0f}'.format(percent_of_target)}%"]
-    ])
-
-if not is_input_streamable:
-    os.remove(streamable_input)
-
-time_taken = datetime.datetime.now().replace(microsecond=0) - start_time
-print(f"\nCompleted in {time_taken}.")
-
-
+    compress(
+        args.file_path,
+        args.target_size,
+        args.framerate_option,
+        args.extra_quality,
+        args.codec,
+        args.tolerance,
+        args.output,
+        lambda x: print(x)
+    )
