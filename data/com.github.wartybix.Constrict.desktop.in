@@ -1,0 +1,10 @@
+[Desktop Entry]
+Name=constrict
+Exec=constrict
+Icon=com.github.wartybix.Constrict
+Terminal=false
+Type=Application
+Categories=Utility;
+Keywords=GTK;
+StartupNotify=true
+DBusActivatable=true
