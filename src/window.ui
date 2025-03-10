@@ -4,15 +4,29 @@
   <requires lib="Adw" version="1.0"/>
   <template class="ConstrictWindow" parent="AdwApplicationWindow">
     <property name="title" translatable="yes">Constrict</property>
-    <property name="default-width">800</property>
-    <property name="default-height">600</property>
+    <property name="default-width">1000</property>
+    <property name="default-height">700</property>
     <style>
       <class name="devel"/>
     </style>
+    <child>
+      <object class="AdwBreakpoint">
+        <condition>max-width: 800sp</condition>
+        <setter object="split_view" property="collapsed">True</setter>
+      </object>
+    </child>
     <property name="content">
       <object class="AdwToolbarView">
+        <property name="top-bar-style">raised</property>
         <child type="top">
           <object class="AdwHeaderBar">
+            <child type="start">
+              <object class="GtkToggleButton" id="show_sidebar_button">
+                <property name="icon-name">sidebar-show-symbolic</property>
+                <property name="tooltip-text" translatable="yes">Toggle Sidebar</property>
+                <property name="active">True</property>
+              </object>
+            </child>
             <child type="end">
               <object class="GtkMenuButton">
                 <property name="primary">True</property>
@@ -24,19 +38,156 @@
           </object>
         </child>
         <property name="content">
-          <object class="AdwStatusPage">
-            <property name="icon-name">emblem-videos-symbolic</property>
-            <property name="title" translatable="yes">Compress Videos</property>
-            <property name="description" translatable="yes">Drag and drop videos here</property>
-            <property name="child">
-              <object class="GtkButton">
-                <property name="label" translatable="yes">Open</property>
-                <property name="can-shrink">True</property>
-                <property name="halign">GTK_ALIGN_CENTER</property>
-                <style>
-                  <class name="pill"/>
-                  <class name="suggested-action"/>
-                </style>
+          <object class="AdwOverlaySplitView" id="split_view">
+            <property name="show-sidebar" bind-source="show_sidebar_button" bind-property="active" bind-flags="sync-create|bidirectional"/>
+            <property name="min-sidebar-width">300</property>
+            <property name="max-sidebar-width">400</property>
+            <property name="sidebar">
+              <object class="GtkScrolledWindow">
+                <child>
+                  <object class="GtkBox">
+                    <property name="orientation">vertical</property>
+                    <property name="spacing">12</property>
+                    <property name="margin-bottom">12</property>
+                    <property name="margin-top">12</property>
+                    <property name="margin-start">12</property>
+                    <property name="margin-end">12</property>
+                    <child>
+                      <object class="AdwPreferencesGroup">
+                        <!-- <property name="selection-mode">None</property> -->
+                        <child>
+                          <object class="AdwSpinRow">
+                            <property name="title">Target Size (MB)</property>
+                            <property name="numeric">True</property>
+                            <property name="adjustment">
+                              <object class="GtkAdjustment">
+                                <property name="lower">1</property>
+                                <property name="upper">999999</property>
+                                <property name="value">10</property>
+                                <property name="page-increment">10</property>
+                                <property name="step-increment">1</property>
+                              </object>
+                            </property>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="AdwPreferencesGroup">
+                        <property name="title">Framerate Limit</property>
+                        <child type="header-suffix">
+                          <object class="GtkButton">
+                            <property name="icon-name">help-about-symbolic</property>
+                            <property name="tooltip-text" translatable="yes">Information</property>
+                            <style>
+                              <class name="flat"/>
+                            </style>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="AdwActionRow">
+                            <property name="activatable-widget">auto_check_button</property>
+                            <property name="title">Automatic</property>
+                            <property name="subtitle">Use the highest framerate without sacrificing resolution</property>
+                            <child type="prefix">
+                              <object class="GtkCheckButton" id="auto_check_button">
+                                <property name="active">True</property>
+                              </object>
+                            </child>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="AdwActionRow">
+                            <property name="activatable-widget">30fps_check_button</property>
+                            <property name="title">30 FPS</property>
+                            <property name="subtitle">Ensure higher image clarity</property>
+                            <child type="prefix">
+                              <object class="GtkCheckButton" id="30fps_check_button">
+                                <property name="group">auto_check_button</property>
+                              </object>
+                            </child>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="AdwActionRow">
+                            <property name="activatable-widget">60fps_check_button</property>
+                            <property name="title">60 FPS</property>
+                            <property name="subtitle">Ensure smoother motion</property>
+                            <child type="prefix">
+                              <object class="GtkCheckButton" id="60fps_check_button">
+                                <property name="group">auto_check_button</property>
+                              </object>
+                            </child>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="AdwPreferencesGroup">
+                        <property name="title">Encoding Options</property>
+                        <child>
+                          <object class="AdwComboRow">
+                            <property name="title">Video Codec</property>
+                            <property name="model">
+                              <object class="GtkStringList">
+                                <items>
+                                  <item translatable="no">H.264</item>
+                                  <item translatable="no">H.265 (HEVC)</item>
+                                  <item translatable="no">AV1</item>
+                                </items>
+                              </object>
+                            </property>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="AdwSwitchRow">
+                            <property name="title">Extra Quality</property>
+                            <property name="subtitle">Increase image quality at the cost of compression time</property>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="AdwPreferencesGroup">
+                        <property name="title">Advanced Options</property>
+                        <child>
+                          <object class="AdwSpinRow">
+                            <property name="title">Tolerance (%)</property>
+                            <property name="subtitle">How far end file sizes can be below target</property>
+                            <property name="numeric">True</property>
+                            <property name="adjustment">
+                              <object class="GtkAdjustment">
+                                <property name="lower">5</property>
+                                <property name="upper">100</property>
+                                <property name="value">10</property>
+                                <property name="page-increment">10</property>
+                                <property name="step-increment">1</property>
+                              </object>
+                            </property>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+              </object>
+            </property>
+            <property name="content">
+              <object class="AdwStatusPage">
+                <property name="icon-name">emblem-videos-symbolic</property>
+                <property name="title" translatable="yes">Compress Videos</property>
+                <property name="description" translatable="yes">Drag and drop videos here</property>
+                <property name="child">
+                  <object class="GtkButton">
+                    <property name="label" translatable="yes">Open…</property>
+                    <property name="can-shrink">True</property>
+                    <property name="halign">GTK_ALIGN_CENTER</property>
+                    <style>
+                      <class name="pill"/>
+                      <class name="suggested-action"/>
+                    </style>
+                  </object>
+                </property>
               </object>
             </property>
           </object>
