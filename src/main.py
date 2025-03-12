@@ -50,11 +50,14 @@ class ConstrictApplication(Adw.Application):
 
     def on_about_action(self, *args):
         """Callback for the app.about action."""
-        about = Adw.AboutDialog(application_name='constrict',
+        about = Adw.AboutDialog(application_name='Constrict',
                                 application_icon='com.github.wartybix.Constrict',
                                 developer_name='Wartybix',
                                 version='0.1.0',
-                                developers=['Wartybix'],
+                                developers=['Wartybix', 'Matthew Baggett', 'Ethan Martin'],
+                                website='https://github.com/Wartybix/Constrict',
+                                issue_url='https://github.com/Wartybix/Constrict/issues',
+                                license_type='GTK_LICENSE_GPL_3_0',
                                 copyright='© 2025 Wartybix')
         # Translators: Replace "translator-credits" with your name/username, and optionally an email or URL.
         about.set_translator_credits(_('translator-credits'))
