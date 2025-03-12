@@ -174,6 +174,7 @@
             </property>
             <property name="content">
               <object class="AdwStatusPage">
+                <property name="visible">False</property>
                 <property name="icon-name">emblem-videos-symbolic</property>
                 <property name="title" translatable="yes">Compress Videos</property>
                 <property name="description" translatable="yes">Drag and drop videos here</property>
@@ -189,6 +190,96 @@
                   </object>
                 </property>
               </object>
+                <object class="AdwToolbarView">
+                  <child>
+                    <object class="GtkScrolledWindow">
+                      <child>
+                        <object class="GtkViewport">
+                          <property name="vexpand">True</property>
+                          <child>
+                            <object class="GtkBox">
+                              <property name="spacing">12</property>
+                              <!-- <property name="margin-bottom">12</property> -->
+                              <property name="margin-top">24</property>
+                              <property name="margin-bottom">24</property>
+                              <property name="margin-start">12</property>
+                              <property name="margin-end">12</property>
+                              <property name="orientation">vertical</property>
+                              <child>
+                                <object class="AdwClamp">
+                                  <child>
+                                    <object class="AdwPreferencesGroup">
+                                      <child>
+                                        <object class="AdwActionRow">
+                                          <property name="title">file name</property>
+                                          <property name="subtitle">1080p@60 → 360@30</property>
+                                          <child>
+                                            <object class="GtkProgressBar">
+                                              <property name="valign">GTK_ALIGN_CENTER</property>
+                                              <property name="show-text">True</property>
+                                              <property name="fraction">0.86</property>
+                                              <property name="text">86 % – About 3 minutes left</property>
+                                              <style>
+                                                <class name="activity"/>
+                                              </style>
+                                            </object>
+                                          </child>
+                                        </object>
+                                      </child>
+                                      <child>
+                                        <object class="AdwActionRow">
+                                          <property name="title">filler</property>
+                                        </object>
+                                      </child>
+                                      <child>
+                                        <object class="AdwActionRow">
+                                          <property name="title">filler</property>
+                                        </object>
+                                      </child>
+                                      <child>
+                                        <object class="AdwActionRow">
+                                          <property name="title">filler</property>
+                                        </object>
+                                      </child>
+                                      <child>
+                                        <object class="AdwActionRow">
+                                          <property name="title">filler</property>
+                                        </object>
+                                      </child>
+                                      <child>
+                                        <object class="AdwButtonRow">
+                                          <property name="start-icon-name">list-add-symbolic</property>
+                                          <property name="title" translatable="yes">Add Videos…</property>
+                                        </object>
+                                      </child>
+                                    </object>
+                                  </child>
+                                </object>
+                              </child>
+                            </object>
+                          </child>
+                        </object>
+                      </child>
+                    </object>
+                  </child>
+                  <child type="bottom">
+                    <object class="GtkActionBar">
+                      <!-- <property name="homogeneous">True</property> -->
+                      <child type="center">
+                        <object class="GtkButton">
+                          <property name="label">Export…</property>
+                          <property name="halign">GTK_ALIGN_CENTER</property>
+                          <property name="margin-top">6</property>
+                          <property name="margin-bottom">6</property>
+                          <style>
+                            <class name="pill"/>
+                            <class name="suggested-action"/>
+                          </style>
+                        </object>
+                      </child>
+                    </object>
+                  </child>
+                </object>
             </property>
           </object>
         </property>
@@ -212,3 +303,4 @@
     </section>
   </menu>
 </interface>
+
