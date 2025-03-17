@@ -24,6 +24,7 @@ class ConstrictWindow(Adw.ApplicationWindow):
     __gtype_name__ = 'ConstrictWindow'
 
     split_view = Gtk.Template.Child()
+    export_button = Gtk.Template.Child()
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -31,6 +32,13 @@ class ConstrictWindow(Adw.ApplicationWindow):
         toggle_sidebar_action = Gio.SimpleAction(name="toggle-sidebar")
         toggle_sidebar_action.connect("activate", self.toggle_sidebar)
         self.add_action(toggle_sidebar_action)
+
+        export_action = Gio.SimpleAction(name="export")
+        export_action.connect("activate", self.export)
+        self.add_action(export_action)
+
+    def export(self, action, _):
+        print("Export action run")
 
     def toggle_sidebar(self, action, _):
         sidebar_shown = self.split_view.get_show_sidebar()

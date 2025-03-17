@@ -266,8 +266,9 @@
                     <object class="GtkActionBar">
                       <!-- <property name="homogeneous">True</property> -->
                       <child type="center">
-                        <object class="GtkButton">
+                        <object class="GtkButton" id="export_button">
                           <property name="label">Export…</property>
+                          <property name="action-name">win.export</property>
                           <property name="halign">GTK_ALIGN_CENTER</property>
                           <property name="margin-top">6</property>
                           <property name="margin-bottom">6</property>
