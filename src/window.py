@@ -17,14 +17,21 @@
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from gi.repository import Adw
-from gi.repository import Gtk
+from gi.repository import Adw, Gtk, Gio
 
 @Gtk.Template(resource_path='/com/github/wartybix/Constrict/window.ui')
 class ConstrictWindow(Adw.ApplicationWindow):
     __gtype_name__ = 'ConstrictWindow'
 
-    label = Gtk.Template.Child()
+    split_view = Gtk.Template.Child()
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+
+        toggle_sidebar_action = Gio.SimpleAction(name="toggle-sidebar")
+        toggle_sidebar_action.connect("activate", self.toggle_sidebar)
+        self.add_action(toggle_sidebar_action)
+
+    def toggle_sidebar(self, action, _):
+        sidebar_shown = self.split_view.get_show_sidebar()
+        self.split_view.set_show_sidebar(not sidebar_shown)
