@@ -38,6 +38,7 @@ class ConstrictApplication(Adw.Application):
         self.create_action('preferences', self.on_preferences_action)
 
         self.set_accels_for_action('win.toggle-sidebar', ['F9'])
+        self.set_accels_for_action('win.open', ['<Ctrl>o'])
         self.set_accels_for_action('win.export', ['<Ctrl>e', '<Shift><Ctrl>e'])
 
     def do_activate(self):

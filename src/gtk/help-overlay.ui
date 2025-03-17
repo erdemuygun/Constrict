@@ -11,6 +11,12 @@
             <property name="title" translatable="yes" context="shortcut window">Video Management</property>
             <child>
               <object class="GtkShortcutsShortcut">
+                <property name="title" translatable="yes" context="shortcut window">Open</property>
+                <property name="action-name">win.open</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkShortcutsShortcut">
                 <property name="title" translatable="yes" context="shortcut window">Export</property>
                 <property name="action-name">win.export</property>
               </object>

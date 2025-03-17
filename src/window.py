@@ -33,9 +33,16 @@ class ConstrictWindow(Adw.ApplicationWindow):
         toggle_sidebar_action.connect("activate", self.toggle_sidebar)
         self.add_action(toggle_sidebar_action)
 
+        open_action = Gio.SimpleAction(name="open")
+        open_action.connect("activate", self.open)
+        self.add_action(open_action)
+
         export_action = Gio.SimpleAction(name="export")
         export_action.connect("activate", self.export)
         self.add_action(export_action)
+
+    def open(self, action, _):
+        print("Open action run")
 
     def export(self, action, _):
         print("Export action run")
