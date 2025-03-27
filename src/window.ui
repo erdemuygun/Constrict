@@ -209,7 +209,7 @@
                             <child>
                               <object class="AdwClamp">
                                 <child>
-                                  <object class="AdwPreferencesGroup">
+                                  <object class="AdwPreferencesGroup" id="video_queue">
                                     <child>
                                       <object class="AdwActionRow">
                                         <property name="title">file name</property>
@@ -228,27 +228,7 @@
                                       </object>
                                     </child>
                                     <child>
-                                      <object class="AdwActionRow">
-                                        <property name="title">filler</property>
-                                      </object>
-                                    </child>
-                                    <child>
-                                      <object class="AdwActionRow">
-                                        <property name="title">filler</property>
-                                      </object>
-                                    </child>
-                                    <child>
-                                      <object class="AdwActionRow">
-                                        <property name="title">filler</property>
-                                      </object>
-                                    </child>
-                                    <child>
-                                      <object class="AdwActionRow">
-                                        <property name="title">filler</property>
-                                      </object>
-                                    </child>
-                                    <child>
-                                      <object class="AdwButtonRow">
+                                      <object class="AdwButtonRow" id="add_videos_button">
                                         <property name="start-icon-name">list-add-symbolic</property>
                                         <property name="title" translatable="yes">Add Videos…</property>
                                         <property name="action-name">win.open</property>

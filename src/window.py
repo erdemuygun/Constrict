@@ -25,6 +25,10 @@ class ConstrictWindow(Adw.ApplicationWindow):
 
     split_view = Gtk.Template.Child()
     export_button = Gtk.Template.Child()
+    video_queue = Gtk.Template.Child()
+    add_videos_button = Gtk.Template.Child()
+
+    staged_videos = []
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -34,7 +38,7 @@ class ConstrictWindow(Adw.ApplicationWindow):
         self.add_action(toggle_sidebar_action)
 
         open_action = Gio.SimpleAction(name="open")
-        open_action.connect("activate", self.open)
+        open_action.connect("activate", self.open_file_dialog)
         self.add_action(open_action)
 
         export_action = Gio.SimpleAction(name="export")
@@ -50,3 +54,34 @@ class ConstrictWindow(Adw.ApplicationWindow):
     def toggle_sidebar(self, action, _):
         sidebar_shown = self.split_view.get_show_sidebar()
         self.split_view.set_show_sidebar(not sidebar_shown)
+
+    def open_file_dialog(self, action, parameter):
+        # Create new file selection dialog, using "open" mode
+        native = Gtk.FileDialog()
+        native.open_multiple(self, None, self.on_open_response)
+
+    def on_open_response(self, dialog, result):
+        files = dialog.open_multiple_finish(result)
+
+        if not files:
+            return
+
+        self.video_queue.remove(self.add_videos_button)
+
+        for video in files:
+            # TODO: make async query?
+            info = video.query_info('standard::display-name', Gio.FileQueryInfoFlags.NONE)
+            display_name = info.get_display_name() if info else video.get_basename()
+            print(f'{video.get_basename()} - {video.get_path()}')
+
+            # TODO: Add thumbnail -- I think Nautilus generates one from a
+            # frame 1/3 through the video
+
+            action_row = Adw.ActionRow()
+            action_row.set_title(display_name)
+
+            self.video_queue.add(action_row)
+            self.staged_videos.append(video.get_path())
+
+        self.video_queue.add(self.add_videos_button)
+        print(self.staged_videos)
