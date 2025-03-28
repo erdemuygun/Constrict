@@ -58,6 +58,14 @@ class ConstrictWindow(Adw.ApplicationWindow):
     def open_file_dialog(self, action, parameter):
         # Create new file selection dialog, using "open" mode
         native = Gtk.FileDialog()
+        video_filter = Gtk.FileFilter()
+
+        video_filter.add_mime_type('video/*')
+        video_filter.set_name('Videos')
+
+        native.set_default_filter(video_filter)
+        native.set_title('Pick Videos')
+
         native.open_multiple(self, None, self.on_open_response)
 
     def on_open_response(self, dialog, result):
