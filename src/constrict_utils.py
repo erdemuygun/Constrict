@@ -144,9 +144,12 @@ def get_encoding_speed(frame_height, codec, extra_quality):
 
 
 def get_progress(file_input, ffmpeg_cmd):
-    pv_cmd = subprocess.Popen(['pv', file_input], stdout=subprocess.PIPE)
-    ffmpeg_cmd = subprocess.check_output(ffmpeg_cmd, stdin=pv_cmd.stdout)
-    pv_cmd.wait()
+    #pv_cmd = subprocess.Popen(['pv', file_input], stdout=subprocess.PIPE)
+    # ffmpeg_cmd = subprocess.check_output(ffmpeg_cmd, stdin=pv_cmd.stdout)
+    # pv_cmd.wait()
+    # subprocess.run()
+
+    subprocess.run(ffmpeg_cmd)
 
 
 def transcode(
@@ -167,8 +170,11 @@ def transcode(
 
     preset = get_encoding_speed(frame_height, codec, extra_quality)
 
+    # TODO: dynamically look for installed encoders?
+    # TODO: see if VP9 works in flatpak?
+
     cv_params = {
-        'h264': 'libx264',
+        'h264': 'libopenh264',
         'hevc': 'libx265',
         'av1': 'libsvtav1'
     }
@@ -176,9 +182,9 @@ def transcode(
     pass1_cmd = [
         'ffmpeg',
         '-y',
-        '-hide_banner',
-        '-loglevel', 'error',
-        '-i', 'pipe:0',
+        # '-hide_banner',
+        # '-loglevel', 'error',
+        '-i', f'{file_input}',
         '-row-mt', '1',
         '-frame-parallel', '1',
         '-preset', f'{preset}',
@@ -187,6 +193,9 @@ def transcode(
         # '-threads', '24',
         '-vf', f'scale={width}:{height}',
     ]
+
+    if codec == 'h264':
+        pass1_cmd.extend(['-profile:v', 'main'])
 
     if framerate != -1:
         pass1_cmd.extend(['-r', f'{framerate}'])
@@ -209,9 +218,9 @@ def transcode(
     pass2_cmd = [
         'ffmpeg',
         '-y',
-        '-hide_banner',
-        '-loglevel', 'error',
-        '-i', 'pipe:0',
+        # '-hide_banner',
+        # '-loglevel', 'error',
+        '-i', f'{file_input}',
         '-row-mt', '1',
         '-frame-parallel', '1',
         '-preset', f'{preset}',
@@ -220,6 +229,9 @@ def transcode(
         # '-cpu-used', cpuUsed,
         '-vf', f'scale={width}:{height}',
     ]
+
+    if codec == 'h264':
+        pass2_cmd.extend(['-profile', 'main'])
 
     if framerate != -1:
         pass2_cmd.extend(['-r', f'{framerate}'])
@@ -416,6 +428,7 @@ change output_fn argument to be raw data, not strings (human readable strings
     should be created on the interface side, not in these functions).
 change 'pv' command to output to output_fn, not writing directly to the
     terminal.
+use a sliding window for repeated compression attempts?
 """
 
 def compress(

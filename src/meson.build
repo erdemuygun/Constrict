@@ -30,6 +30,7 @@ constrict_sources = [
   '__init__.py',
   'main.py',
   'window.py',
+  'constrict_utils.py',
 ]
 
 install_data(constrict_sources, install_dir: moduledir)

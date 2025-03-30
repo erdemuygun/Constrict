@@ -18,6 +18,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 from gi.repository import Adw, Gtk, Gio
+from constrict.constrict_utils import compress
 
 @Gtk.Template(resource_path='/com/github/wartybix/Constrict/window.ui')
 class ConstrictWindow(Adw.ApplicationWindow):
@@ -42,7 +43,7 @@ class ConstrictWindow(Adw.ApplicationWindow):
         self.add_action(open_action)
 
         export_action = Gio.SimpleAction(name="export")
-        export_action.connect("activate", self.export)
+        export_action.connect("activate", self.export_file_dialog)
         self.add_action(export_action)
 
     def open(self, action, _):
@@ -54,6 +55,30 @@ class ConstrictWindow(Adw.ApplicationWindow):
     def toggle_sidebar(self, action, _):
         sidebar_shown = self.split_view.get_show_sidebar()
         self.split_view.set_show_sidebar(not sidebar_shown)
+
+    def export_file_dialog(self, action, parameter):
+        native = Gtk.FileDialog()
+        native.select_folder(self, None, self.on_export_response)
+
+    def on_export_response(self, dialog, result):
+        folder = dialog.select_folder_finish(result)
+
+        if not folder:
+            return
+
+        print(folder.get_path())
+
+        for video in self.staged_videos:
+            compress(
+                video,
+                10,
+                'auto',
+                False,
+                'h264',
+                10,
+                None,
+                lambda x: print(x)
+            )
 
     def open_file_dialog(self, action, parameter):
         # Create new file selection dialog, using "open" mode
