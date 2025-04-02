@@ -29,6 +29,13 @@ class ConstrictWindow(Adw.ApplicationWindow):
     export_button = Gtk.Template.Child()
     video_queue = Gtk.Template.Child()
     add_videos_button = Gtk.Template.Child()
+    target_size_input = Gtk.Template.Child()
+    auto_check_button = Gtk.Template.Child()
+    clear_check_button = Gtk.Template.Child()
+    smooth_check_button = Gtk.Template.Child()
+    codec_dropdown = Gtk.Template.Child()
+    extra_quality_toggle = Gtk.Template.Child()
+    tolerance_input = Gtk.Template.Child()
 
     staged_videos = []
 
@@ -46,6 +53,24 @@ class ConstrictWindow(Adw.ApplicationWindow):
         export_action = Gio.SimpleAction(name="export")
         export_action.connect("activate", self.export_file_dialog)
         self.add_action(export_action)
+
+        self.target_size_input.connect("value-changed", self.refresh_previews)
+        self.auto_check_button.connect("activate", self.refresh_previews)
+        self.clear_check_button.connect("activate", self.refresh_previews)
+        self.smooth_check_button.connect("activate", self.refresh_previews)
+
+    def refresh_previews(self, _):
+        print(f"Previews refreshed")
+
+    def get_fps_mode(self):
+        if self.auto_check_button.get_active():
+            return 'auto'
+        if self.clear_check_button.get_active():
+            return 'prefer-clear'
+        if self.smooth_check_button.get_active():
+            return 'prefer-smooth'
+
+        raise Exception('Tried to get fps mode, but none was set.')
 
     def open(self, action, _):
         print("Open action run")
@@ -69,14 +94,25 @@ class ConstrictWindow(Adw.ApplicationWindow):
 
         print(folder.get_path())
 
+        codecs = ['h264', 'hevc', 'av1']
+
+        target_size = int(self.target_size_input.get_value())
+        fps_mode = self.get_fps_mode()
+        codec = codecs[self.codec_dropdown.get_selected()]
+        extra_quality = self.extra_quality_toggle.get_active()
+        tolerance = int(self.tolerance_input.get_value())
+
+        print(f'fps mode: {fps_mode}')
+        print(f'codec: {codec}')
+
         for video in self.staged_videos:
             compress(
                 video,
-                10,
-                'auto',
-                False,
-                'h264',
-                10,
+                target_size,
+                fps_mode,
+                extra_quality,
+                codec,
+                tolerance,
                 None,
                 lambda x: print(x)
             )

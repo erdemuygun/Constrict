@@ -60,7 +60,7 @@
                             <property name="title">Target Size (MB)</property>
                             <property name="numeric">True</property>
                             <property name="adjustment">
-                              <object class="GtkAdjustment">
+                              <object class="GtkAdjustment" id="target_size_input">
                                 <property name="lower">1</property>
                                 <property name="upper">999999</property>
                                 <property name="value">10</property>
@@ -98,11 +98,11 @@
                         </child>
                         <child>
                           <object class="AdwActionRow">
-                            <property name="activatable-widget">30fps_check_button</property>
+                            <property name="activatable-widget">clear_check_button</property>
                             <property name="title">30 FPS</property>
                             <property name="subtitle">Ensure higher image clarity</property>
                             <child type="prefix">
-                              <object class="GtkCheckButton" id="30fps_check_button">
+                              <object class="GtkCheckButton" id="clear_check_button">
                                 <property name="group">auto_check_button</property>
                               </object>
                             </child>
@@ -110,11 +110,11 @@
                         </child>
                         <child>
                           <object class="AdwActionRow">
-                            <property name="activatable-widget">60fps_check_button</property>
+                            <property name="activatable-widget">smooth_check_button</property>
                             <property name="title">60 FPS</property>
                             <property name="subtitle">Ensure smoother motion</property>
                             <child type="prefix">
-                              <object class="GtkCheckButton" id="60fps_check_button">
+                              <object class="GtkCheckButton" id="smooth_check_button">
                                 <property name="group">auto_check_button</property>
                               </object>
                             </child>
@@ -126,7 +126,7 @@
                       <object class="AdwPreferencesGroup">
                         <property name="title">Encoding Options</property>
                         <child>
-                          <object class="AdwComboRow">
+                          <object class="AdwComboRow" id="codec_dropdown">
                             <property name="title">Video Codec</property>
                             <property name="model">
                               <object class="GtkStringList">
@@ -140,7 +140,7 @@
                           </object>
                         </child>
                         <child>
-                          <object class="AdwSwitchRow">
+                          <object class="AdwSwitchRow" id="extra_quality_toggle">
                             <property name="title">Extra Quality</property>
                             <property name="subtitle">Increase image quality at the cost of compression time</property>
                           </object>
@@ -156,7 +156,7 @@
                             <property name="subtitle">How far end file sizes can be below target</property>
                             <property name="numeric">True</property>
                             <property name="adjustment">
-                              <object class="GtkAdjustment">
+                              <object class="GtkAdjustment" id="tolerance_input">
                                 <property name="lower">5</property>
                                 <property name="upper">100</property>
                                 <property name="value">10</property>
