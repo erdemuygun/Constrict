@@ -25,6 +25,7 @@ class ConstrictWindow(Adw.ApplicationWindow):
     __gtype_name__ = 'ConstrictWindow'
 
     split_view = Gtk.Template.Child()
+    view_stack = Gtk.Template.Child()
     export_button = Gtk.Template.Child()
     video_queue = Gtk.Template.Child()
     add_videos_button = Gtk.Template.Child()
@@ -117,4 +118,8 @@ class ConstrictWindow(Adw.ApplicationWindow):
             self.staged_videos.append(video.get_path())
 
         self.video_queue.add(self.add_videos_button)
+
+        if self.staged_videos:
+            self.view_stack.set_visible_child_name('queue_page')
+
         print(self.staged_videos)
