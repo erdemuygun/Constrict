@@ -104,9 +104,14 @@ class ConstrictWindow(Adw.ApplicationWindow):
 
         for video in files:
             # TODO: make async query?
+            video_path = video.get_path()
+
+            if video_path in self.staged_videos:
+                continue
+
             info = video.query_info('standard::display-name', Gio.FileQueryInfoFlags.NONE)
             display_name = info.get_display_name() if info else video.get_basename()
-            print(f'{video.get_basename()} - {video.get_path()}')
+            print(f'{video.get_basename()} - {video_path}')
 
             # TODO: Add thumbnail -- I think Nautilus generates one from a
             # frame 1/3 through the video
