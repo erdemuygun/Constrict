@@ -174,7 +174,7 @@ def transcode(
     # TODO: see if VP9 works in flatpak?
 
     cv_params = {
-        'h264': 'libopenh264',
+        'h264': 'libx264',
         'hevc': 'libx265',
         'av1': 'libsvtav1'
     }

@@ -10,6 +10,18 @@
         "--device=dri",
         "--socket=wayland"
     ],
+    "add-extensions" : {
+        "org.freedesktop.Platform.ffmpeg-full" : {
+            "version" : "24.08",
+            "directory" : "lib/ffmpeg",
+            "add-ld-path" : ".",
+            "no-autodownload" : false,
+            "autodelete" : false
+        }
+    },
+    "cleanup-commands" : [
+        "mkdir -p ${FLATPAK_DEST}/lib/ffmpeg"
+    ],
     "cleanup" : [
         "/include",
         "/lib/pkgconfig",
@@ -29,7 +41,8 @@
             "sources" : [
                 {
                     "type" : "git",
-                    "url" : "file:///home/wartybix/Projects"
+                    "url" : "file:///home/wartybix/Projects/Constrict",
+                    "branch" : "wip"
                 }
             ]
         }
