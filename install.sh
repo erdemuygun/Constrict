@@ -1,7 +1,10 @@
 #!/bin/sh
 
-if [ $UID == 0 ]; then
-	install -Dm755 constrict.py "/usr/bin/constrict"
-else
-	echo "Please run this installer as root."
-fi
+# Install Flathub
+flatpak remote-add --if-not-exists --user flathub https://dl.flathub.org/repo/flathub.flatpakrepo
+
+# Build & install
+flatpak-builder --force-clean --user --install-deps-from=flathub --repo=repo --install builddir com.github.wartybix.Constrict.json
+
+# Run
+flatpak run com.github.wartybix.Constrict
