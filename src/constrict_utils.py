@@ -271,41 +271,6 @@ def get_framerate(file_input):
     return fps_float
 
 
-def is_streamable(file_input):
-    cmd = ['head', file_input]
-    file_head = subprocess.check_output(cmd)
-
-    moov_bytes = 'moov'.encode('utf-8')
-    mdat_bytes = 'mdat'.encode('utf-8')
-
-    #  print(f'moov found: {moov_bytes in file_head}')
-    #  print(f'mdat found: {mdat_bytes in file_head}')
-
-    if moov_bytes not in file_head:
-        return mdat_bytes not in file_head
-
-    # moov is now confirmed to be present
-
-    if mdat_bytes not in file_head:
-        return True
-
-    # mdia is now confirmed to be present
-
-    moov_index = file_head.index(moov_bytes)
-    mdat_index = file_head.index(mdat_bytes)
-
-    # print(moov_index)
-    # print(mdat_index)
-
-    # faststart enabled if 'moov' shows up before 'mdia'
-    return moov_index < mdat_index
-
-
-def make_streamable(file_input, file_output):
-    cmd = ['qt-faststart', file_input, file_output]
-    subprocess.run(cmd, stdout=subprocess.DEVNULL)
-
-
 def get_resolution(file_input):
     cmd = [
         'ffprobe',
@@ -451,20 +416,6 @@ def compress(
     target_size_bytes = target_size_KiB * 1024
     target_size_bits = target_size_bytes * 8
     duration_seconds = get_duration(file_input)
-
-    is_input_streamable = is_streamable(file_input)
-    streamable_input = 'streamable_input'
-
-    if not is_input_streamable:
-        output_fn(heading('Creating input stream...'))
-
-        root_ext = os.path.splitext(file_input)
-        streamable_input = new_file(f'{root_ext[0]}-stream{root_ext[1]}')
-
-        make_streamable(file_input, streamable_input)
-        file_input = streamable_input
-
-    # print(f'Fast start enabled: {is_input_streamable}')
 
     before_size_bytes = os.stat(file_input).st_size
 
@@ -620,9 +571,6 @@ def compress(
             ['New Size', f"{'{:.2f}'.format(after_size_bytes/1024/1024)}MB"],
             ['Percentage of Target', f"{'{:.0f}'.format(percent_of_target)}%"]
         ]))
-
-    if not is_input_streamable:
-        os.remove(streamable_input)
 
     time_taken = datetime.datetime.now().replace(microsecond=0) - start_time
     output_fn(f"\nCompleted in {time_taken}.")
