@@ -116,7 +116,8 @@ def get_res_preset(bitrate, source_width, source_height, framerate):
         ):
             return preset_height
 
-    return -1
+    portrait = source_height > source_width
+    return source_width if portrait else source_height
 
 
 def get_encoding_speed(frame_height, codec, extra_quality):
@@ -352,6 +353,103 @@ def table(data):
     return msg
 
 
+def get_encode_settings(
+    target_size_MiB,
+    fps_mode,
+    width,
+    height,
+    fps,
+    duration,
+    factor=1
+):
+    target_size_KiB = target_size_MiB * 1024
+    target_size_bytes = target_size_KiB * 1024
+    target_size_bits = target_size_bytes * 8
+
+    target_bitrate = round(target_size_bits / duration)
+
+    '''
+    crush mode tries to save some image clarity by significantly reducing audio
+    quality and introducing a 24 FPS framerate cap. This makes the footage look
+    slightly less blurry at 144p, and can sometimes save it from being
+    downgraded to 144p as a preset resolution due to the boost in video
+    bitrate.
+
+    Why is the threshold 150 + 96 (= 246)? It's the sum of the lowest
+    recommended bitrate for 240p (150Kbps), plus a 'good quality' bitrate for
+    Opus audio (96Kbps). It means that it shouldn't be possible to 'downgrade'
+    the video to 144p without applying crush mode. Additionally, footage can be
+    'saved' from being downgraded to 144p where, for example:
+
+    Total target bitrate = 200Kbps
+    Bitrate less than threshold, therefore apply crush mode.
+    Target audio bitrate set to 6Kbps (rather than 96Kbps) due to crush mode.
+    Therefore, video bitrate is 194Kbps
+    This is *above* 150Kbps, therefore preset resolution is 240p@24
+
+    And if there was no crush mode:
+    Total target bitrate = 200Kbps
+    Target audio bitrate set to 96Kbps
+    Therefore, video bitrate is 104Kbps
+    This is *below* 150Kbps, therefore preset resolution is 144p@?
+    '''
+    crush_mode = (target_bitrate / 1000) < 150 + 96
+    target_audio_bitrate = 6000 if crush_mode else 96000
+    target_video_bitrate = target_bitrate - target_audio_bitrate
+
+    target_video_bitrate *= factor
+
+    # To account for metadata and such to prevent overshooting
+    target_video_bitrate = round(target_video_bitrate * 0.99)
+
+    if target_video_bitrate < 1000:
+        return None
+
+    preset_height = None
+    max_fps = None
+
+    if crush_mode:
+        max_fps = 24
+    elif fps_mode == 'prefer-clear':
+        max_fps = 30
+    elif fps_mode == 'prefer-smooth':
+        max_fps = 60
+    elif fps_mode == 'auto':
+        preset_height_30fps = get_res_preset(
+            target_video_bitrate,
+            width,
+            height,
+            30
+        )
+        preset_height_60fps = get_res_preset(
+            target_video_bitrate,
+            width,
+            height,
+            60
+        )
+
+        preset_height = preset_height_30fps
+        heights_match = preset_height_30fps == preset_height_60fps
+        max_fps = 60 if heights_match and preset_height >= 720 else 30
+
+    target_fps = fps if fps <= max_fps else max_fps
+
+    if preset_height is None:
+        preset_height = get_res_preset(
+            target_video_bitrate,
+            width,
+            height,
+            target_fps
+        )
+
+    return (
+        target_video_bitrate,
+        target_audio_bitrate,
+        preset_height,
+        target_fps
+    )
+
+
 """ TODO:
 check for non-existent files (or non-video files) -- exit 1 with error msg
 allow different units for desired file size
@@ -412,20 +510,15 @@ def compress(
         root_ext = os.path.splitext(file_input)
         file_output = new_file(f'{root_ext[0]} (compressed).mp4')
 
-    target_size_KiB = target_size_MiB * 1024
-    target_size_bytes = target_size_KiB * 1024
-    target_size_bits = target_size_bytes * 8
     duration_seconds = get_duration(file_input)
 
+    target_size_bytes = target_size_MiB * 1024 * 1024
     before_size_bytes = os.stat(file_input).st_size
 
     if before_size_bytes <= target_size_bytes:
         output_fn("File already meets the target size.")
         return
 
-    reduction_factor = target_size_bytes / before_size_bytes
-
-    target_total_bitrate = round(target_size_bits / duration_seconds)
     source_fps = get_framerate(file_input)
     width, height = get_resolution(file_input)
     # print(f'Resolution: {width}x{height}')
@@ -439,102 +532,35 @@ def compress(
     attempt = 0
     while (factor > 1.0 + (tolerance / 100)) or (factor < 1):
         attempt = attempt + 1
-        target_total_bitrate = round((target_total_bitrate) * (factor or 1))
-        print(f'target total {target_total_bitrate // 1000}Kbps')
 
-        '''
-        crush mode tries to save some image clarity by significantly reducing audio
-        quality and introducing a 24 FPS framerate cap. This makes the footage look
-        slightly less blurry at 144p, and can sometimes save it from being
-        downgraded to 144p as a preset resolution due to the boost in video
-        bitrate.
+        encode_settings = get_encode_settings(
+            target_size_MiB,
+            framerate_option,
+            width,
+            height,
+            source_fps,
+            duration_seconds,
+            factor or 1
+        )
 
-        Why is the threshold 150 + 96 (= 246)? It's the sum of the lowest
-        recommended bitrate for 240p (150Kbps), plus a 'good quality' bitrate for
-        Opus audio (96Kbps). It means that it shouldn't be possible to 'downgrade'
-        the video to 144p without applying crush mode. Additionally, footage can be
-        'saved' from being downgraded to 144p where, for example:
+        print(encode_settings)
 
-        Total target bitrate = 200Kbps
-        Bitrate less than threshold, therefore apply crush mode.
-        Target audio bitrate set to 6Kbps (rather than 96Kbps) due to crush mode.
-        Therefore, video bitrate is 194Kbps
-        This is *above* 150Kbps, therefore preset resolution is 240p@24
-
-        And if there was no crush mode:
-        Total target bitrate = 200Kbps
-        Target audio bitrate set to 96Kbps
-        Therefore, video bitrate is 104Kbps
-        This is *below* 150Kbps, therefore preset resolution is 144p@?
-        '''
-        crush_mode = (target_total_bitrate / 1000) < 150 + 96
-        target_audio_bitrate = 6000 if crush_mode else 96000
-        target_video_bitrate = target_total_bitrate - target_audio_bitrate
-
-        # To account for metadata and such to prevent overshooting
-        target_video_bitrate = round(target_video_bitrate * 0.99)
-
-        if (target_video_bitrate < 1000):
-            output_fn("Video bitrate got too low (<1kbps); aborting")
+        if not encode_settings:
+            output_fn("Video bitrate got too low (1 kbps); aborting")
             return
 
-        target_height = height
-        target_width = width
+        target_video_bitrate, target_audio_bitrate, target_height, target_fps = encode_settings
 
-        preset_height = None
-        max_fps = None
+        print(f'Target height {target_height}')
 
-        if crush_mode:
-            print('max fps set to 24')
-            max_fps = 24
-        elif framerate_option == 'prefer-clear' or source_fps <= 30:
-            print('max fps set to 30')
-            max_fps = 30
-        elif framerate_option == 'prefer-smooth':
-            print('max fps set to 60')
-            max_fps = 60
-        elif framerate_option == 'auto':
-            print('auto fps mode...')
-            preset_height_30fps = get_res_preset(
-                target_video_bitrate,
-                width,
-                height,
-                30
-            )
-            preset_height_60fps = get_res_preset(
-                target_video_bitrate,
-                width,
-                height,
-                60
-            )
+        scaling_factor = height / target_height
+        target_width = int(((width / scaling_factor + 1) // 2) * 2)
 
-            preset_height = preset_height_30fps
-            heights_match = preset_height_30fps == preset_height_60fps
-            max_fps = 60 if heights_match and preset_height >= 720 else 30
-
-        keep_fps = source_fps <= max_fps  # Don't 'increase' FPS from source
-        target_fps = source_fps if source_fps <= max_fps else max_fps
-
-        if preset_height is None:
-            preset_height = get_res_preset(
-                target_video_bitrate,
-                width,
-                height,
-                target_fps
-            )
-
-        print(f'Target height {preset_height}')
-
-        if preset_height != -1:  # If being downscaled:
-            target_height = preset_height
-            scaling_factor = height / target_height
-            target_width = int(((width / scaling_factor + 1) // 2) * 2)
-
-            if portrait:
-                # Swap height and width
-                buffer = target_width
-                target_width = target_height
-                target_height = buffer
+        if portrait:
+            # Swap height and width
+            buffer = target_width
+            target_width = target_height
+            target_height = buffer
 
         displayed_res = target_width if portrait else target_height
 
@@ -552,7 +578,7 @@ def compress(
             target_audio_bitrate,
             target_width,
             target_height,
-            -1 if keep_fps else target_fps,
+            target_fps,
             codec,
             extra_quality,
         )

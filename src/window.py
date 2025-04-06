@@ -18,7 +18,40 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 from gi.repository import Adw, Gtk, Gio
-from constrict.constrict_utils import compress
+from constrict.constrict_utils import compress, get_encode_settings, get_resolution, get_framerate, get_duration
+
+class StagedVideo:
+    def __init__(self, filepath, row, width, height, fps, duration):
+        self.filepath = filepath
+        self.row = row
+        self.width, self.height = width, height
+        self.fps = fps
+        self.duration = duration
+
+    def __string__(self):
+        return f'{self.filepath} - {self.width}×{self.height}@{self.fps} ({self.duration}s)'
+
+
+def preview(target_size_MiB, fps_mode, width, height, fps, duration):
+    encode_settings = get_encode_settings(
+        target_size_MiB,
+        fps_mode,
+        width,
+        height,
+        fps,
+        duration
+    )
+
+    if not encode_settings:
+        return ''
+
+    _, _, preset_height, target_fps = encode_settings
+
+    if height > width:
+        height = width
+
+    return f'{height}p@{fps} → {preset_height}p@{target_fps}'
+
 
 @Gtk.Template(resource_path='/com/github/wartybix/Constrict/window.ui')
 class ConstrictWindow(Adw.ApplicationWindow):
@@ -60,7 +93,19 @@ class ConstrictWindow(Adw.ApplicationWindow):
         self.smooth_check_button.connect("activate", self.refresh_previews)
 
     def refresh_previews(self, _):
-        print(f"Previews refreshed")
+        for video in self.staged_videos:
+            target_size = int(self.target_size_input.get_value())
+            fps_mode = self.get_fps_mode()
+
+            subtitle = preview(
+                target_size,
+                fps_mode,
+                video.width,
+                video.height,
+                video.fps,
+                video.duration
+            )
+            video.row.set_subtitle(subtitle)
 
     def get_fps_mode(self):
         if self.auto_check_button.get_active():
@@ -107,7 +152,7 @@ class ConstrictWindow(Adw.ApplicationWindow):
 
         for video in self.staged_videos:
             compress(
-                video,
+                video.filepath,
                 target_size,
                 fps_mode,
                 extra_quality,
@@ -138,11 +183,14 @@ class ConstrictWindow(Adw.ApplicationWindow):
 
         self.video_queue.remove(self.add_videos_button)
 
+        existing_paths = list(map(lambda x: x.filepath, self.staged_videos))
+        print(existing_paths)
+
         for video in files:
             # TODO: make async query?
             video_path = video.get_path()
 
-            if video_path in self.staged_videos:
+            if video_path in existing_paths:
                 continue
 
             info = video.query_info('standard::display-name', Gio.FileQueryInfoFlags.NONE)
@@ -152,11 +200,24 @@ class ConstrictWindow(Adw.ApplicationWindow):
             # TODO: Add thumbnail -- I think Nautilus generates one from a
             # frame 1/3 through the video
 
+            target_size = int(self.target_size_input.get_value())
+            fps_mode = self.get_fps_mode()
+
             action_row = Adw.ActionRow()
             action_row.set_title(display_name)
 
+            # cache metadata
+            width, height = get_resolution(video)
+            fps = get_framerate(video)
+            duration = get_duration(video)
+
+            subtitle = preview(target_size, fps_mode, width, height, fps, duration)
+            action_row.set_subtitle(subtitle)
+
             self.video_queue.add(action_row)
-            self.staged_videos.append(video.get_path())
+
+            staged_video = StagedVideo(video.get_path(), action_row, width, height, fps, duration)
+            self.staged_videos.append(staged_video)
 
         self.video_queue.add(self.add_videos_button)
 
