@@ -25,9 +25,22 @@ class StagedVideo:
     def __init__(self, filepath, row, width, height, fps, duration):
         self.filepath = filepath
         self.row = row
+        self.suffix = None
         self.width, self.height = width, height
         self.fps = fps
         self.duration = duration
+
+    def clear_suffix(self):
+        if self.suffix:
+            self.row.remove(self.suffix)
+
+        self.suffix = None
+
+    def set_suffix(self, suffix):
+        self.clear_suffix()
+
+        self.row.add_suffix(suffix)
+        self.suffix = suffix
 
     def __string__(self):
         return f'{self.filepath} - {self.width}×{self.height}@{self.fps} ({self.duration}s)'
@@ -152,6 +165,9 @@ class ConstrictWindow(Adw.ApplicationWindow):
         tolerance = int(self.tolerance_input.get_value())
 
         for video in self.staged_videos:
+            compressing_text = Gtk.Label.new('Compressing…')
+            video.set_suffix(compressing_text)
+
             compress(
                 video.filepath,
                 target_size,
@@ -162,6 +178,11 @@ class ConstrictWindow(Adw.ApplicationWindow):
                 None,
                 lambda x: print(x)
             )
+
+            complete_text = Gtk.Label.new('Complete')
+            complete_text.add_css_class('success')
+
+            video.set_suffix(complete_text)
 
     def open_file_dialog(self, action, parameter):
         # Create new file selection dialog, using "open" mode
