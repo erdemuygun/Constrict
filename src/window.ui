@@ -56,7 +56,7 @@
                       <object class="AdwPreferencesGroup">
                         <!-- <property name="selection-mode">None</property> -->
                         <child>
-                          <object class="AdwSpinRow">
+                          <object class="AdwSpinRow" id="target_size_row">
                             <property name="title">Target Size (MB)</property>
                             <property name="numeric">True</property>
                             <property name="adjustment">
@@ -102,7 +102,7 @@
                           </object>
                         </child>
                         <child>
-                          <object class="AdwActionRow">
+                          <object class="AdwActionRow" id="auto_row">
                             <property name="activatable-widget">auto_check_button</property>
                             <property name="title">Automatic</property>
                             <property name="subtitle">Use the highest framerate without sacrificing resolution</property>
@@ -114,7 +114,7 @@
                           </object>
                         </child>
                         <child>
-                          <object class="AdwActionRow">
+                          <object class="AdwActionRow" id="clear_row">
                             <property name="activatable-widget">clear_check_button</property>
                             <property name="title">30 FPS</property>
                             <property name="subtitle">Ensure higher image clarity</property>
@@ -126,7 +126,7 @@
                           </object>
                         </child>
                         <child>
-                          <object class="AdwActionRow">
+                          <object class="AdwActionRow" id="smooth_row">
                             <property name="activatable-widget">smooth_check_button</property>
                             <property name="title">60 FPS</property>
                             <property name="subtitle">Ensure smoother motion</property>
@@ -168,7 +168,7 @@
                       <object class="AdwPreferencesGroup">
                         <property name="title">Advanced Options</property>
                         <child>
-                          <object class="AdwSpinRow">
+                          <object class="AdwSpinRow" id="tolerance_row">
                             <property name="title">Tolerance (%)</property>
                             <property name="subtitle">How far end file sizes can be below target</property>
                             <property name="numeric">True</property>

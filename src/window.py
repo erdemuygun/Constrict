@@ -76,13 +76,21 @@ class ConstrictWindow(Adw.ApplicationWindow):
     export_button = Gtk.Template.Child()
     video_queue = Gtk.Template.Child()
     add_videos_button = Gtk.Template.Child()
+    target_size_row = Gtk.Template.Child()
     target_size_input = Gtk.Template.Child()
+    auto_row = Gtk.Template.Child()
     auto_check_button = Gtk.Template.Child()
+    clear_row = Gtk.Template.Child()
     clear_check_button = Gtk.Template.Child()
+    smooth_row = Gtk.Template.Child()
     smooth_check_button = Gtk.Template.Child()
     codec_dropdown = Gtk.Template.Child()
     extra_quality_toggle = Gtk.Template.Child()
+    tolerance_row = Gtk.Template.Child()
     tolerance_input = Gtk.Template.Child()
+
+    open_action = Gio.SimpleAction(name="open")
+    export_action = Gio.SimpleAction(name="export")
 
     staged_videos = []
 
@@ -93,18 +101,27 @@ class ConstrictWindow(Adw.ApplicationWindow):
         toggle_sidebar_action.connect("activate", self.toggle_sidebar)
         self.add_action(toggle_sidebar_action)
 
-        open_action = Gio.SimpleAction(name="open")
-        open_action.connect("activate", self.open_file_dialog)
-        self.add_action(open_action)
+        self.open_action.connect("activate", self.open_file_dialog)
+        self.add_action(self.open_action)
 
-        export_action = Gio.SimpleAction(name="export")
-        export_action.connect("activate", self.export_file_dialog)
-        self.add_action(export_action)
+        self.export_action.connect("activate", self.export_file_dialog)
+        self.add_action(self.export_action)
 
         self.target_size_input.connect("value-changed", self.refresh_previews)
         self.auto_check_button.connect("activate", self.refresh_previews)
         self.clear_check_button.connect("activate", self.refresh_previews)
         self.smooth_check_button.connect("activate", self.refresh_previews)
+
+    def set_controls_lock(self, is_locked):
+        self.target_size_row.set_sensitive(not is_locked)
+        self.auto_row.set_sensitive(not is_locked)
+        self.clear_row.set_sensitive(not is_locked)
+        self.smooth_row.set_sensitive(not is_locked)
+        self.codec_dropdown.set_sensitive(not is_locked)
+        self.extra_quality_toggle.set_sensitive(not is_locked)
+        self.tolerance_row.set_sensitive(not is_locked)
+
+        self.export_action.set_enabled(not is_locked)
 
     def refresh_previews(self, _):
         for video in self.staged_videos:
@@ -156,6 +173,8 @@ class ConstrictWindow(Adw.ApplicationWindow):
         threading.Thread(target=self.bulk_compress).start()
 
     def bulk_compress(self):
+        self.set_controls_lock(True)
+
         codecs = ['h264', 'hevc', 'av1']
 
         target_size = int(self.target_size_input.get_value())
@@ -183,6 +202,8 @@ class ConstrictWindow(Adw.ApplicationWindow):
             complete_text.add_css_class('success')
 
             video.set_suffix(complete_text)
+
+        self.set_controls_lock(False)
 
     def open_file_dialog(self, action, parameter):
         # Create new file selection dialog, using "open" mode
