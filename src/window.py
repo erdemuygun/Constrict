@@ -19,6 +19,7 @@
 
 from gi.repository import Adw, Gtk, Gio
 from constrict.constrict_utils import compress, get_encode_settings, get_resolution, get_framerate, get_duration
+import threading
 
 class StagedVideo:
     def __init__(self, filepath, row, width, height, fps, duration):
@@ -139,6 +140,9 @@ class ConstrictWindow(Adw.ApplicationWindow):
 
         print(folder.get_path())
 
+        threading.Thread(target=self.bulk_compress).start()
+
+    def bulk_compress(self):
         codecs = ['h264', 'hevc', 'av1']
 
         target_size = int(self.target_size_input.get_value())
@@ -146,9 +150,6 @@ class ConstrictWindow(Adw.ApplicationWindow):
         codec = codecs[self.codec_dropdown.get_selected()]
         extra_quality = self.extra_quality_toggle.get_active()
         tolerance = int(self.tolerance_input.get_value())
-
-        print(f'fps mode: {fps_mode}')
-        print(f'codec: {codec}')
 
         for video in self.staged_videos:
             compress(
