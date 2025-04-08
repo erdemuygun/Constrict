@@ -187,6 +187,8 @@ class ConstrictWindow(Adw.ApplicationWindow):
             compressing_text = Gtk.Label.new('Compressing…')
             video.set_suffix(compressing_text)
 
+            # def update_txt: compressing_text.set_label
+
             compress(
                 video.filepath,
                 target_size,
@@ -195,7 +197,7 @@ class ConstrictWindow(Adw.ApplicationWindow):
                 codec,
                 tolerance,
                 None,
-                lambda x: print(x)
+                compressing_text.set_label
             )
 
             complete_text = Gtk.Label.new('Complete')

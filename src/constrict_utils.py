@@ -24,6 +24,7 @@ import subprocess
 import os
 import argparse
 import datetime
+import re
 
 # Module responsible for compression logic. This script can be packaged
 # on its own to provide a CLI compressor *only*. The GTK wrapper depends on
@@ -144,13 +145,29 @@ def get_encoding_speed(frame_height, codec, extra_quality):
             sys.exit('Error: unknown codec passed to get_encoding_speed')
 
 
-def get_progress(file_input, ffmpeg_cmd):
+def get_progress(file_input, ffmpeg_cmd, output_fn, offset):
     #pv_cmd = subprocess.Popen(['pv', file_input], stdout=subprocess.PIPE)
     # ffmpeg_cmd = subprocess.check_output(ffmpeg_cmd, stdin=pv_cmd.stdout)
     # pv_cmd.wait()
     # subprocess.run()
 
-    subprocess.run(ffmpeg_cmd)
+    # subprocess.run(ffmpeg_cmd)
+
+    proc = subprocess.Popen(
+        ffmpeg_cmd,
+        stdin=subprocess.PIPE,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT
+    )
+
+    for line in proc.stdout:
+        line_string = line.decode('utf-8')
+        if re.search('^frame=.*$', line_string):
+            frame = re.search('[0-9]+', line_string)
+            frame_int = int(frame.group())
+            output_fn(str(frame_int + offset))
+
+    # output_fn(subprocess.check_output(ffmpeg_cmd, text=True))
 
 
 def transcode(
@@ -163,6 +180,8 @@ def transcode(
     framerate,
     codec,
     extra_quality,
+    output_fn,
+    frame_count
 ):
     portrait = height > width
     frame_height = width if portrait else height
@@ -183,6 +202,7 @@ def transcode(
     pass1_cmd = [
         'ffmpeg',
         '-y',
+        '-progress', '-',
         # '-hide_banner',
         # '-loglevel', 'error',
         '-i', f'{file_input}',
@@ -212,13 +232,14 @@ def transcode(
 
     print(" ".join(pass1_cmd))
     print(' Transcoding... (pass 1/2)')
-    get_progress(file_input, pass1_cmd)
+    get_progress(file_input, pass1_cmd, output_fn, 0)
 
     audio_channels = 1 if audio_bitrate < 12000 else 2
 
     pass2_cmd = [
         'ffmpeg',
         '-y',
+        '-progress', '-',
         # '-hide_banner',
         # '-loglevel', 'error',
         '-i', f'{file_input}',
@@ -249,7 +270,7 @@ def transcode(
     ])
     print(" ".join(pass2_cmd))
     print(' Transcoding... (pass 2/2)')
-    get_progress(file_input, pass2_cmd)
+    get_progress(file_input, pass2_cmd, output_fn, frame_count)
 
 
 def get_framerate(file_input):
@@ -310,6 +331,27 @@ def get_rotation(file_input):
         rotation = 0
 
     return rotation
+
+def get_frame_count(file_input):
+    cmd = [
+        'ffprobe',
+        '-v', 'error',
+        '-select_streams', 'v:0',
+        '-count_packets',
+        '-show_entries', 'stream=nb_read_packets',
+        '-of', 'csv=s=x:p=0',
+        file_input
+    ]
+
+    frame_count_bytes = subprocess.check_output(cmd)
+    frame_count = frame_count_bytes.decode('utf-8')
+
+    try:
+        frame_count = int(frame_count)
+    except ValueError:
+        frame_count = 1
+
+    return frame_count
 
 
 def bold(text):
@@ -521,6 +563,7 @@ def compress(
 
     source_fps = get_framerate(file_input)
     width, height = get_resolution(file_input)
+    frame_count = get_frame_count(file_input)
     # print(f'Resolution: {width}x{height}')
     portrait = (width < height) ^ (get_rotation(file_input) == -90)  # xor gate
     print(f'width heigher than height: {width < height}')
@@ -581,6 +624,8 @@ def compress(
             target_fps,
             codec,
             extra_quality,
+            output_fn,
+            frame_count
         )
         after_size_bytes = os.stat(file_output).st_size
         percent_of_target = (100 / target_size_bytes) * after_size_bytes
