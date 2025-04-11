@@ -184,8 +184,11 @@ class ConstrictWindow(Adw.ApplicationWindow):
         tolerance = int(self.tolerance_input.get_value())
 
         for video in self.staged_videos:
-            compressing_text = Gtk.Label.new('Compressing…')
-            video.set_suffix(compressing_text)
+            # compressing_text = Gtk.Label.new('Compressing…')
+            progress_bar = Gtk.ProgressBar()
+            progress_bar.set_valign(Gtk.Align['CENTER'])
+            progress_bar.set_show_text(True)
+            video.set_suffix(progress_bar)
 
             # def update_txt: compressing_text.set_label
 
@@ -197,7 +200,7 @@ class ConstrictWindow(Adw.ApplicationWindow):
                 codec,
                 tolerance,
                 None,
-                compressing_text.set_label
+                progress_bar.set_fraction
             )
 
             complete_text = Gtk.Label.new('Complete')

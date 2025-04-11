@@ -145,7 +145,7 @@ def get_encoding_speed(frame_height, codec, extra_quality):
             sys.exit('Error: unknown codec passed to get_encoding_speed')
 
 
-def get_progress(file_input, ffmpeg_cmd, output_fn, offset):
+def get_progress(file_input, ffmpeg_cmd, output_fn, frame_count, pass_num):
     #pv_cmd = subprocess.Popen(['pv', file_input], stdout=subprocess.PIPE)
     # ffmpeg_cmd = subprocess.check_output(ffmpeg_cmd, stdin=pv_cmd.stdout)
     # pv_cmd.wait()
@@ -165,7 +165,7 @@ def get_progress(file_input, ffmpeg_cmd, output_fn, offset):
         if re.search('^frame=.*$', line_string):
             frame = re.search('[0-9]+', line_string)
             frame_int = int(frame.group())
-            output_fn(str(frame_int + offset))
+            output_fn((frame_count * pass_num + frame_int) / (frame_count * 2))
 
     # output_fn(subprocess.check_output(ffmpeg_cmd, text=True))
 
@@ -232,7 +232,7 @@ def transcode(
 
     print(" ".join(pass1_cmd))
     print(' Transcoding... (pass 1/2)')
-    get_progress(file_input, pass1_cmd, output_fn, 0)
+    get_progress(file_input, pass1_cmd, output_fn, frame_count, 0)
 
     audio_channels = 1 if audio_bitrate < 12000 else 2
 
@@ -270,7 +270,7 @@ def transcode(
     ])
     print(" ".join(pass2_cmd))
     print(' Transcoding... (pass 2/2)')
-    get_progress(file_input, pass2_cmd, output_fn, frame_count)
+    get_progress(file_input, pass2_cmd, output_fn, frame_count, 1)
 
 
 def get_framerate(file_input):
@@ -558,7 +558,7 @@ def compress(
     before_size_bytes = os.stat(file_input).st_size
 
     if before_size_bytes <= target_size_bytes:
-        output_fn("File already meets the target size.")
+        # output_fn("File already meets the target size.")
         return
 
     source_fps = get_framerate(file_input)
@@ -589,7 +589,7 @@ def compress(
         print(encode_settings)
 
         if not encode_settings:
-            output_fn("Video bitrate got too low (1 kbps); aborting")
+            # output_fn("Video bitrate got too low (1 kbps); aborting")
             return
 
         target_video_bitrate, target_audio_bitrate, target_height, target_fps = encode_settings
@@ -607,12 +607,12 @@ def compress(
 
         displayed_res = target_width if portrait else target_height
 
-        output_fn('')
-        output_fn(heading((
-            f'(Attempt {attempt}) '
-            f'compressing to {target_video_bitrate // 1000}Kbps / '
-            f'{displayed_res}p@{target_fps}...'
-        )))
+        # output_fn('')
+        # output_fn(heading((
+        #     f'(Attempt {attempt}) '
+        #     f'compressing to {target_video_bitrate // 1000}Kbps / '
+        #     f'{displayed_res}p@{target_fps}...'
+        # )))
 
         transcode(
             file_input,
@@ -637,14 +637,14 @@ def compress(
             factor -= 0.05
             #  print(f'Reducing factor by 5%')
 
-        output_fn('')
-        output_fn(table([
-            ['New Size', f"{'{:.2f}'.format(after_size_bytes/1024/1024)}MB"],
-            ['Percentage of Target', f"{'{:.0f}'.format(percent_of_target)}%"]
-        ]))
+        # output_fn('')
+        # output_fn(table([
+        #     ['New Size', f"{'{:.2f}'.format(after_size_bytes/1024/1024)}MB"],
+        #     ['Percentage of Target', f"{'{:.0f}'.format(percent_of_target)}%"]
+        # ]))
 
     time_taken = datetime.datetime.now().replace(microsecond=0) - start_time
-    output_fn(f"\nCompleted in {time_taken}.")
+    # output_fn(f"\nCompleted in {time_taken}.")
 
 if __name__ == '__main__':
     arg_parser = argparse.ArgumentParser("constrict")
