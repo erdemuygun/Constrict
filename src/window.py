@@ -17,7 +17,7 @@
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from gi.repository import Adw, Gtk, Gio
+from gi.repository import Adw, Gtk, Gio, GLib
 from constrict.constrict_utils import compress, get_encode_settings, get_resolution, get_framerate, get_duration
 import threading
 
@@ -170,7 +170,9 @@ class ConstrictWindow(Adw.ApplicationWindow):
 
         print(folder.get_path())
 
-        threading.Thread(target=self.bulk_compress).start()
+        thread = threading.Thread(target=self.bulk_compress)
+        thread.daemon = True
+        thread.start()
 
     def bulk_compress(self):
         self.set_controls_lock(True)
@@ -190,6 +192,10 @@ class ConstrictWindow(Adw.ApplicationWindow):
             progress_bar.set_show_text(True)
             video.set_suffix(progress_bar)
 
+            def update_progress(fraction):
+                print(f'progress updated - {round(fraction * 100)}%')
+                GLib.idle_add(progress_bar.set_fraction, fraction)
+
             # def update_txt: compressing_text.set_label
 
             compress(
@@ -200,7 +206,7 @@ class ConstrictWindow(Adw.ApplicationWindow):
                 codec,
                 tolerance,
                 None,
-                progress_bar.set_fraction
+                update_progress
             )
 
             complete_text = Gtk.Label.new('Complete')

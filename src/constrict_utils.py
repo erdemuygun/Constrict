@@ -644,7 +644,7 @@ def compress(
         # ]))
 
     time_taken = datetime.datetime.now().replace(microsecond=0) - start_time
-    # output_fn(f"\nCompleted in {time_taken}.")
+    print(f"\nCompleted in {time_taken}.")
 
 if __name__ == '__main__':
     arg_parser = argparse.ArgumentParser("constrict")
