@@ -190,11 +190,19 @@ class ConstrictWindow(Adw.ApplicationWindow):
             progress_bar = Gtk.ProgressBar()
             progress_bar.set_valign(Gtk.Align['CENTER'])
             progress_bar.set_show_text(True)
+            if codec == 'vp9':
+                progress_bar.set_text('Analyzing…')
             video.set_suffix(progress_bar)
 
             def update_progress(fraction):
                 print(f'progress updated - {round(fraction * 100)}%')
-                GLib.idle_add(progress_bar.set_fraction, fraction)
+                if fraction == 0.0 and codec == 'vp9':
+                    GLib.idle_add(progress_bar.pulse)
+                    print('pulsed')
+                else:
+                    if progress_bar.get_text():
+                        GLib.idle_add(progress_bar.set_text, None)
+                    GLib.idle_add(progress_bar.set_fraction, fraction)
 
             # def update_txt: compressing_text.set_label
 

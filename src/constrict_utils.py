@@ -171,7 +171,6 @@ def get_progress(file_input, ffmpeg_cmd, output_fn, frame_count, pass_num):
             frame = re.search('[0-9]+', line_string)
             frame_int = int(frame.group())
             output_fn((frame_count * pass_num + frame_int) / (frame_count * 2))
-            print(line_string)
         print(line_string)
 
     # output_fn(subprocess.check_output(ffmpeg_cmd, text=True))
