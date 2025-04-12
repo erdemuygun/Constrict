@@ -166,6 +166,7 @@ def get_progress(file_input, ffmpeg_cmd, output_fn, frame_count, pass_num):
             frame = re.search('[0-9]+', line_string)
             frame_int = int(frame.group())
             output_fn((frame_count * pass_num + frame_int) / (frame_count * 2))
+            print(line_string)
 
     # output_fn(subprocess.check_output(ffmpeg_cmd, text=True))
 
@@ -318,7 +319,7 @@ def get_rotation(file_input):
         '-v', 'error',
         '-select_streams', 'v:0',
         '-show_entries', 'stream_side_data=rotation',
-        '-of', 'csv=s=x:p=0',
+        '-of', 'default=noprint_wrappers=1:nokey=1',
         file_input
     ]
 
@@ -339,7 +340,7 @@ def get_frame_count(file_input):
         '-select_streams', 'v:0',
         '-count_packets',
         '-show_entries', 'stream=nb_read_packets',
-        '-of', 'csv=s=x:p=0',
+        '-of', 'default=noprint_wrappers=1:nokey=1',
         file_input
     ]
 
@@ -563,7 +564,7 @@ def compress(
 
     source_fps = get_framerate(file_input)
     width, height = get_resolution(file_input)
-    frame_count = get_frame_count(file_input)
+    source_frame_count = get_frame_count(file_input)
     # print(f'Resolution: {width}x{height}')
     portrait = (width < height) ^ (get_rotation(file_input) == -90)  # xor gate
     print(f'width heigher than height: {width < height}')
@@ -614,6 +615,8 @@ def compress(
         #     f'{displayed_res}p@{target_fps}...'
         # )))
 
+        dest_frame_count = source_frame_count // (source_fps / target_fps)
+
         transcode(
             file_input,
             file_output,
@@ -625,7 +628,7 @@ def compress(
             codec,
             extra_quality,
             output_fn,
-            frame_count
+            dest_frame_count
         )
         after_size_bytes = os.stat(file_output).st_size
         percent_of_target = (100 / target_size_bytes) * after_size_bytes
