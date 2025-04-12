@@ -151,6 +151,7 @@
                                   <item translatable="no">H.264</item>
                                   <item translatable="no">H.265 (HEVC)</item>
                                   <item translatable="no">AV1</item>
+                                  <item translatable="no">VP9</item>
                                 </items>
                               </object>
                             </property>

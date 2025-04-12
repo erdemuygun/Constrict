@@ -140,6 +140,11 @@ def get_encoding_speed(frame_height, codec, extra_quality):
                 return '4'
             else:
                 return '10' if hd else '8'
+        case 'vp9':
+            if extra_quality:
+                return 'best'
+            else:
+                return 'good'
 
         case _:
             sys.exit('Error: unknown codec passed to get_encoding_speed')
@@ -167,6 +172,7 @@ def get_progress(file_input, ffmpeg_cmd, output_fn, frame_count, pass_num):
             frame_int = int(frame.group())
             output_fn((frame_count * pass_num + frame_int) / (frame_count * 2))
             print(line_string)
+        print(line_string)
 
     # output_fn(subprocess.check_output(ffmpeg_cmd, text=True))
 
@@ -197,7 +203,8 @@ def transcode(
     cv_params = {
         'h264': 'libx264',
         'hevc': 'libx265',
-        'av1': 'libsvtav1'
+        'av1': 'libsvtav1',
+        'vp9': 'libvpx-vp9'
     }
 
     pass1_cmd = [
@@ -703,7 +710,7 @@ if __name__ == '__main__':
     arg_parser.add_argument(
         '--codec',
         dest='codec',
-        choices=['h264', 'hevc', 'av1'],
+        choices=['h264', 'hevc', 'av1', 'vp9'],
         default='h264',
         help=(
             'The codec used to encode the compressed video.\n'
@@ -714,7 +721,8 @@ if __name__ == '__main__':
             'compression efficiency.\n'
             'av1: uses the AV1 codec. High compression efficiency, and is '
             'open source and royalty free. However, it is less widely '
-            'supported, and may not embed properly on some services.'
+            'supported, and may not embed properly on some services.\n'
+            'vp9: uses the VP9 codec.'
         )
     )
     args = arg_parser.parse_args()

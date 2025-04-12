@@ -177,7 +177,7 @@ class ConstrictWindow(Adw.ApplicationWindow):
     def bulk_compress(self):
         self.set_controls_lock(True)
 
-        codecs = ['h264', 'hevc', 'av1']
+        codecs = ['h264', 'hevc', 'av1', 'vp9']
 
         target_size = int(self.target_size_input.get_value())
         fps_mode = self.get_fps_mode()
