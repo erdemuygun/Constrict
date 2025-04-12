@@ -39,7 +39,7 @@ class ConstrictApplication(Adw.Application):
 
         self.set_accels_for_action('win.toggle-sidebar', ['F9'])
         self.set_accels_for_action('win.open', ['<Ctrl>o'])
-        self.set_accels_for_action('win.export', ['<Ctrl>e', '<Shift><Ctrl>e'])
+        self.set_accels_for_action('win.export', ['<Ctrl>e'])
 
     def do_activate(self):
         """Called when the application is activated.
