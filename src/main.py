@@ -67,6 +67,11 @@ class ConstrictApplication(Adw.Application):
         about.set_translator_credits(_('translator-credits'))
         about.present(self.props.active_window)
 
+    #TODO: preference ideas
+    # target size unit (e.g., MB, MiB, GB, etc.)
+    # sound on complete
+    # default export directory?
+
     def on_preferences_action(self, widget, _):
         """Callback for the app.preferences action."""
         print('app.preferences action activated')
