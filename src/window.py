@@ -91,6 +91,7 @@ class ConstrictWindow(Adw.ApplicationWindow):
 
     open_action = Gio.SimpleAction(name="open")
     export_action = Gio.SimpleAction(name="export")
+    clear_all_action = Gio.SimpleAction(name="clear_all")
 
     staged_videos = []
 
@@ -107,6 +108,9 @@ class ConstrictWindow(Adw.ApplicationWindow):
         self.export_action.connect("activate", self.export_file_dialog)
         self.add_action(self.export_action)
 
+        self.clear_all_action.connect("activate", self.delist_all)
+        self.add_action(self.clear_all_action)
+
         self.target_size_input.connect("value-changed", self.refresh_previews)
         self.auto_check_button.connect("activate", self.refresh_previews)
         self.clear_check_button.connect("activate", self.refresh_previews)
@@ -121,6 +125,7 @@ class ConstrictWindow(Adw.ApplicationWindow):
         self.extra_quality_toggle.set_sensitive(not is_locked)
         self.tolerance_row.set_sensitive(not is_locked)
 
+        self.clear_all_action.set_enabled(not is_locked)
         self.export_action.set_enabled(not is_locked)
 
     def refresh_previews(self, _):
@@ -151,6 +156,14 @@ class ConstrictWindow(Adw.ApplicationWindow):
     def toggle_sidebar(self, action, _):
         sidebar_shown = self.split_view.get_show_sidebar()
         self.split_view.set_show_sidebar(not sidebar_shown)
+
+    def delist_all(self, action, _):
+        for video in self.staged_videos:
+            self.video_queue.remove(video.row)
+
+        self.staged_videos = []
+
+        self.view_stack.set_visible_child_name('status_page')
 
     def export_file_dialog(self, action, parameter):
         native = Gtk.FileDialog()
@@ -281,3 +294,4 @@ class ConstrictWindow(Adw.ApplicationWindow):
             self.view_stack.set_visible_child_name('queue_page')
 
         print(self.staged_videos)
+
