@@ -224,7 +224,7 @@
                     <property name="title">Status Page</property>
                     <property name="child">
                       <object class="AdwStatusPage" id="status_page">
-                        <property name="icon-name">emblem-videos-symbolic</property>
+                        <property name="icon-name">video-encoder-symbolic</property>
                         <property name="title" translatable="yes">Compress Videos</property>
                         <property name="description" translatable="yes">Drag and drop videos here</property>
                         <property name="child">
