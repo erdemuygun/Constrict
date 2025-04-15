@@ -1,10 +1,12 @@
 [Desktop Entry]
-Name=constrict
+Name=Constrict
+GenericName=Video Compressor
+Comment=Compress videos to target file sizes
 Exec=constrict
 Icon=com.github.wartybix.Constrict
 Terminal=false
 Type=Application
-Categories=Utility;
-Keywords=GTK;
+Categories=AudioVideo;Video;GNOME;GTK;
+Keywords=Compress;Video;Movie;Film;Clip;
 StartupNotify=true
 DBusActivatable=true
