@@ -148,12 +148,6 @@ class ConstrictWindow(Adw.ApplicationWindow):
 
         raise Exception('Tried to get fps mode, but none was set.')
 
-    def open(self, action, _):
-        print("Open action run")
-
-    def export(self, action, _):
-        print("Export action run")
-
     def toggle_sidebar(self, action, _):
         sidebar_shown = self.split_view.get_show_sidebar()
         self.split_view.set_show_sidebar(not sidebar_shown)
