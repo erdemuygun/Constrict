@@ -106,6 +106,7 @@ class ConstrictWindow(Adw.ApplicationWindow):
         self.add_action(self.open_action)
 
         self.export_action.connect("activate", self.export_file_dialog)
+        self.export_action.set_enabled(bool(self.staged_videos))
         self.add_action(self.export_action)
 
         self.clear_all_action.connect("activate", self.delist_all)
@@ -164,6 +165,7 @@ class ConstrictWindow(Adw.ApplicationWindow):
         self.staged_videos = []
 
         self.view_stack.set_visible_child_name('status_page')
+        self.export_action.set_enabled(False)
 
     def export_file_dialog(self, action, parameter):
         native = Gtk.FileDialog()
@@ -292,6 +294,8 @@ class ConstrictWindow(Adw.ApplicationWindow):
 
         if self.staged_videos:
             self.view_stack.set_visible_child_name('queue_page')
+
+        self.export_action.set_enabled(True)
 
         print(self.staged_videos)
 
