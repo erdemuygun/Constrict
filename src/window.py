@@ -296,6 +296,7 @@ class ConstrictWindow(Adw.ApplicationWindow):
             self.view_stack.set_visible_child_name('queue_page')
 
         self.export_action.set_enabled(True)
+        self.export_button.grab_focus()
 
         print(self.staged_videos)
 
