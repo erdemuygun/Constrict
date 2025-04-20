@@ -10,7 +10,7 @@
     <p>Constrict compresses your videos to your chosen file size — useful for uploading to services with specific file size limits. No more relying on online services for video compression, or the manual trial-and-error of re-encoding at various bitrates yourself.</p>
     <p>Features include:</p>
     <ul>
-      <li>An intuative, easy to use interface.</li>
+      <li>An intuitive, easy to use interface.</li>
       <li>Automatic calculation of average bitrate (ABR), resolution, framerate, and audio quality each video is re-encoded with to meet the target file size.</li>
       <li>Bulk compression of multiple videos to one output directory.</li>
       <li>Customisation of framerate limits, to ensure a clearer or smoother image.</li>
