@@ -541,6 +541,9 @@ change output_fn argument to be raw data, not strings (human readable strings
 change 'pv' command to output to output_fn, not writing directly to the
     terminal.
 use a sliding window for repeated compression attempts?
+check for reading permissions of input, writing permissions of output
+- (do this preemptively on the interface end)
+Add translatable file suffix (and customisable in preferences)
 """
 
 def compress(
@@ -555,9 +558,19 @@ def compress(
 ):
     start_time = datetime.datetime.now().replace(microsecond=0)
 
-    if file_output is None:  # i.e., if -o hasn't been passed
-        root_ext = os.path.splitext(file_input)
-        file_output = new_file(f'{root_ext[0]} (compressed).mp4')
+    def output_template(dest):
+        root_ext = os.path.splitext(dest)
+        return new_file(f'{root_ext[0]} (compressed).mp4')
+
+    if file_output is None:
+        file_output = output_template(file_input)
+    elif os.path.isdir(file_output):
+        basename = os.path.basename(file_input)
+        merged = os.path.join(file_output, basename)
+        file_output = output_template(merged)
+
+        print('yes, output is dir')
+        print(f'file_output: {file_output}')
 
     duration_seconds = get_duration(file_input)
 

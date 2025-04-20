@@ -177,13 +177,14 @@ class ConstrictWindow(Adw.ApplicationWindow):
         if not folder:
             return
 
-        print(folder.get_path())
+        folder_path = folder.get_path()
+        print(folder_path)
 
-        thread = threading.Thread(target=self.bulk_compress)
+        thread = threading.Thread(target=self.bulk_compress, args=[folder_path])
         thread.daemon = True
         thread.start()
 
-    def bulk_compress(self):
+    def bulk_compress(self, destination):
         self.set_controls_lock(True)
 
         codecs = ['h264', 'hevc', 'av1', 'vp9']
@@ -222,7 +223,7 @@ class ConstrictWindow(Adw.ApplicationWindow):
                 extra_quality,
                 codec,
                 tolerance,
-                None,
+                destination,
                 update_progress
             )
 
