@@ -283,6 +283,7 @@ class ConstrictWindow(Adw.ApplicationWindow):
             fps = get_framerate(video)
             duration = get_duration(video)
 
+            # TODO: don't forget, perhaps change this for RTL users
             subtitle = preview(target_size, fps_mode, width, height, fps, duration)
             action_row.set_subtitle(subtitle)
 
