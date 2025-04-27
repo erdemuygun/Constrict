@@ -89,26 +89,25 @@ class ConstrictWindow(Adw.ApplicationWindow):
     tolerance_row = Gtk.Template.Child()
     tolerance_input = Gtk.Template.Child()
 
-    open_action = Gio.SimpleAction(name="open")
-    export_action = Gio.SimpleAction(name="export")
-    clear_all_action = Gio.SimpleAction(name="clear_all")
-
-    staged_videos = []
-
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
-        toggle_sidebar_action = Gio.SimpleAction(name="toggle-sidebar")
-        toggle_sidebar_action.connect("activate", self.toggle_sidebar)
-        self.add_action(toggle_sidebar_action)
+        self.staged_videos = []
 
+        self.toggle_sidebar_action = Gio.SimpleAction(name="toggle-sidebar")
+        self.toggle_sidebar_action.connect("activate", self.toggle_sidebar)
+        self.add_action(self.toggle_sidebar_action)
+
+        self.open_action = Gio.SimpleAction(name="open")
         self.open_action.connect("activate", self.open_file_dialog)
         self.add_action(self.open_action)
 
+        self.export_action = Gio.SimpleAction(name="export")
         self.export_action.connect("activate", self.export_file_dialog)
         self.export_action.set_enabled(bool(self.staged_videos))
         self.add_action(self.export_action)
 
+        self.clear_all_action = Gio.SimpleAction(name="clear_all")
         self.clear_all_action.connect("activate", self.delist_all)
         self.add_action(self.clear_all_action)
 
@@ -169,9 +168,16 @@ class ConstrictWindow(Adw.ApplicationWindow):
 
     def export_file_dialog(self, action, parameter):
         native = Gtk.FileDialog()
+
+        # TODO: change folder select UI? idk
         native.select_folder(self, None, self.on_export_response)
 
     def on_export_response(self, dialog, result):
+        # TODO: process video locally before moving to real directory?
+        # TODO: remove multi-window file conflicts by checking if file exists
+        # on pass 2 (rather than at the start)
+        # TODO: cancel compression on window close (w/ dialog)
+
         folder = dialog.select_folder_finish(result)
 
         if not folder:
@@ -197,6 +203,8 @@ class ConstrictWindow(Adw.ApplicationWindow):
 
         for video in self.staged_videos:
             # compressing_text = Gtk.Label.new('Compressing…')
+
+            # TODO: look into compact progress bar...
             progress_bar = Gtk.ProgressBar()
             progress_bar.set_valign(Gtk.Align['CENTER'])
             progress_bar.set_show_text(True)
@@ -224,7 +232,8 @@ class ConstrictWindow(Adw.ApplicationWindow):
                 codec,
                 tolerance,
                 destination,
-                update_progress
+                update_progress,
+                self.get_id()
             )
 
             complete_text = Gtk.Label.new('Complete')
@@ -256,7 +265,7 @@ class ConstrictWindow(Adw.ApplicationWindow):
         self.video_queue.remove(self.add_videos_button)
 
         existing_paths = list(map(lambda x: x.filepath, self.staged_videos))
-        print(existing_paths)
+        print(f'existing: {existing_paths}')
 
         for video in files:
             # TODO: make async query?
@@ -300,5 +309,6 @@ class ConstrictWindow(Adw.ApplicationWindow):
         self.export_action.set_enabled(True)
         self.export_button.grab_focus()
 
-        print(self.staged_videos)
+        existing_paths = list(map(lambda x: x.filepath, self.staged_videos))
+        print(f'new list: {existing_paths}')
 

@@ -17,13 +17,14 @@
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 
+import logging
 import sys
 import gi
 
 gi.require_version('Gtk', '4.0')
 gi.require_version('Adw', '1')
 
-from gi.repository import Gtk, Gio, Adw
+from gi.repository import Gtk, Gio, Adw, GLib
 from .window import ConstrictWindow
 
 
@@ -33,10 +34,22 @@ class ConstrictApplication(Adw.Application):
     def __init__(self):
         super().__init__(application_id='com.github.wartybix.Constrict',
                          flags=Gio.ApplicationFlags.DEFAULT_FLAGS)
+
+        self.add_main_option(
+            'new-window',
+            b'n',
+            GLib.OptionFlags.NONE,
+            GLib.OptionArg.NONE,
+            'Open a new window',
+            None
+        )
+
+        self.create_action('new-window', lambda *_: self.do_activate(), ['<primary>n'])
         self.create_action('quit', lambda *_: self.quit(), ['<primary>q'])
         self.create_action('about', self.on_about_action)
         self.create_action('preferences', self.on_preferences_action)
 
+        self.set_accels_for_action('app.new-window', ['<primary>n'])
         self.set_accels_for_action('win.toggle-sidebar', ['F9'])
         self.set_accels_for_action('win.open', ['<Ctrl>o'])
         self.set_accels_for_action('win.export', ['<Ctrl>e'])
@@ -47,10 +60,28 @@ class ConstrictApplication(Adw.Application):
         We raise the application's main window, creating it if
         necessary.
         """
-        win = self.props.active_window
-        if not win:
-            win = ConstrictWindow(application=self)
+        win = ConstrictWindow(application=self)
         win.present()
+
+    # do_handle_local_options is taken from kramo's Showtime project and has
+    # been modified slightly:
+    # https://gitlab.gnome.org/GNOME/Incubator/showtime/-/blob/main/showtime/main.py
+    def do_handle_local_options(  # pylint: disable=arguments-differ
+        self, options: GLib.VariantDict
+    ) -> int:
+        """Handle local command line arguments."""
+        self.register()  # This is so get_is_remote works
+        if self.get_is_remote():
+            if options.contains("new-window"):
+                return -1
+
+            logging.warning(
+                "Constrict is already running. "
+                "To open a new window, run the app with --new-window."
+            )
+            return 0
+
+        return -1
 
     def on_about_action(self, *args):
         """Callback for the app.about action."""

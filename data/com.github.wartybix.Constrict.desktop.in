@@ -2,7 +2,7 @@
 Name=Constrict
 GenericName=Video Compressor
 Comment=Compress videos to target file sizes
-Exec=constrict
+Exec=constrict %U
 Icon=com.github.wartybix.Constrict
 Terminal=false
 Type=Application
@@ -10,3 +10,8 @@ Categories=AudioVideo;Video;GNOME;GTK;
 Keywords=Compress;Video;Movie;Film;Clip;
 StartupNotify=true
 DBusActivatable=true
+Actions=new-window;
+
+[Desktop Action new-window]
+Name=New Window
+Exec=constrict --new-window

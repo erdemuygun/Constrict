@@ -187,7 +187,8 @@ def transcode(
     codec,
     extra_quality,
     output_fn,
-    frame_count
+    frame_count,
+    window_id
 ):
     portrait = height > width
     frame_height = width if portrait else height
@@ -213,14 +214,21 @@ def transcode(
         # '-hide_banner',
         # '-loglevel', 'error',
         '-i', f'{file_input}',
-        '-row-mt', '1',
-        '-frame-parallel', '1',
         '-preset', f'{preset}',
         # '-deadline', 'good',
         # '-cpu-used', '4',
         # '-threads', '24',
         '-vf', f'scale={width}:{height}',
     ]
+
+    if window_id is not None:
+        pass1_cmd.extend(['-passlogfile', f'constrict2pass-{window_id}'])
+
+    if codec == 'vp9':
+        pass1_cmd.extend([
+            '-row-mt', '1',
+            '-frame-parallel', '1'
+        ])
 
     if codec == 'h264':
         pass1_cmd.extend(['-profile:v', 'main'])
@@ -250,8 +258,6 @@ def transcode(
         # '-hide_banner',
         # '-loglevel', 'error',
         '-i', f'{file_input}',
-        '-row-mt', '1',
-        '-frame-parallel', '1',
         '-preset', f'{preset}',
         # '-threads', '24',
         # '-deadline', 'good',
@@ -259,8 +265,17 @@ def transcode(
         '-vf', f'scale={width}:{height}',
     ]
 
+    if window_id is not None:
+        pass2_cmd.extend(['-passlogfile', f'constrict2pass-{window_id}'])
+
+    if codec == 'vp9':
+        pass2_cmd.extend([
+            '-row-mt', '1',
+            '-frame-parallel', '1'
+        ])
+
     if codec == 'h264':
-        pass2_cmd.extend(['-profile', 'main'])
+        pass2_cmd.extend(['-profile:v', 'main'])
 
     if framerate != -1:
         pass2_cmd.extend(['-r', f'{framerate}'])
@@ -554,7 +569,8 @@ def compress(
     codec='h264',
     tolerance=10,
     file_output=None,
-    output_fn=lambda x: None
+    output_fn=lambda x: None,
+    window_id=None
 ):
     start_time = datetime.datetime.now().replace(microsecond=0)
 
@@ -647,7 +663,8 @@ def compress(
             codec,
             extra_quality,
             output_fn,
-            dest_frame_count
+            dest_frame_count,
+            window_id
         )
         after_size_bytes = os.stat(file_output).st_size
         percent_of_target = (100 / target_size_bytes) * after_size_bytes
