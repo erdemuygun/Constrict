@@ -142,9 +142,9 @@ def get_encoding_speed(frame_height, codec, extra_quality):
                 return '10' if hd else '8'
         case 'vp9':
             if extra_quality:
-                return 'best'
+                return '0'
             else:
-                return 'good'
+                return '5' if hd else '4'
 
         case _:
             sys.exit('Error: unknown codec passed to get_encoding_speed')
@@ -195,6 +195,7 @@ def transcode(
 
     print(f' frame height: {frame_height}')
 
+    preset_name = '-cpu-used' if codec == 'vp9' else '-preset'
     preset = get_encoding_speed(frame_height, codec, extra_quality)
 
     # TODO: dynamically look for installed encoders?
@@ -214,7 +215,7 @@ def transcode(
         # '-hide_banner',
         # '-loglevel', 'error',
         '-i', f'{file_input}',
-        '-preset', f'{preset}',
+        f'{preset_name}', f'{"4" if codec == "vp9" else preset}',
         # '-deadline', 'good',
         # '-cpu-used', '4',
         # '-threads', '24',
@@ -226,6 +227,7 @@ def transcode(
 
     if codec == 'vp9':
         pass1_cmd.extend([
+            '-deadline', 'good',
             '-row-mt', '1',
             '-frame-parallel', '1'
         ])
@@ -258,7 +260,7 @@ def transcode(
         # '-hide_banner',
         # '-loglevel', 'error',
         '-i', f'{file_input}',
-        '-preset', f'{preset}',
+        f'{preset_name}', f'{preset}',
         # '-threads', '24',
         # '-deadline', 'good',
         # '-cpu-used', cpuUsed,
@@ -270,6 +272,7 @@ def transcode(
 
     if codec == 'vp9':
         pass2_cmd.extend([
+            '-deadline', 'good',
             '-row-mt', '1',
             '-frame-parallel', '1'
         ])
