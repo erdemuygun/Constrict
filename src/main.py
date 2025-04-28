@@ -89,11 +89,22 @@ class ConstrictApplication(Adw.Application):
                                 application_icon='com.github.wartybix.Constrict',
                                 developer_name='Wartybix',
                                 version='0.1.0',
-                                developers=['Wartybix', 'Matthew Baggett', 'Ethan Martin'],
+                                developers=['Wartybix https://github.com/Wartybix/'],
                                 website='https://github.com/Wartybix/Constrict',
                                 issue_url='https://github.com/Wartybix/Constrict/issues',
                                 license_type='GTK_LICENSE_GPL_3_0',
                                 copyright='© 2025 Wartybix')
+        about.add_credit_section(
+            '‘8mb’ repository by',
+            [
+                'Matthew Baggett https://github.com/matthewbaggett/',
+                'Ethan Martin https://github.com/yuckdevchan'
+            ]
+        )
+        about.add_credit_section(
+            'GApplication local option handling by',
+            ['kramo https://kramo.page']
+        )
         # Translators: Replace "translator-credits" with your name/username, and optionally an email or URL.
         about.set_translator_credits(_('translator-credits'))
         about.present(self.props.active_window)
