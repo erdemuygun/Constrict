@@ -1,5 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <schemalist gettext-domain="constrict">
 	<schema id="com.github.wartybix.Constrict" path="/com/github/wartybix/Constrict/">
+		<key name="window-width" type="i">
+			<default>1000</default>
+		</key>
+		<key name="window-height" type="i">
+			<default>700</default>
+		</key>
+		<key name="window-maximized" type="b">
+			<default>false</default>
+		</key>
+		<!-- TODO: save target size, framerate mode, etc. -->
 	</schema>
 </schemalist>

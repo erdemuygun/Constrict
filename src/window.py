@@ -116,6 +116,26 @@ class ConstrictWindow(Adw.ApplicationWindow):
         self.clear_check_button.connect("activate", self.refresh_previews)
         self.smooth_check_button.connect("activate", self.refresh_previews)
 
+        self.settings = Gio.Settings(schema_id='com.github.wartybix.Constrict')
+        self.settings.bind(
+            'window-width',
+            self,
+            'default-width',
+            Gio.SettingsBindFlags.GET | Gio.SettingsBindFlags.GET_NO_CHANGES
+        )
+        self.settings.bind(
+            'window-height',
+            self,
+            'default-height',
+            Gio.SettingsBindFlags.GET | Gio.SettingsBindFlags.GET_NO_CHANGES
+        )
+        self.settings.bind(
+            'window-maximized',
+            self,
+            'maximized',
+            Gio.SettingsBindFlags.DEFAULT | Gio.SettingsBindFlags.GET_NO_CHANGES
+        )
+
     def set_controls_lock(self, is_locked):
         self.target_size_row.set_sensitive(not is_locked)
         self.auto_row.set_sensitive(not is_locked)
@@ -312,3 +332,16 @@ class ConstrictWindow(Adw.ApplicationWindow):
         existing_paths = list(map(lambda x: x.filepath, self.staged_videos))
         print(f'new list: {existing_paths}')
 
+    def save_window_state(self):
+        self.settings.set_boolean('window-maximized', self.is_maximized())
+
+        width, height = self.get_default_size()
+        self.settings.set_int('window-width', width)
+        self.settings.set_int('window-height', height)
+
+    def do_close_request(self):
+        print('close request made')
+
+        self.save_window_state()
+
+        return False
