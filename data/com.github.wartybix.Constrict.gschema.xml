@@ -1,5 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <schemalist gettext-domain="constrict">
+	<enum id="com.github.wartybix.Constrict.FpsMode">
+		<value nick="auto" value="0"/>
+		<value nick="prefer-clear" value="1"/>
+		<value nick="prefer-smooth" value="2"/>
+	</enum>
+
+	<enum id="com.github.wartybix.Constrict.VideoCodec">
+		<value nick="h264" value="0"/>
+		<value nick="hevc" value="1"/>
+		<value nick="av1" value="2"/>
+		<value nick="vp9" value="3"/>
+	</enum>
+
 	<schema id="com.github.wartybix.Constrict" path="/com/github/wartybix/Constrict/">
 		<key name="window-width" type="i">
 			<default>1000</default>
@@ -10,6 +23,28 @@
 		<key name="window-maximized" type="b">
 			<default>false</default>
 		</key>
-		<!-- TODO: save target size, framerate mode, etc. -->
+		<key name="target-size" type="i">
+			<default>10</default>
+		</key>
+		<key name="fps-mode" enum="com.github.wartybix.Constrict.FpsMode">
+			<default>"auto"</default>
+			<summary>Framerate Limit</summary>
+			<description>
+				Limits framerates of compressed videos automatically, or to 30 FPS or 60 FPS.
+			</description>
+		</key>
+		<key name="video-codec" enum="com.github.wartybix.Constrict.VideoCodec">
+			<default>"h264"</default>
+			<summary>Video Codec</summary>
+			<description>
+				The codec used to encode with during compression
+			</description>
+		</key>
+		<key name="extra-quality" type="b">
+			<default>false</default>
+		</key>
+		<key name="tolerance" type="i">
+			<default>10</default>
+		</key>
 	</schema>
 </schemalist>

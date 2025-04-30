@@ -25,6 +25,7 @@ import os
 import argparse
 import datetime
 import re
+from constrict.enums import FpsMode, VideoCodec
 
 # Module responsible for compression logic. This script can be packaged
 # on its own to provide a CLI compressor *only*. The GTK wrapper depends on
@@ -125,22 +126,22 @@ def get_encoding_speed(frame_height, codec, extra_quality):
     hd = frame_height > 480
 
     match codec:
-        case 'h264':
+        case VideoCodec.H264:
             if extra_quality:
                 return 'veryslow'
             else:
                 return 'medium' if hd else 'slower'
-        case 'hevc':
+        case VideoCodec.HEVC:
             if extra_quality:
                 return 'veryslow'
             else:
                 return 'medium' if hd else 'slow'
-        case 'av1':
+        case VideoCodec.AV1:
             if extra_quality:
                 return '4'
             else:
                 return '10' if hd else '8'
-        case 'vp9':
+        case VideoCodec.VP9:
             if extra_quality:
                 return '0'
             else:
@@ -195,17 +196,17 @@ def transcode(
 
     print(f' frame height: {frame_height}')
 
-    preset_name = '-cpu-used' if codec == 'vp9' else '-preset'
+    preset_name = '-cpu-used' if codec == VideoCodec.VP9 else '-preset'
     preset = get_encoding_speed(frame_height, codec, extra_quality)
 
     # TODO: dynamically look for installed encoders?
     # TODO: see if VP9 works in flatpak?
 
     cv_params = {
-        'h264': 'libx264',
-        'hevc': 'libx265',
-        'av1': 'libsvtav1',
-        'vp9': 'libvpx-vp9'
+        VideoCodec.H264: 'libx264',
+        VideoCodec.HEVC: 'libx265',
+        VideoCodec.AV1: 'libsvtav1',
+        VideoCodec.VP9: 'libvpx-vp9'
     }
 
     pass1_cmd = [
@@ -215,7 +216,7 @@ def transcode(
         # '-hide_banner',
         # '-loglevel', 'error',
         '-i', f'{file_input}',
-        f'{preset_name}', f'{"4" if codec == "vp9" else preset}',
+        f'{preset_name}', f'{"4" if codec == VideoCodec.VP9 else preset}',
         # '-deadline', 'good',
         # '-cpu-used', '4',
         # '-threads', '24',
@@ -225,14 +226,14 @@ def transcode(
     if window_id is not None:
         pass1_cmd.extend(['-passlogfile', f'constrict2pass-{window_id}'])
 
-    if codec == 'vp9':
+    if codec == VideoCodec.VP9:
         pass1_cmd.extend([
             '-deadline', 'good',
             '-row-mt', '1',
             '-frame-parallel', '1'
         ])
 
-    if codec == 'h264':
+    if codec == VideoCodec.H264:
         pass1_cmd.extend(['-profile:v', 'main'])
 
     if framerate != -1:
@@ -270,14 +271,14 @@ def transcode(
     if window_id is not None:
         pass2_cmd.extend(['-passlogfile', f'constrict2pass-{window_id}'])
 
-    if codec == 'vp9':
+    if codec == VideoCodec.VP9:
         pass2_cmd.extend([
             '-deadline', 'good',
             '-row-mt', '1',
             '-frame-parallel', '1'
         ])
 
-    if codec == 'h264':
+    if codec == VideoCodec.H264:
         pass2_cmd.extend(['-profile:v', 'main'])
 
     if framerate != -1:
@@ -477,11 +478,11 @@ def get_encode_settings(
 
     if crush_mode:
         max_fps = 24
-    elif fps_mode == 'prefer-clear':
+    elif fps_mode == FpsMode.PREFER_CLEAR:
         max_fps = 30
-    elif fps_mode == 'prefer-smooth':
+    elif fps_mode == FpsMode.PREFER_SMOOTH:
         max_fps = 60
-    elif fps_mode == 'auto':
+    elif fps_mode == FpsMode.AUTO:
         preset_height_30fps = get_res_preset(
             target_video_bitrate,
             width,
@@ -569,7 +570,7 @@ def compress(
     target_size_MiB,
     framerate_option='auto',
     extra_quality=False,
-    codec='h264',
+    codec=VideoCodec.H264,
     tolerance=10,
     file_output=None,
     output_fn=lambda x: None,

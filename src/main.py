@@ -60,6 +60,10 @@ class ConstrictApplication(Adw.Application):
         We raise the application's main window, creating it if
         necessary.
         """
+        active_window = self.get_active_window()
+        if active_window:
+            active_window.save_window_state()
+
         win = ConstrictWindow(application=self)
         win.present()
 

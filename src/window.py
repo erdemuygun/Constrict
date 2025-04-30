@@ -19,6 +19,7 @@
 
 from gi.repository import Adw, Gtk, Gio, GLib
 from constrict.constrict_utils import compress, get_encode_settings, get_resolution, get_framerate, get_duration
+from constrict.enums import FpsMode, VideoCodec
 import threading
 
 class StagedVideo:
@@ -133,8 +134,32 @@ class ConstrictWindow(Adw.ApplicationWindow):
             'window-maximized',
             self,
             'maximized',
-            Gio.SettingsBindFlags.DEFAULT | Gio.SettingsBindFlags.GET_NO_CHANGES
+            Gio.SettingsBindFlags.GET | Gio.SettingsBindFlags.GET_NO_CHANGES
         )
+        self.settings.bind(
+            'target-size',
+            self.target_size_input,
+            'value',
+            Gio.SettingsBindFlags.GET | Gio.SettingsBindFlags.GET_NO_CHANGES
+        )
+        self.settings.bind(
+            'extra-quality',
+            self.extra_quality_toggle,
+            'active',
+            Gio.SettingsBindFlags.GET | Gio.SettingsBindFlags.GET_NO_CHANGES
+        )
+        self.settings.bind(
+            'tolerance',
+            self.tolerance_input,
+            'value',
+            Gio.SettingsBindFlags.GET | Gio.SettingsBindFlags.GET_NO_CHANGES
+        )
+
+        fps_mode = self.settings.get_enum('fps-mode')
+        video_codec = self.settings.get_enum('video-codec')
+
+        self.set_fps_mode(fps_mode)
+        self.set_video_codec(video_codec)
 
     def set_controls_lock(self, is_locked):
         self.target_size_row.set_sensitive(not is_locked)
@@ -149,10 +174,10 @@ class ConstrictWindow(Adw.ApplicationWindow):
         self.export_action.set_enabled(not is_locked)
 
     def refresh_previews(self, _):
-        for video in self.staged_videos:
-            target_size = int(self.target_size_input.get_value())
-            fps_mode = self.get_fps_mode()
+        target_size = self.get_target_size()
+        fps_mode = self.get_fps_mode()
 
+        for video in self.staged_videos:
             subtitle = preview(
                 target_size,
                 fps_mode,
@@ -163,15 +188,41 @@ class ConstrictWindow(Adw.ApplicationWindow):
             )
             video.row.set_subtitle(subtitle)
 
+    def get_target_size(self):
+        return int(self.target_size_input.get_value())
+
     def get_fps_mode(self):
         if self.auto_check_button.get_active():
-            return 'auto'
+            return FpsMode.AUTO
         if self.clear_check_button.get_active():
-            return 'prefer-clear'
+            return FpsMode.PREFER_CLEAR
         if self.smooth_check_button.get_active():
-            return 'prefer-smooth'
+            return FpsMode.PREFER_SMOOTH
 
         raise Exception('Tried to get fps mode, but none was set.')
+
+    def set_fps_mode(self, mode):
+        match mode:
+            case FpsMode.AUTO:
+                self.auto_check_button.set_active(True)
+            case FpsMode.PREFER_CLEAR:
+                self.clear_check_button.set_active(True)
+            case FpsMode.PREFER_SMOOTH:
+                self.smooth_check_button.set_active(True)
+            case _:
+                self.auto_check_button.set_active(True)
+
+    def get_video_codec(self):
+        return self.codec_dropdown.get_selected()
+
+    def set_video_codec(self, codec_index):
+        self.codec_dropdown.set_selected(codec_index)
+
+    def get_extra_quality(self):
+        return self.extra_quality_toggle.get_active()
+
+    def get_tolerance(self):
+        return int(self.tolerance_input.get_value())
 
     def toggle_sidebar(self, action, _):
         sidebar_shown = self.split_view.get_show_sidebar()
@@ -213,13 +264,11 @@ class ConstrictWindow(Adw.ApplicationWindow):
     def bulk_compress(self, destination):
         self.set_controls_lock(True)
 
-        codecs = ['h264', 'hevc', 'av1', 'vp9']
-
-        target_size = int(self.target_size_input.get_value())
+        target_size = self.get_target_size()
         fps_mode = self.get_fps_mode()
-        codec = codecs[self.codec_dropdown.get_selected()]
-        extra_quality = self.extra_quality_toggle.get_active()
-        tolerance = int(self.tolerance_input.get_value())
+        codec = self.get_video_codec()
+        extra_quality = self.get_extra_quality()
+        tolerance = self.get_tolerance()
 
         for video in self.staged_videos:
             # compressing_text = Gtk.Label.new('Compressing…')
@@ -228,13 +277,13 @@ class ConstrictWindow(Adw.ApplicationWindow):
             progress_bar = Gtk.ProgressBar()
             progress_bar.set_valign(Gtk.Align['CENTER'])
             progress_bar.set_show_text(True)
-            if codec == 'vp9':
+            if codec == VideoCodec.VP9:
                 progress_bar.set_text('Analyzing…')
             video.set_suffix(progress_bar)
 
             def update_progress(fraction):
                 print(f'progress updated - {round(fraction * 100)}%')
-                if fraction == 0.0 and codec == 'vp9':
+                if fraction == 0.0 and codec == VideoCodec.VP9:
                     GLib.idle_add(progress_bar.pulse)
                     print('pulsed')
                 else:
@@ -301,7 +350,7 @@ class ConstrictWindow(Adw.ApplicationWindow):
             # TODO: Add thumbnail -- I think Nautilus generates one from a
             # frame 1/3 through the video
 
-            target_size = int(self.target_size_input.get_value())
+            target_size = self.get_target_size()
             fps_mode = self.get_fps_mode()
 
             action_row = Adw.ActionRow()
@@ -338,6 +387,11 @@ class ConstrictWindow(Adw.ApplicationWindow):
         width, height = self.get_default_size()
         self.settings.set_int('window-width', width)
         self.settings.set_int('window-height', height)
+        self.settings.set_int('target-size', self.get_target_size())
+        self.settings.set_enum('fps-mode', self.get_fps_mode())
+        self.settings.set_enum('video-codec', self.get_video_codec())
+        self.settings.set_boolean('extra-quality', self.get_extra_quality())
+        self.settings.set_int('tolerance', self.get_tolerance())
 
     def do_close_request(self):
         print('close request made')

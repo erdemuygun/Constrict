@@ -31,6 +31,7 @@ constrict_sources = [
   'main.py',
   'window.py',
   'constrict_utils.py',
+  'enums.py'
 ]
 
 install_data(constrict_sources, install_dir: moduledir)
