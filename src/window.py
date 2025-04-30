@@ -17,7 +17,7 @@
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from gi.repository import Adw, Gtk, Gio, GLib
+from gi.repository import Adw, Gtk, Gdk, Gio, GLib
 from constrict.constrict_utils import compress, get_encode_settings, get_resolution, get_framerate, get_duration
 from constrict.enums import FpsMode, VideoCodec
 import threading
@@ -160,6 +160,23 @@ class ConstrictWindow(Adw.ApplicationWindow):
 
         self.set_fps_mode(fps_mode)
         self.set_video_codec(video_codec)
+
+        content = Gdk.ContentFormats.new_for_gtype(Gdk.FileList)
+        target = Gtk.DropTarget(formats=content, actions=Gdk.DragAction.COPY)
+        target.connect('drop', self.on_drop)
+        target.connect('enter', self.on_enter)
+
+        self.view_stack.add_controller(target)
+
+    def on_drop(self, drop_target, value: Gdk.FileList, x, y, user_data=None):
+        files: List[Gio.File] = value.get_files()
+
+        self.stage_videos(files)
+
+    def on_enter(self, drop_target, x, y):
+        # Custom code...
+        # Tell the callee to continue
+        return Gdk.DragAction.COPY
 
     def set_controls_lock(self, is_locked):
         self.target_size_row.set_sensitive(not is_locked)
@@ -312,38 +329,37 @@ class ConstrictWindow(Adw.ApplicationWindow):
 
         self.set_controls_lock(False)
 
-    def open_file_dialog(self, action, parameter):
-        # Create new file selection dialog, using "open" mode
-        native = Gtk.FileDialog()
-        video_filter = Gtk.FileFilter()
-
-        video_filter.add_mime_type('video/*')
-        video_filter.set_name('Videos')
-
-        native.set_default_filter(video_filter)
-        native.set_title('Pick Videos')
-
-        native.open_multiple(self, None, self.on_open_response)
-
-    def on_open_response(self, dialog, result):
-        files = dialog.open_multiple_finish(result)
-
-        if not files:
-            return
-
+    def stage_videos(self, video_list):
+        # TODO: better error handling
+        # ie. corrupt files etc.
         self.video_queue.remove(self.add_videos_button)
 
         existing_paths = list(map(lambda x: x.filepath, self.staged_videos))
         print(f'existing: {existing_paths}')
 
-        for video in files:
+        for video in video_list:
             # TODO: make async query?
             video_path = video.get_path()
 
             if video_path in existing_paths:
                 continue
 
-            info = video.query_info('standard::display-name', Gio.FileQueryInfoFlags.NONE)
+            info = video.query_info(
+                'standard::display-name,standard::content-type',
+                Gio.FileQueryInfoFlags.NONE
+            )
+            content_type = info.get_content_type()
+            print(f'content type: {content_type}')
+
+            if not content_type:
+                continue
+
+            is_video = content_type.startswith('video/')
+            print(f'IS VIDEO: {is_video}')
+
+            if not is_video:
+                continue
+
             display_name = info.get_display_name() if info else video.get_basename()
             print(f'{video.get_basename()} - {video_path}')
 
@@ -377,6 +393,27 @@ class ConstrictWindow(Adw.ApplicationWindow):
 
         self.export_action.set_enabled(True)
         self.export_button.grab_focus()
+
+    def open_file_dialog(self, action, parameter):
+        # Create new file selection dialog, using "open" mode
+        native = Gtk.FileDialog()
+        video_filter = Gtk.FileFilter()
+
+        video_filter.add_mime_type('video/*')
+        video_filter.set_name('Videos')
+
+        native.set_default_filter(video_filter)
+        native.set_title('Pick Videos')
+
+        native.open_multiple(self, None, self.on_open_response)
+
+    def on_open_response(self, dialog, result):
+        files = dialog.open_multiple_finish(result)
+
+        if not files:
+            return
+
+        self.stage_videos(files)
 
         existing_paths = list(map(lambda x: x.filepath, self.staged_videos))
         print(f'new list: {existing_paths}')
