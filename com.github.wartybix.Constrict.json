@@ -40,9 +40,8 @@
             "buildsystem" : "meson",
             "sources" : [
                 {
-                    "type" : "git",
-                    "url" : "file:///home/wartybix/Projects/Constrict",
-                    "branch" : "wip"
+                    "type" : "dir",
+                    "path" : "."
                 }
             ]
         }
