@@ -21,6 +21,7 @@ from gi.repository import Adw, Gtk, Gdk, Gio, GLib
 from constrict.constrict_utils import compress, get_encode_settings, get_resolution, get_framerate, get_duration
 from constrict.enums import FpsMode, VideoCodec
 import threading
+import subprocess
 
 class StagedVideo:
     def __init__(self, filepath, row, width, height, fps, duration):
@@ -329,6 +330,16 @@ class ConstrictWindow(Adw.ApplicationWindow):
 
         self.set_controls_lock(False)
 
+    def fetch_thumbnail(self, video_path):
+        subprocess.run(['totem-video-thumbnailer', video_path, 'thumb.jpg'])
+
+        img = Gtk.Image.new_from_file('thumb.jpg')
+        img.set_pixel_size(64)
+        img.set_valign(Gtk.Align.CENTER)
+        img.add_css_class('icon-dropshadow')
+
+        return img
+
     def stage_videos(self, video_list):
         # TODO: better error handling
         # ie. corrupt files etc.
@@ -380,6 +391,16 @@ class ConstrictWindow(Adw.ApplicationWindow):
             # TODO: don't forget, perhaps change this for RTL users
             subtitle = preview(target_size, fps_mode, width, height, fps, duration)
             action_row.set_subtitle(subtitle)
+
+            action_row.set_valign(Gtk.Align.FILL)
+
+            thumb = self.fetch_thumbnail(video)
+
+            thumb.set_margin_top(4)
+            thumb.set_margin_bottom(4)
+            thumb.set_margin_end(4)
+
+            action_row.add_prefix(thumb)
 
             self.video_queue.add(action_row)
 

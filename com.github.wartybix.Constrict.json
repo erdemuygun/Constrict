@@ -44,6 +44,36 @@
                     "path" : "."
                 }
             ]
+        },
+        {
+            "name" : "totem-pl-parser",
+            "builddir" : true,
+            "buildsystem" : "meson",
+            "sources" : [
+                {
+                    "type" : "archive",
+                    "url" : "https://gitlab.gnome.org/GNOME/totem-pl-parser/-/archive/V_3_26_6/totem-pl-parser-V_3_26_6.tar.gz",
+                    "mirror-urls" : [
+                        "https://github.com/GNOME/totem-pl-parser/archive/refs/tags/V_3_26_6.tar.gz"
+                    ],
+                    "sha256" : "7219272a4863f823e2dd6d997e78d725de9e6071b1af1b478870f207731a8234"
+                }
+            ]
+        },
+        {
+            "name" : "totem-video-thumbnailer",
+            "builddir" : true,
+            "buildsystem" : "meson",
+            "sources" : [
+                {
+                    "type" : "git",
+                    "url" : "https://gitlab.gnome.org/GNOME/totem-video-thumbnailer.git",
+                    "mirror-urls" : [
+                        "https://github.com/GNOME/totem-video-thumbnailer.git"
+                    ],
+                    "commit" : "d295d9db51955f824bba83e15cabbdfa5c6d1bf7"
+                }
+            ]
         }
     ]
 }
