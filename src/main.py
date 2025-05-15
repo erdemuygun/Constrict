@@ -89,7 +89,7 @@ class ConstrictApplication(Adw.Application):
 
     def on_about_action(self, *args):
         """Callback for the app.about action."""
-        about = Adw.AboutDialog(application_name='Constrict',
+        about = Adw.AboutDialog(application_name=_('Constrict'),
                                 application_icon='com.github.wartybix.Constrict',
                                 developer_name='Wartybix',
                                 version='0.1.0',
@@ -99,14 +99,16 @@ class ConstrictApplication(Adw.Application):
                                 license_type='GTK_LICENSE_GPL_3_0',
                                 copyright='© 2025 Wartybix')
         about.add_credit_section(
-            '‘8mb’ repository by',
+            # TRANSLATORS: Braces represent the name of the repository (e.g. 8mb)
+            # Please use ‘’ characters instead of '', if applicable to your language.
+            _('‘{}’ repository by').format('8mb'),
             [
                 'Matthew Baggett https://github.com/matthewbaggett/',
                 'Ethan Martin https://github.com/yuckdevchan'
             ]
         )
         about.add_credit_section(
-            'GApplication local option handling by',
+            _('GApplication local option handling by'),
             ['kramo https://kramo.page']
         )
         # Translators: Replace "translator-credits" with your name/username, and optionally an email or URL.

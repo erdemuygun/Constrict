@@ -169,6 +169,15 @@ class ConstrictWindow(Adw.ApplicationWindow):
 
         self.view_stack.add_controller(target)
 
+        # TRANSLATORS: 'FPS' meaning 'frames per second'.
+        # {} represents the FPS value, for example 30 or 60.
+        # Please use U+202F Narrow no-break space (' ') between value and unit.
+        fps_label = _('{} FPS')
+
+        self.clear_row.set_title(fps_label.format('30'))
+        self.smooth_row.set_title(fps_label.format('60'))
+
+
     def on_drop(self, drop_target, value: Gdk.FileList, x, y, user_data=None):
         files: List[Gio.File] = value.get_files()
 
@@ -296,7 +305,8 @@ class ConstrictWindow(Adw.ApplicationWindow):
             progress_bar.set_valign(Gtk.Align['CENTER'])
             progress_bar.set_show_text(True)
             if codec == VideoCodec.VP9:
-                progress_bar.set_text('Analyzing…')
+                # TRANSLATORS: please use U+2026 Horizontal ellipsis (…) instead of '...', if applicable to your language
+                progress_bar.set_text(_('Analyzing…'))
             video.set_suffix(progress_bar)
 
             def update_progress(fraction):
@@ -323,7 +333,7 @@ class ConstrictWindow(Adw.ApplicationWindow):
                 self.get_id()
             )
 
-            complete_text = Gtk.Label.new('Complete')
+            complete_text = Gtk.Label.new(_('Complete'))
             complete_text.add_css_class('success')
 
             video.set_suffix(complete_text)
@@ -421,10 +431,10 @@ class ConstrictWindow(Adw.ApplicationWindow):
         video_filter = Gtk.FileFilter()
 
         video_filter.add_mime_type('video/*')
-        video_filter.set_name('Videos')
+        video_filter.set_name(_('Videos'))
 
         native.set_default_filter(video_filter)
-        native.set_title('Pick Videos')
+        native.set_title(_('Pick Videos'))
 
         native.open_multiple(self, None, self.on_open_response)
 

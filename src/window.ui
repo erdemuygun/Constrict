@@ -57,7 +57,7 @@
                         <!-- <property name="selection-mode">None</property> -->
                         <child>
                           <object class="AdwSpinRow" id="target_size_row">
-                            <property name="title">Target Size (MB)</property>
+                            <property name="title" translatable="yes">Target Size (MB)</property>
                             <property name="numeric">True</property>
                             <property name="adjustment">
                               <object class="GtkAdjustment" id="target_size_input">
@@ -74,12 +74,13 @@
                     </child>
                     <child>
                       <object class="AdwPreferencesGroup">
-                        <property name="title">Framerate Limit</property>
+                        <property name="title" translatable="yes">Framerate Limit</property>
                         <child type="header-suffix">
                           <object class="GtkMenuButton">
                             <property name="icon-name">help-about-symbolic</property>
                             <property name="tooltip-text" translatable="yes">More Information</property>
                             <property name="popover">
+                              <!-- TODO: investigate this and screenreaders -->
                               <object class="GtkPopover">
                                 <child>
                                   <object class="GtkLabel">
@@ -104,8 +105,8 @@
                         <child>
                           <object class="AdwActionRow" id="auto_row">
                             <property name="activatable-widget">auto_check_button</property>
-                            <property name="title">Automatic</property>
-                            <property name="subtitle">Use the highest framerate without sacrificing resolution</property>
+                            <property name="title" translatable="yes">Automatic</property>
+                            <property name="subtitle" translatable="yes">Use the highest framerate without sacrificing resolution</property>
                             <child type="prefix">
                               <object class="GtkCheckButton" id="auto_check_button">
                                 <property name="active">True</property>
@@ -116,8 +117,7 @@
                         <child>
                           <object class="AdwActionRow" id="clear_row">
                             <property name="activatable-widget">clear_check_button</property>
-                            <property name="title">30 FPS</property>
-                            <property name="subtitle">Ensure higher image clarity</property>
+                            <property name="subtitle" translatable="yes">Ensure higher image clarity</property>
                             <child type="prefix">
                               <object class="GtkCheckButton" id="clear_check_button">
                                 <property name="group">auto_check_button</property>
@@ -128,8 +128,7 @@
                         <child>
                           <object class="AdwActionRow" id="smooth_row">
                             <property name="activatable-widget">smooth_check_button</property>
-                            <property name="title">60 FPS</property>
-                            <property name="subtitle">Ensure smoother motion</property>
+                            <property name="subtitle" translatable="yes">Ensure smoother motion</property>
                             <child type="prefix">
                               <object class="GtkCheckButton" id="smooth_check_button">
                                 <property name="group">auto_check_button</property>
@@ -141,10 +140,10 @@
                     </child>
                     <child>
                       <object class="AdwPreferencesGroup">
-                        <property name="title">Encoding Options</property>
+                        <property name="title" translatable="yes">Encoding Options</property>
                         <child>
                           <object class="AdwComboRow" id="codec_dropdown">
-                            <property name="title">Video Codec</property>
+                            <property name="title" translatable="yes">Video Codec</property>
                             <property name="model">
                               <object class="GtkStringList">
                                 <items>
@@ -159,19 +158,19 @@
                         </child>
                         <child>
                           <object class="AdwSwitchRow" id="extra_quality_toggle">
-                            <property name="title">Extra Quality</property>
-                            <property name="subtitle">Increase image quality at the cost of compression time</property>
+                            <property name="title" translatable="yes">Extra Quality</property>
+                            <property name="subtitle" translatable="yes">Increase image quality at the cost of compression time</property>
                           </object>
                         </child>
                       </object>
                     </child>
                     <child>
                       <object class="AdwPreferencesGroup">
-                        <property name="title">Advanced Options</property>
+                        <property name="title" translatable="yes">Advanced Options</property>
                         <child>
                           <object class="AdwSpinRow" id="tolerance_row">
-                            <property name="title">Tolerance (%)</property>
-                            <property name="subtitle">How far end file sizes can be below target</property>
+                            <property name="title" translatable="yes">Tolerance (%)</property>
+                            <property name="subtitle" translatable="yes">How far end file sizes can be below target</property>
                             <property name="numeric">True</property>
                             <property name="adjustment">
                               <object class="GtkAdjustment" id="tolerance_input">
@@ -221,7 +220,7 @@
                 <child>
                   <object class="AdwViewStackPage">
                     <property name="name">status_page</property>
-                    <property name="title">Status Page</property>
+                    <!-- TODO: remove? <property name="title">Status Page</property>-->
                     <property name="child">
                       <object class="AdwStatusPage" id="status_page">
                         <property name="icon-name">video-encoder-symbolic</property>
@@ -229,6 +228,7 @@
                         <property name="description" translatable="yes">Drag and drop videos here</property>
                         <property name="child">
                           <object class="GtkButton">
+                            <!-- TRANSLATORS: please use U+2026 Horizontal ellipsis (…) instead of '...', if applicable to your language -->
                             <property name="label" translatable="yes">Open…</property>
                             <property name="action-name">win.open</property>
                             <property name="can-shrink">True</property>
@@ -246,7 +246,7 @@
                 <child>
                   <object class="AdwViewStackPage">
                     <property name="name">queue_page</property>
-                    <property name="title">Queue Page</property>
+                    <!-- TODO remove? property name="title">Queue Page</property>-->
                     <property name="child">
                       <object class="AdwToolbarView" id="queue_page">
                         <child>
@@ -280,6 +280,7 @@
                                             <child>
                                               <object class="AdwButtonRow" id="add_videos_button">
                                                 <property name="start-icon-name">list-add-symbolic</property>
+                                                <!-- TRANSLATORS: please use U+2026 Horizontal ellipsis (…) instead of '...', if applicable to your language -->
                                                 <property name="title" translatable="yes">Add Videos…</property>
                                                 <property name="action-name">win.open</property>
                                               </object>
@@ -299,7 +300,8 @@
                             <!-- <property name="homogeneous">True</property> -->
                             <child type="center">
                               <object class="GtkButton" id="export_button">
-                                <property name="label">Export…</property>
+                                <!-- TRANSLATORS: please use U+2026 Horizontal ellipsis (…) instead of '...', if applicable to your language -->
+                                <property name="label" translatable="yes">Export…</property>
                                 <property name="action-name">win.export</property>
                                 <property name="halign">GTK_ALIGN_CENTER</property>
                                 <property name="margin-top">6</property>

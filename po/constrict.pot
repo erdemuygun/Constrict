@@ -1,0 +1,304 @@
+# Constrict POT file.
+# Copyright (C) 2025 Wartybix
+# This file is distributed under the same license as the Constrict package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: Constrict 1.0.1\n"
+"Report-Msgid-Bugs-To: 34974060+Wartybix@users.noreply.github.com\n"
+"POT-Creation-Date: 2025-05-15 22:31+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: data/com.github.wartybix.Constrict.desktop.in:2
+#: data/com.github.wartybix.Constrict.metainfo.xml.in:7 src/main.py:92
+#: src/window.ui:6
+msgid "Constrict"
+msgstr ""
+
+#: data/com.github.wartybix.Constrict.desktop.in:3
+msgid "Video Compressor"
+msgstr ""
+
+#: data/com.github.wartybix.Constrict.desktop.in:4
+#: data/com.github.wartybix.Constrict.metainfo.xml.in:8
+msgid "Compress videos to target file sizes"
+msgstr ""
+
+#: data/com.github.wartybix.Constrict.desktop.in:10
+msgid "Compress;Video;Movie;Film;Clip;"
+msgstr ""
+
+#: data/com.github.wartybix.Constrict.desktop.in:16
+msgid "New Window"
+msgstr ""
+
+#: data/com.github.wartybix.Constrict.metainfo.xml.in:10
+msgid ""
+"Constrict compresses your videos to your chosen file size — useful for "
+"uploading to services with specific file size limits. No more relying on "
+"online services for video compression, or the manual trial-and-error of re-"
+"encoding at various bitrates yourself."
+msgstr ""
+
+#: data/com.github.wartybix.Constrict.metainfo.xml.in:11
+msgid "Features include:"
+msgstr ""
+
+#: data/com.github.wartybix.Constrict.metainfo.xml.in:13
+msgid "An intuitive, easy to use interface."
+msgstr ""
+
+#: data/com.github.wartybix.Constrict.metainfo.xml.in:14
+msgid ""
+"Automatic calculation of average bitrate (ABR), resolution, framerate, and "
+"audio quality each video is re-encoded with to meet the target file size."
+msgstr ""
+
+#: data/com.github.wartybix.Constrict.metainfo.xml.in:15
+msgid "Bulk compression of multiple videos to one output directory."
+msgstr ""
+
+#: data/com.github.wartybix.Constrict.metainfo.xml.in:16
+msgid ""
+"Customisation of framerate limits, to ensure a clearer or smoother image."
+msgstr ""
+
+#: data/com.github.wartybix.Constrict.metainfo.xml.in:17
+msgid ""
+"A choice of codecs to encode output files with, including H.264, HEVC, AV1, "
+"and VP9."
+msgstr ""
+
+#: data/com.github.wartybix.Constrict.metainfo.xml.in:19
+msgid ""
+"The app attempts to retain as much audiovisual quality as possible for the "
+"file size given. However, extremely steep reductions in file size can cause "
+"significant loss of quality in the output file, and sometimes compression "
+"may not be possible at all. All processing is done locally — and as such, "
+"compression speeds are only as fast as your hardware allows."
+msgstr ""
+
+#. TRANSLATORS: developer name, please do not translate.
+#: data/com.github.wartybix.Constrict.metainfo.xml.in:24
+msgid "Wartybix"
+msgstr ""
+
+#: data/com.github.wartybix.Constrict.metainfo.xml.in:75
+#: data/com.github.wartybix.Constrict.metainfo.xml.in:79
+msgid "A caption"
+msgstr ""
+
+#: data/com.github.wartybix.Constrict.gschema.xml:31 src/window.ui:77
+msgid "Framerate Limit"
+msgstr ""
+
+#: data/com.github.wartybix.Constrict.gschema.xml:32
+msgid ""
+"Limits framerates of compressed videos automatically, or to 30 FPS or 60 FPS."
+msgstr ""
+
+#: data/com.github.wartybix.Constrict.gschema.xml:38 src/window.ui:146
+msgid "Video Codec"
+msgstr ""
+
+#: data/com.github.wartybix.Constrict.gschema.xml:39
+msgid "The codec used to encode with during compression"
+msgstr ""
+
+#. TRANSLATORS: Braces represent the name of the repository (e.g. 8mb)
+#. Please use ‘’ characters instead of '', if applicable to your language.
+#: src/main.py:104
+msgid "‘{}’ repository by"
+msgstr ""
+
+#: src/main.py:111
+msgid "GApplication local option handling by"
+msgstr ""
+
+#: src/main.py:115
+msgid "translator-credits"
+msgstr ""
+
+#. TRANSLATORS: 'FPS' meaning 'frames per second'.
+#. {} represents the FPS value, for example 30 or 60.
+#. Please use U+202F Narrow no-break space (' ') between value and unit.
+#: src/window.py:175
+msgid "{} FPS"
+msgstr ""
+
+#. TRANSLATORS: please use U+2026 Horizontal ellipsis (…) instead of '...', if applicable to your language
+#: src/window.py:309
+msgid "Analyzing…"
+msgstr ""
+
+#: src/window.py:336
+msgid "Complete"
+msgstr ""
+
+#: src/window.py:434
+msgid "Videos"
+msgstr ""
+
+#: src/window.py:437
+msgid "Pick Videos"
+msgstr ""
+
+#: src/window.ui:26
+msgid "Toggle Settings Pane"
+msgstr ""
+
+#: src/window.ui:34
+msgid "Main Menu"
+msgstr ""
+
+#: src/window.ui:60
+msgid "Target Size (MB)"
+msgstr ""
+
+#: src/window.ui:81 src/window.ui:189
+msgid "More Information"
+msgstr ""
+
+#: src/window.ui:92
+msgid ""
+"Videos compressed to low bitrates may be capped to 24 FPS, regardless of the "
+"option set."
+msgstr ""
+
+#: src/window.ui:108
+msgid "Automatic"
+msgstr ""
+
+#: src/window.ui:109
+msgid "Use the highest framerate without sacrificing resolution"
+msgstr ""
+
+#: src/window.ui:120
+msgid "Ensure higher image clarity"
+msgstr ""
+
+#: src/window.ui:131
+msgid "Ensure smoother motion"
+msgstr ""
+
+#: src/window.ui:143
+msgid "Encoding Options"
+msgstr ""
+
+#: src/window.ui:161
+msgid "Extra Quality"
+msgstr ""
+
+#: src/window.ui:162
+msgid "Increase image quality at the cost of compression time"
+msgstr ""
+
+#: src/window.ui:169
+msgid "Advanced Options"
+msgstr ""
+
+#: src/window.ui:172
+msgid "Tolerance (%)"
+msgstr ""
+
+#: src/window.ui:173
+msgid "How far end file sizes can be below target"
+msgstr ""
+
+#: src/window.ui:199
+msgid ""
+"Decreasing the tolerance maximizes image quality by reducing how much "
+"compressed file sizes can be under target. However, this can increase the "
+"number of attempts needed to meet the target, increasing compression time. A "
+"tolerance of 10 % or more is recommended."
+msgstr ""
+
+#: src/window.ui:227
+msgid "Compress Videos"
+msgstr ""
+
+#: src/window.ui:228
+msgid "Drag and drop videos here"
+msgstr ""
+
+#. TRANSLATORS: please use U+2026 Horizontal ellipsis (…) instead of '...', if applicable to your language
+#: src/window.ui:232
+msgid "Open…"
+msgstr ""
+
+#: src/window.ui:270
+msgid "Video Queue"
+msgstr ""
+
+#: src/window.ui:273
+msgid "Clear All"
+msgstr ""
+
+#. TRANSLATORS: please use U+2026 Horizontal ellipsis (…) instead of '...', if applicable to your language
+#: src/window.ui:284
+msgid "Add Videos…"
+msgstr ""
+
+#. TRANSLATORS: please use U+2026 Horizontal ellipsis (…) instead of '...', if applicable to your language
+#: src/window.ui:304
+msgid "Export…"
+msgstr ""
+
+#: src/window.ui:331
+msgid "_New Window"
+msgstr ""
+
+#: src/window.ui:335
+msgid "_Preferences"
+msgstr ""
+
+#: src/window.ui:339
+msgid "_Keyboard Shortcuts"
+msgstr ""
+
+#: src/window.ui:343
+msgid "_About Constrict"
+msgstr ""
+
+#: src/gtk/help-overlay.ui:11
+msgctxt "shortcut window"
+msgid "Video Management"
+msgstr ""
+
+#: src/gtk/help-overlay.ui:14
+msgctxt "shortcut window"
+msgid "Open"
+msgstr ""
+
+#: src/gtk/help-overlay.ui:20
+msgctxt "shortcut window"
+msgid "Export"
+msgstr ""
+
+#: src/gtk/help-overlay.ui:28
+msgctxt "shortcut window"
+msgid "General"
+msgstr ""
+
+#: src/gtk/help-overlay.ui:31
+msgctxt "shortcut window"
+msgid "Toggle Settings Pane"
+msgstr ""
+
+#: src/gtk/help-overlay.ui:37
+msgctxt "shortcut window"
+msgid "Show Shortcuts"
+msgstr ""
+
+#: src/gtk/help-overlay.ui:43
+msgctxt "shortcut window"
+msgid "Quit"
+msgstr ""
