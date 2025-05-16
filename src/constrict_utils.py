@@ -151,7 +151,14 @@ def get_encoding_speed(frame_height, codec, extra_quality):
             sys.exit('Error: unknown codec passed to get_encoding_speed')
 
 
-def get_progress(file_input, ffmpeg_cmd, output_fn, frame_count, pass_num):
+def get_progress(
+    file_input,
+    ffmpeg_cmd,
+    output_fn,
+    frame_count,
+    pass_num,
+    cancel_event
+):
     #pv_cmd = subprocess.Popen(['pv', file_input], stdout=subprocess.PIPE)
     # ffmpeg_cmd = subprocess.check_output(ffmpeg_cmd, stdin=pv_cmd.stdout)
     # pv_cmd.wait()
@@ -174,6 +181,10 @@ def get_progress(file_input, ffmpeg_cmd, output_fn, frame_count, pass_num):
             output_fn((frame_count * pass_num + frame_int) / (frame_count * 2))
         print(line_string)
 
+        if cancel_event() == True:
+            proc.kill()
+            return
+
     # output_fn(subprocess.check_output(ffmpeg_cmd, text=True))
 
 
@@ -189,7 +200,8 @@ def transcode(
     extra_quality,
     output_fn,
     frame_count,
-    window_id
+    window_id,
+    cancel_event
 ):
     portrait = height > width
     frame_height = width if portrait else height
@@ -248,9 +260,12 @@ def transcode(
         '/dev/null'
     ])
 
+    if cancel_event():
+        return
+
     print(" ".join(pass1_cmd))
     print(' Transcoding... (pass 1/2)')
-    get_progress(file_input, pass1_cmd, output_fn, frame_count, 0)
+    get_progress(file_input, pass1_cmd, output_fn, frame_count, 0, cancel_event)
 
     audio_channels = 1 if audio_bitrate < 12000 else 2
 
@@ -294,9 +309,13 @@ def transcode(
         '-ac', f'{audio_channels}',
         file_output
     ])
+
+    if cancel_event():
+        return
+
     print(" ".join(pass2_cmd))
     print(' Transcoding... (pass 2/2)')
-    get_progress(file_input, pass2_cmd, output_fn, frame_count, 1)
+    get_progress(file_input, pass2_cmd, output_fn, frame_count, 1, cancel_event)
 
 
 def get_framerate(file_input):
@@ -574,7 +593,8 @@ def compress(
     tolerance=10,
     file_output=None,
     output_fn=lambda x: None,
-    window_id=None
+    window_id=None,
+    cancel_event=lambda x: None
 ):
     start_time = datetime.datetime.now().replace(microsecond=0)
 
@@ -668,8 +688,13 @@ def compress(
             extra_quality,
             output_fn,
             dest_frame_count,
-            window_id
+            window_id,
+            cancel_event
         )
+
+        if cancel_event():
+            return
+
         after_size_bytes = os.stat(file_output).st_size
         percent_of_target = (100 / target_size_bytes) * after_size_bytes
 

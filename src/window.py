@@ -24,8 +24,18 @@ import threading
 import subprocess
 
 class StagedVideo:
-    def __init__(self, filepath, row, width, height, fps, duration):
+    def __init__(
+        self,
+        filepath,
+        display_name,
+        row,
+        width,
+        height,
+        fps,
+        duration
+    ):
         self.filepath = filepath
+        self.display_name = display_name
         self.row = row
         self.suffix = None
         self.width, self.height = width, height
@@ -75,7 +85,10 @@ class ConstrictWindow(Adw.ApplicationWindow):
 
     split_view = Gtk.Template.Child()
     view_stack = Gtk.Template.Child()
+    export_bar = Gtk.Template.Child()
     export_button = Gtk.Template.Child()
+    cancel_bar = Gtk.Template.Child()
+    cancel_button = Gtk.Template.Child()
     video_queue = Gtk.Template.Child()
     add_videos_button = Gtk.Template.Child()
     target_size_row = Gtk.Template.Child()
@@ -95,6 +108,8 @@ class ConstrictWindow(Adw.ApplicationWindow):
         super().__init__(**kwargs)
 
         self.staged_videos = []
+        self.cancelled = False
+        self.currently_processed = ''
 
         self.toggle_sidebar_action = Gio.SimpleAction(name="toggle-sidebar")
         self.toggle_sidebar_action.connect("activate", self.toggle_sidebar)
@@ -108,6 +123,10 @@ class ConstrictWindow(Adw.ApplicationWindow):
         self.export_action.connect("activate", self.export_file_dialog)
         self.export_action.set_enabled(bool(self.staged_videos))
         self.add_action(self.export_action)
+
+        self.cancel_action = Gio.SimpleAction(name="cancel")
+        self.cancel_action.connect("activate", self.cancel_dialog)
+        self.add_action(self.cancel_action)
 
         self.clear_all_action = Gio.SimpleAction(name="clear_all")
         self.clear_all_action.connect("activate", self.delist_all)
@@ -264,6 +283,10 @@ class ConstrictWindow(Adw.ApplicationWindow):
         self.view_stack.set_visible_child_name('status_page')
         self.export_action.set_enabled(False)
 
+    def show_cancel_button(self, is_compressing):
+        self.cancel_bar.set_visible(is_compressing)
+        self.export_bar.set_visible(not is_compressing)
+
     def export_file_dialog(self, action, parameter):
         native = Gtk.FileDialog()
 
@@ -288,8 +311,37 @@ class ConstrictWindow(Adw.ApplicationWindow):
         thread.daemon = True
         thread.start()
 
+    def cancel_dialog(self, action, parameter):
+        dialog = Adw.AlertDialog.new(
+            _('Stop Compression?'),
+            # TRANSLATORS: {} represents the filename of the video currently
+            # being compressed. Please use “” instead of "", if applicable to
+            # your language.
+            _(
+                'Progress made compressing “{}” will be permanently lost'
+            ).format(self.currently_processed)
+        )
+
+        dialog.add_response('cancel', _('Cancel'))
+        dialog.add_response('stop', _('Stop'))
+
+        dialog.set_response_appearance(
+            'stop',
+            Adw.ResponseAppearance.DESTRUCTIVE
+        )
+
+        dialog.choose(self, None, self.on_cancel_response)
+
+    def on_cancel_response(self, dialog, result):
+        choice = dialog.choose_finish(result)
+
+        if choice == 'stop':
+            print('Compression stopped')
+            self.cancelled = True
+
     def bulk_compress(self, destination):
         self.set_controls_lock(True)
+        self.show_cancel_button(True)
 
         target_size = self.get_target_size()
         fps_mode = self.get_fps_mode()
@@ -298,7 +350,7 @@ class ConstrictWindow(Adw.ApplicationWindow):
         tolerance = self.get_tolerance()
 
         for video in self.staged_videos:
-            # compressing_text = Gtk.Label.new('Compressing…')
+            self.currently_processed = video.display_name
 
             # TODO: look into compact progress bar...
             progress_bar = Gtk.ProgressBar()
@@ -330,8 +382,13 @@ class ConstrictWindow(Adw.ApplicationWindow):
                 tolerance,
                 destination,
                 update_progress,
-                self.get_id()
+                self.get_id(),
+                lambda: self.cancelled
             )
+
+            if self.cancelled:
+                video.clear_suffix()
+                break
 
             complete_text = Gtk.Label.new(_('Complete'))
             complete_text.add_css_class('success')
@@ -339,6 +396,8 @@ class ConstrictWindow(Adw.ApplicationWindow):
             video.set_suffix(complete_text)
 
         self.set_controls_lock(False)
+        self.show_cancel_button(False)
+        self.cancelled = False
 
     def fetch_thumbnail(self, video_path):
         subprocess.run(['totem-video-thumbnailer', video_path, 'thumb.jpg'])
@@ -414,7 +473,15 @@ class ConstrictWindow(Adw.ApplicationWindow):
 
             self.video_queue.add(action_row)
 
-            staged_video = StagedVideo(video.get_path(), action_row, width, height, fps, duration)
+            staged_video = StagedVideo(
+                video.get_path(),
+                display_name,
+                action_row,
+                width,
+                height,
+                fps,
+                duration
+            )
             self.staged_videos.append(staged_video)
 
         self.video_queue.add(self.add_videos_button)
