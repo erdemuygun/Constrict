@@ -30,3 +30,8 @@ class VideoCodec:
     HEVC = 1
     AV1 = 2
     VP9 = 3
+
+class QueuedVideoState:
+    PENDING = 0
+    COMPRESSING = 1
+    COMPLETE = 2

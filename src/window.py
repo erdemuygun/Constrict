@@ -19,64 +19,10 @@
 
 from gi.repository import Adw, Gtk, Gdk, Gio, GLib
 from constrict.constrict_utils import compress, get_encode_settings, get_resolution, get_framerate, get_duration
-from constrict.enums import FpsMode, VideoCodec
+from constrict.enums import FpsMode, VideoCodec, QueuedVideoState
+from constrict.queued_video_row import QueuedVideoRow
 import threading
 import subprocess
-
-class StagedVideo:
-    def __init__(
-        self,
-        filepath,
-        display_name,
-        row,
-        width,
-        height,
-        fps,
-        duration
-    ):
-        self.filepath = filepath
-        self.display_name = display_name
-        self.row = row
-        self.suffix = None
-        self.width, self.height = width, height
-        self.fps = fps
-        self.duration = duration
-
-    def clear_suffix(self):
-        if self.suffix:
-            self.row.remove(self.suffix)
-
-        self.suffix = None
-
-    def set_suffix(self, suffix):
-        self.clear_suffix()
-
-        self.row.add_suffix(suffix)
-        self.suffix = suffix
-
-    def __string__(self):
-        return f'{self.filepath} - {self.width}×{self.height}@{self.fps} ({self.duration}s)'
-
-
-def preview(target_size_MiB, fps_mode, width, height, fps, duration):
-    encode_settings = get_encode_settings(
-        target_size_MiB,
-        fps_mode,
-        width,
-        height,
-        fps,
-        duration
-    )
-
-    if not encode_settings:
-        return ''
-
-    _, _, preset_height, target_fps = encode_settings
-
-    if height > width:
-        height = width
-
-    return f'{height}p@{fps} → {preset_height}p@{target_fps}'
 
 
 @Gtk.Template(resource_path='/com/github/wartybix/Constrict/window.ui')
@@ -224,15 +170,7 @@ class ConstrictWindow(Adw.ApplicationWindow):
         fps_mode = self.get_fps_mode()
 
         for video in self.staged_videos:
-            subtitle = preview(
-                target_size,
-                fps_mode,
-                video.width,
-                video.height,
-                video.fps,
-                video.duration
-            )
-            video.row.set_subtitle(subtitle)
+            video.set_preview(target_size, fps_mode)
 
     def get_target_size(self):
         return int(self.target_size_input.get_value())
@@ -276,7 +214,7 @@ class ConstrictWindow(Adw.ApplicationWindow):
 
     def delist_all(self, action, _):
         for video in self.staged_videos:
-            self.video_queue.remove(video.row)
+            self.video_queue.remove(video)
 
         self.staged_videos = []
 
@@ -353,28 +291,25 @@ class ConstrictWindow(Adw.ApplicationWindow):
             self.currently_processed = video.display_name
 
             # TODO: look into compact progress bar...
-            progress_bar = Gtk.ProgressBar()
-            progress_bar.set_valign(Gtk.Align['CENTER'])
-            progress_bar.set_show_text(True)
+
             if codec == VideoCodec.VP9:
                 # TRANSLATORS: please use U+2026 Horizontal ellipsis (…) instead of '...', if applicable to your language
-                progress_bar.set_text(_('Analyzing…'))
-            video.set_suffix(progress_bar)
+                video.set_progress_text(_('Analyzing…'))
 
             def update_progress(fraction):
                 print(f'progress updated - {round(fraction * 100)}%')
                 if fraction == 0.0 and codec == VideoCodec.VP9:
-                    GLib.idle_add(progress_bar.pulse)
+                    GLib.idle_add(video.pulse_progress)
                     print('pulsed')
                 else:
-                    if progress_bar.get_text():
-                        GLib.idle_add(progress_bar.set_text, None)
-                    GLib.idle_add(progress_bar.set_fraction, fraction)
+                    if video.get_progress_text():
+                        GLib.idle_add(video.set_progress_text, None)
+                    GLib.idle_add(video.set_progress_fraction, fraction)
 
-            # def update_txt: compressing_text.set_label
+            video.set_state(QueuedVideoState.COMPRESSING)
 
             compress(
-                video.filepath,
+                video.video_path,
                 target_size,
                 fps_mode,
                 extra_quality,
@@ -387,34 +322,22 @@ class ConstrictWindow(Adw.ApplicationWindow):
             )
 
             if self.cancelled:
-                video.clear_suffix()
+                video.set_state(QueuedVideoState.PENDING)
                 break
 
-            complete_text = Gtk.Label.new(_('Complete'))
-            complete_text.add_css_class('success')
-
-            video.set_suffix(complete_text)
+            video.set_state(QueuedVideoState.COMPLETE)
 
         self.set_controls_lock(False)
         self.show_cancel_button(False)
         self.cancelled = False
 
-    def fetch_thumbnail(self, video_path):
-        subprocess.run(['totem-video-thumbnailer', video_path, 'thumb.jpg'])
-
-        img = Gtk.Image.new_from_file('thumb.jpg')
-        img.set_pixel_size(64)
-        img.set_valign(Gtk.Align.CENTER)
-        img.add_css_class('icon-dropshadow')
-
-        return img
-
     def stage_videos(self, video_list):
         # TODO: better error handling
         # ie. corrupt files etc.
+        # TODO: merge staged video list with UI?
         self.video_queue.remove(self.add_videos_button)
 
-        existing_paths = list(map(lambda x: x.filepath, self.staged_videos))
+        existing_paths = list(map(lambda x: x.video_path, self.staged_videos))
         print(f'existing: {existing_paths}')
 
         for video in video_list:
@@ -449,40 +372,35 @@ class ConstrictWindow(Adw.ApplicationWindow):
             target_size = self.get_target_size()
             fps_mode = self.get_fps_mode()
 
-            action_row = Adw.ActionRow()
-            action_row.set_title(display_name)
-
             # cache metadata
             width, height = get_resolution(video)
             fps = get_framerate(video)
             duration = get_duration(video)
 
-            # TODO: don't forget, perhaps change this for RTL users
-            subtitle = preview(target_size, fps_mode, width, height, fps, duration)
-            action_row.set_subtitle(subtitle)
-
-            action_row.set_valign(Gtk.Align.FILL)
-
-            thumb = self.fetch_thumbnail(video)
-
-            thumb.set_margin_top(4)
-            thumb.set_margin_bottom(4)
-            thumb.set_margin_end(4)
-
-            action_row.add_prefix(thumb)
-
-            self.video_queue.add(action_row)
-
-            staged_video = StagedVideo(
+            staged_video = QueuedVideoRow(
                 video.get_path(),
                 display_name,
-                action_row,
                 width,
                 height,
                 fps,
-                duration
+                duration,
+                target_size,
+                fps_mode
             )
+
+            # def remove(widget, action_name, parameter):
+            #     print(f'widget: {widget}')
+            #     print(f'action_name: {action_name}')
+            #     print(f'parameter: {parameter}')
+
+
+            #     self.staged_videos.remove(staged_video)
+            #     self.video_queue.remove(action_row)
+
+            # menu_button.install_action('row.remove', None, remove)
+
             self.staged_videos.append(staged_video)
+            self.video_queue.add(staged_video)
 
         self.video_queue.add(self.add_videos_button)
 
@@ -513,7 +431,7 @@ class ConstrictWindow(Adw.ApplicationWindow):
 
         self.stage_videos(files)
 
-        existing_paths = list(map(lambda x: x.filepath, self.staged_videos))
+        existing_paths = list(map(lambda x: x.video_path, self.staged_videos))
         print(f'new list: {existing_paths}')
 
     def save_window_state(self):

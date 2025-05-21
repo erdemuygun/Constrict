@@ -31,7 +31,8 @@ constrict_sources = [
   'main.py',
   'window.py',
   'constrict_utils.py',
-  'enums.py'
+  'enums.py',
+  'queued_video_row.py'
 ]
 
 install_data(constrict_sources, install_dir: moduledir)
