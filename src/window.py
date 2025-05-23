@@ -331,6 +331,14 @@ class ConstrictWindow(Adw.ApplicationWindow):
         self.show_cancel_button(False)
         self.cancelled = False
 
+    def remove_row(self, widget, action_name, parameter):
+        self.staged_videos.remove(widget)
+        self.video_queue.remove(widget)
+
+        if not self.staged_videos:
+            self.view_stack.set_visible_child_name('status_page')
+            self.export_action.set_enabled(False)
+
     def stage_videos(self, video_list):
         # TODO: better error handling
         # ie. corrupt files etc.
@@ -388,16 +396,7 @@ class ConstrictWindow(Adw.ApplicationWindow):
                 fps_mode
             )
 
-            # def remove(widget, action_name, parameter):
-            #     print(f'widget: {widget}')
-            #     print(f'action_name: {action_name}')
-            #     print(f'parameter: {parameter}')
-
-
-            #     self.staged_videos.remove(staged_video)
-            #     self.video_queue.remove(action_row)
-
-            # menu_button.install_action('row.remove', None, remove)
+            staged_video.install_action('row.remove', None, self.remove_row)
 
             self.staged_videos.append(staged_video)
             self.video_queue.add(staged_video)

@@ -32,25 +32,24 @@
         </style>
       </object>
     </child>
-    <!-- TODO: add 'remove' option -->
-    <!-- <child type="suffix"> -->
-    <!--   <object class="GtkMenuButton" id="menu_button"> -->
-    <!--     <property name="icon-name">view-more-symbolic</property> -->
-    <!--     <property name="tooltip-text" translatable="yes">View More</property> -->
-    <!--     <property name="valign">center</property> -->
-    <!--     <property name="menu-model">row_actions</property> -->
-    <!--     <style> -->
-    <!--       <class name="flat"/> -->
-    <!--     </style> -->
-    <!--   </object> -->
-    <!-- </child> -->
+    <child type="suffix">
+      <object class="GtkMenuButton" id="menu_button">
+        <property name="icon-name">view-more-symbolic</property>
+        <property name="tooltip-text" translatable="yes">View More</property>
+        <property name="valign">center</property>
+        <property name="menu-model">row_actions</property>
+        <style>
+          <class name="flat"/>
+        </style>
+      </object>
+    </child>
   </template>
-  <!-- <menu id="row_actions"> -->
-  <!--   <section> -->
-  <!--     <item> -->
-  <!--       <attribute name="label" translatable="yes">_Remove</attribute> -->
-  <!--       <attribute name="action">row.remove</attribute> -->
-  <!--     </item> -->
-  <!--   </section> -->
-  <!-- </menu> -->
+  <menu id="row_actions">
+    <section>
+      <item>
+        <attribute name="label" translatable="yes">_Remove</attribute>
+        <attribute name="action">row.remove</attribute>
+      </item>
+    </section>
+  </menu>
 </interface>

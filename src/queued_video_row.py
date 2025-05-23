@@ -10,7 +10,7 @@ class QueuedVideoRow(Adw.ActionRow):
     thumbnail = Gtk.Template.Child()
     progress_bar = Gtk.Template.Child()
     status_label = Gtk.Template.Child()
-    # menu_button = Gtk.Template.Child()
+    menu_button = Gtk.Template.Child()
 
     # TODO: investigate window becoming blank?
 
@@ -65,12 +65,16 @@ class QueuedVideoRow(Adw.ActionRow):
         self.set_subtitle(subtitle)
 
     def set_state(self, state):
+        is_compressing = state == QueuedVideoState.COMPRESSING
+        is_complete = state == QueuedVideoState.COMPLETE
+
         # TODO: clear 'complete' label when compression settings change
-        if state == QueuedVideoState.COMPRESSING:
+        if is_compressing:
             self.progress_bar.set_fraction(0.0)
 
-        self.progress_bar.set_visible(state == QueuedVideoState.COMPRESSING)
-        self.status_label.set_visible(state == QueuedVideoState.COMPLETE)
+        self.progress_bar.set_visible(is_compressing)
+        self.status_label.set_visible(is_complete)
+        self.action_set_enabled('row.remove', not is_compressing)
 
     def set_progress_text(self, label):
         self.progress_bar.set_text(label)
