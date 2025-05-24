@@ -400,9 +400,6 @@ class ConstrictWindow(Adw.ApplicationWindow):
             display_name = info.get_display_name() if info else video.get_basename()
             print(f'{video.get_basename()} - {video_path}')
 
-            # TODO: Add thumbnail -- I think Nautilus generates one from a
-            # frame 1/3 through the video
-
             target_size = self.get_target_size()
             fps_mode = self.get_fps_mode()
 

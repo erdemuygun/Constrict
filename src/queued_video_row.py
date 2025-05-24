@@ -1,6 +1,7 @@
 from gi.repository import Adw, Gtk, Gio
 from constrict.constrict_utils import get_encode_settings
 from constrict.enums import QueuedVideoState
+import threading
 import subprocess
 
 @Gtk.Template(resource_path='/com/github/wartybix/Constrict/queued_video_row.ui')
@@ -13,6 +14,7 @@ class QueuedVideoRow(Adw.ActionRow):
     menu_button = Gtk.Template.Child()
 
     # TODO: investigate window becoming blank?
+    # TODO: input validation against adding corrupt videos
 
     def __init__(
         self,
@@ -40,8 +42,19 @@ class QueuedVideoRow(Adw.ActionRow):
         self.set_title(display_name)
         self.set_preview(target_size, fps_mode)
 
+        # TODO: add catch for thumbnailer, use video mimetype icon as fallback
+
         # set thumbnail
-        subprocess.run(['totem-video-thumbnailer', video_path, 'thumb.jpg'])
+        thread = threading.Thread(target=self.set_thumbnail)
+        thread.daemon = True
+        thread.start()
+
+    def set_thumbnail(self):
+        subprocess.run([
+            'totem-video-thumbnailer',
+            self.video_path,
+            'thumb.jpg'
+        ])
         self.thumbnail.set_from_file('thumb.jpg')
 
     def set_preview(self, target_size, fps_mode):
