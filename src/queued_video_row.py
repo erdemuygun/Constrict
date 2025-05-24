@@ -35,6 +35,8 @@ class QueuedVideoRow(Adw.ActionRow):
         self.fps = fps
         self.duration = duration
 
+        self.state = QueuedVideoState.PENDING
+
         self.set_title(display_name)
         self.set_preview(target_size, fps_mode)
 
@@ -65,16 +67,21 @@ class QueuedVideoRow(Adw.ActionRow):
         self.set_subtitle(subtitle)
 
     def set_state(self, state):
+        # If new state and old state are the same:
+        if state == self.state:
+            return
+
         is_compressing = state == QueuedVideoState.COMPRESSING
         is_complete = state == QueuedVideoState.COMPLETE
 
-        # TODO: clear 'complete' label when compression settings change
         if is_compressing:
             self.progress_bar.set_fraction(0.0)
 
         self.progress_bar.set_visible(is_compressing)
         self.status_label.set_visible(is_complete)
         self.action_set_enabled('row.remove', not is_compressing)
+
+        self.state = state
 
     def set_progress_text(self, label):
         self.progress_bar.set_text(label)

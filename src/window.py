@@ -50,6 +50,8 @@ class ConstrictWindow(Adw.ApplicationWindow):
     tolerance_row = Gtk.Template.Child()
     tolerance_input = Gtk.Template.Child()
 
+    # TODO: add dialog on window close
+
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
@@ -79,9 +81,17 @@ class ConstrictWindow(Adw.ApplicationWindow):
         self.add_action(self.clear_all_action)
 
         self.target_size_input.connect("value-changed", self.refresh_previews)
-        self.auto_check_button.connect("activate", self.refresh_previews)
-        self.clear_check_button.connect("activate", self.refresh_previews)
-        self.smooth_check_button.connect("activate", self.refresh_previews)
+        self.auto_check_button.connect("toggled", self.refresh_previews)
+        self.clear_check_button.connect("toggled", self.refresh_previews)
+        self.smooth_check_button.connect("toggled", self.refresh_previews)
+
+        self.target_size_input.connect("value-changed", self.reset_queue)
+        self.auto_check_button.connect("toggled", self.reset_queue)
+        self.clear_check_button.connect("toggled", self.reset_queue)
+        self.smooth_check_button.connect("toggled", self.reset_queue)
+        self.codec_dropdown.connect("notify::selected", self.reset_queue)
+        self.extra_quality_toggle.connect("notify::active", self.reset_queue)
+        self.tolerance_input.connect("value-changed", self.reset_queue)
 
         self.settings = Gio.Settings(schema_id='com.github.wartybix.Constrict')
         self.settings.bind(
@@ -165,7 +175,23 @@ class ConstrictWindow(Adw.ApplicationWindow):
         self.clear_all_action.set_enabled(not is_locked)
         self.export_action.set_enabled(not is_locked)
 
-    def refresh_previews(self, _):
+    # Return whether the passed widget is an unchecked GtkCheckButton
+    def is_unchecked_checkbox(self, widget):
+        return type(widget) is Gtk.CheckButton and not widget.get_active()
+
+    def reset_queue(self, widget, *args):
+        # Return if called from a check button being 'unchecked'
+        if self.is_unchecked_checkbox(widget):
+            return
+
+        for video in self.staged_videos:
+            video.set_state(QueuedVideoState.PENDING)
+
+    def refresh_previews(self, widget, *args):
+        # Return if called from a check button being 'unchecked'
+        if self.is_unchecked_checkbox(widget):
+            return
+
         target_size = self.get_target_size()
         fps_mode = self.get_fps_mode()
 
