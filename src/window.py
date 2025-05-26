@@ -18,7 +18,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 from gi.repository import Adw, Gtk, Gdk, Gio, GLib
-from constrict.constrict_utils import compress, get_encode_settings, get_resolution, get_framerate, get_duration
+from constrict.constrict_utils import compress, get_resolution, get_framerate, get_duration
 from constrict.enums import FpsMode, VideoCodec, QueuedVideoState
 from constrict.queued_video_row import QueuedVideoRow
 import threading
@@ -192,11 +192,8 @@ class ConstrictWindow(Adw.ApplicationWindow):
         if self.is_unchecked_checkbox(widget):
             return
 
-        target_size = self.get_target_size()
-        fps_mode = self.get_fps_mode()
-
         for video in self.staged_videos:
-            video.set_preview(target_size, fps_mode)
+            video.set_preview(self.get_target_size, self.get_fps_mode)
 
     def get_target_size(self):
         return int(self.target_size_input.get_value())
@@ -400,23 +397,11 @@ class ConstrictWindow(Adw.ApplicationWindow):
             display_name = info.get_display_name() if info else video.get_basename()
             print(f'{video.get_basename()} - {video_path}')
 
-            target_size = self.get_target_size()
-            fps_mode = self.get_fps_mode()
-
-            # cache metadata
-            width, height = get_resolution(video)
-            fps = get_framerate(video)
-            duration = get_duration(video)
-
             staged_video = QueuedVideoRow(
                 video.get_path(),
                 display_name,
-                width,
-                height,
-                fps,
-                duration,
-                target_size,
-                fps_mode
+                self.get_target_size,
+                self.get_fps_mode
             )
 
             staged_video.install_action('row.remove', None, self.remove_row)
