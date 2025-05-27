@@ -400,6 +400,7 @@ class ConstrictWindow(Adw.ApplicationWindow):
             staged_video = QueuedVideoRow(
                 video.get_path(),
                 display_name,
+                video.hash(),
                 self.get_target_size,
                 self.get_fps_mode
             )

@@ -21,6 +21,7 @@ class QueuedVideoRow(Adw.ActionRow):
         self,
         video_path,
         display_name,
+        file_hash,
         target_size_getter,
         fps_mode_getter,
         **kwargs
@@ -41,7 +42,10 @@ class QueuedVideoRow(Adw.ActionRow):
         # TODO: add catch for thumbnailer, use video mimetype icon as fallback
 
         # set thumbnail
-        thumb_thread = threading.Thread(target=self.set_thumbnail)
+        thumb_thread = threading.Thread(
+            target=self.set_thumbnail,
+            args=[file_hash]
+        )
         thumb_thread.daemon = True
         thumb_thread.start()
 
@@ -70,16 +74,17 @@ class QueuedVideoRow(Adw.ActionRow):
 
         return self.duration
 
+    # TODO: make this work with non-flatpak
 
-    # FIXME: thumbnail file clashes when queueing multiple videos at once.
+    def set_thumbnail(self, file_hash):
+        thumb_file = f'{file_hash}.jpg'
 
-    def set_thumbnail(self):
         subprocess.run([
             'totem-video-thumbnailer',
             self.video_path,
-            'thumb.jpg'
+            thumb_file
         ])
-        self.thumbnail.set_from_file('thumb.jpg')
+        self.thumbnail.set_from_file(thumb_file)
 
     def set_preview(self, target_size_getter, fps_mode_getter):
         width, height = self.get_resolution()
