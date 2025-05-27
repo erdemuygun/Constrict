@@ -108,7 +108,7 @@ class QueuedVideoRow(Adw.ActionRow):
 
         _, _, target_pixels, target_fps = encode_settings
 
-        src_pixels = self.height if self.height > self.width else self.width
+        src_pixels = self.height if self.height < self.width else self.width
 
         # TODO: Remember, change this for RTL.
         subtitle = f'{src_pixels}p@{self.fps} → {target_pixels}p@{target_fps}'
