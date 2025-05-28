@@ -28,6 +28,7 @@ from gi.repository import Gtk, Gio, Adw, GLib
 from .window import ConstrictWindow
 
 # FIXME: desktop file doesn't work on non-flatpak install
+# TODO: add 'open with' file support
 
 class ConstrictApplication(Adw.Application):
     """The main application singleton class."""

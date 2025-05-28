@@ -2,7 +2,7 @@
 Name=Constrict
 GenericName=Video Compressor
 Comment=Compress videos to target file sizes
-Exec=constrict %U
+Exec=constrict
 Icon=com.github.wartybix.Constrict
 Terminal=false
 Type=Application
