@@ -300,7 +300,7 @@
                             <child type="center">
                               <object class="GtkButton" id="export_button">
                                 <!-- TRANSLATORS: please use U+2026 Horizontal ellipsis (…) instead of '...', if applicable to your language -->
-                                <property name="label" translatable="yes">Export…</property>
+                                <property name="label" translatable="yes">Export To…</property>
                                 <property name="action-name">win.export</property>
                                 <property name="halign">GTK_ALIGN_CENTER</property>
                                 <property name="margin-top">6</property>
@@ -326,7 +326,6 @@
                                 <property name="margin-bottom">6</property>
                                 <style>
                                   <class name="pill"/>
-                                  <class name="destructive-action"/>
                                 </style>
                               </object>
                             </child>
