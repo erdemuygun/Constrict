@@ -200,7 +200,7 @@ def transcode(
     extra_quality,
     output_fn,
     frame_count,
-    window_id,
+    log_path,
     cancel_event
 ):
     portrait = height > width
@@ -235,8 +235,8 @@ def transcode(
         '-vf', f'scale={width}:{height}',
     ]
 
-    if window_id is not None:
-        pass1_cmd.extend(['-passlogfile', f'constrict2pass-{window_id}'])
+    if log_path is not None:
+        pass1_cmd.extend(['-passlogfile', f'{log_path}'])
 
     if codec == VideoCodec.VP9:
         pass1_cmd.extend([
@@ -283,8 +283,8 @@ def transcode(
         '-vf', f'scale={width}:{height}',
     ]
 
-    if window_id is not None:
-        pass2_cmd.extend(['-passlogfile', f'constrict2pass-{window_id}'])
+    if log_path is not None:
+        pass2_cmd.extend(['-passlogfile', f'{log_path}'])
 
     if codec == VideoCodec.VP9:
         pass2_cmd.extend([
@@ -593,7 +593,7 @@ def compress(
     tolerance=10,
     file_output=None,
     output_fn=lambda x: None,
-    window_id=None,
+    log_path=None,
     cancel_event=lambda x: None
 ):
     start_time = datetime.datetime.now().replace(microsecond=0)
@@ -688,7 +688,7 @@ def compress(
             extra_quality,
             output_fn,
             dest_frame_count,
-            window_id,
+            log_path,
             cancel_event
         )
 

@@ -27,6 +27,7 @@ gi.require_version('Adw', '1')
 from gi.repository import Gtk, Gio, Adw, GLib
 from .window import ConstrictWindow
 
+# FIXME: desktop file doesn't work on non-flatpak install
 
 class ConstrictApplication(Adw.Application):
     """The main application singleton class."""

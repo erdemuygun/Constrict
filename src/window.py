@@ -19,10 +19,12 @@
 
 from gi.repository import Adw, Gtk, Gdk, Gio, GLib
 from constrict.constrict_utils import compress, get_resolution, get_framerate, get_duration
+from constrict.shared import get_tmp_dir
 from constrict.enums import FpsMode, VideoCodec, QueuedVideoState
 from constrict.queued_video_row import QueuedVideoRow
 import threading
 import subprocess
+from pathlib import Path
 
 
 @Gtk.Template(resource_path='/com/github/wartybix/Constrict/window.ui')
@@ -331,6 +333,13 @@ class ConstrictWindow(Adw.ApplicationWindow):
 
             video.set_state(QueuedVideoState.COMPRESSING)
 
+            tmp_dir = get_tmp_dir()
+            log_filename = f'constrict2pass-{self.get_id()}'
+
+            log_path = str(tmp_dir / log_filename) if (
+                tmp_dir
+            ) else str(Path(destination) / log_filename)
+
             compress(
                 video.video_path,
                 target_size,
@@ -340,7 +349,7 @@ class ConstrictWindow(Adw.ApplicationWindow):
                 tolerance,
                 destination,
                 update_progress,
-                self.get_id(),
+                log_path,
                 lambda: self.cancelled
             )
 

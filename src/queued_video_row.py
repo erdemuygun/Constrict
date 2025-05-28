@@ -1,8 +1,12 @@
-from gi.repository import Adw, Gtk, Gio
+from gi.repository import Adw, Gtk, Gio, GLib
+from pathlib import Path
+from constrict.shared import get_tmp_dir
 from constrict.constrict_utils import get_encode_settings, get_resolution, get_framerate, get_duration
 from constrict.enums import QueuedVideoState
 import threading
 import subprocess
+
+# FIXME: video row won't remove with multi windows
 
 @Gtk.Template(resource_path='/com/github/wartybix/Constrict/queued_video_row.ui')
 class QueuedVideoRow(Adw.ActionRow):
@@ -77,7 +81,17 @@ class QueuedVideoRow(Adw.ActionRow):
     # TODO: make this work with non-flatpak
 
     def set_thumbnail(self, file_hash):
-        thumb_file = f'{file_hash}.jpg'
+        tmp_dir = get_tmp_dir()
+
+        print(f'temp dir: {tmp_dir}')
+
+        if not tmp_dir:
+            self.thumbnail.set_from_icon_name('video-x-generic')
+            return
+
+        thumb_file = str(tmp_dir / f'{file_hash}.jpg')
+
+        print(thumb_file)
 
         subprocess.run([
             'totem-video-thumbnailer',
