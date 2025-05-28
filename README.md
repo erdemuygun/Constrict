@@ -42,6 +42,7 @@ $ constrict [-h] [-t TOLERANCE] [-o OUTPUT]
 ## Dependencies
 - Python
 - FFmpeg (full)
+- Totem (particularly `totem-video-thumbnailer`)
 
 ## Acknowledgements
 Thanks to Matthew Baggett for creating the original ['8mb' repository](https://github.com/matthewbaggett/8mb) which this project used as its foundation.
