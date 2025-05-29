@@ -2,15 +2,11 @@
 <interface>
   <requires lib="gtk" version="4.0"/>
   <requires lib="Adw" version="1.0"/>
-  <!-- TODO: change row margins based on width -->
   <template class="QueuedVideoRow" parent="AdwActionRow">
     <child type="prefix">
       <object class="GtkImage" id="thumbnail">
         <property name="icon-name">image-loading</property>
-        <property name="margin-bottom">4</property>
-        <property name="margin-end">4</property>
-        <property name="margin-top">4</property>
-        <property name="pixel-size">64</property>
+        <property name="icon-size">large</property>
         <property name="valign">center</property>
         <style>
           <class name="icon-dropshadow"/>
