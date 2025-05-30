@@ -267,11 +267,12 @@
                                       <object class="AdwClamp">
                                         <child>
                                           <object class="AdwPreferencesGroup" id="video_queue">
-                                            <property name="title" translatable="yes">Video Queue</property>
+                                            <property name="title" translatable="yes">Video Sources</property>
                                             <child type="header-suffix">
                                               <object class="GtkButton" id="clear_all_button">
                                                 <property name="label" translatable="yes">Clear All</property>
                                                 <property name="action-name">win.clear_all</property>
+                                                <property name="valign">center</property>
                                                 <style>
                                                   <class name="flat"/>
                                                 </style>
