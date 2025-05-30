@@ -124,8 +124,14 @@ class QueuedVideoRow(Adw.ActionRow):
 
         src_pixels = self.height if self.height < self.width else self.width
 
-        # TODO: Remember, change this for RTL.
-        subtitle = f'{src_pixels}p@{self.fps} → {target_pixels}p@{target_fps}'
+        src_label = f'{src_pixels}p@{self.fps}'
+        dest_label = f'{target_pixels}p@{target_fps}'
+
+        subtitle = f'{dest_label} ← {src_label}' if (
+            self.get_direction() == Gtk.TextDirection.RTL
+        ) else f'{src_label} → {dest_label}'
+
+
 
         self.set_subtitle(subtitle)
 
