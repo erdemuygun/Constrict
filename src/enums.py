@@ -31,7 +31,7 @@ class VideoCodec:
     AV1 = 2
     VP9 = 3
 
-class QueuedVideoState:
+class SourceState:
     PENDING = 0
     COMPRESSING = 1
     COMPLETE = 2

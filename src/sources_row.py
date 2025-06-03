@@ -2,16 +2,15 @@ from gi.repository import Adw, Gtk, Gio, GLib
 from pathlib import Path
 from constrict.shared import get_tmp_dir
 from constrict.constrict_utils import get_encode_settings, get_resolution, get_framerate, get_duration
-from constrict.enums import QueuedVideoState
+from constrict.enums import SourceState
 import threading
 import subprocess
 
 # FIXME: video row won't remove with multi windows
-# TODO: refactor name to VideoSourceRow
 
-@Gtk.Template(resource_path='/com/github/wartybix/Constrict/queued_video_row.ui')
-class QueuedVideoRow(Adw.ActionRow):
-    __gtype_name__ = 'QueuedVideoRow'
+@Gtk.Template(resource_path='/com/github/wartybix/Constrict/sources_row.ui')
+class SourcesRow(Adw.ActionRow):
+    __gtype_name__ = 'SourcesRow'
 
     thumbnail = Gtk.Template.Child()
     progress_bar = Gtk.Template.Child()
@@ -40,7 +39,7 @@ class QueuedVideoRow(Adw.ActionRow):
         self.width = None
         self.fps = None
         self.duration = None
-        self.state = QueuedVideoState.PENDING
+        self.state = SourceState.PENDING
 
         self.set_title(display_name)
 
@@ -146,8 +145,8 @@ class QueuedVideoRow(Adw.ActionRow):
         if state == self.state:
             return
 
-        is_compressing = state == QueuedVideoState.COMPRESSING
-        is_complete = state == QueuedVideoState.COMPLETE
+        is_compressing = state == SourceState.COMPRESSING
+        is_complete = state == SourceState.COMPLETE
 
         if is_compressing:
             self.progress_bar.set_fraction(0.0)

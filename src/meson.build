@@ -32,7 +32,7 @@ constrict_sources = [
   'window.py',
   'constrict_utils.py',
   'enums.py',
-  'queued_video_row.py',
+  'sources_row.py',
   'sources_list_box.py',
   'shared.py'
 ]

@@ -1,5 +1,4 @@
 from gi.repository import Adw, Gtk
-from constrict.enums import QueuedVideoState
 
 @Gtk.Template(resource_path='/com/github/wartybix/Constrict/sources_list_box.ui')
 class SourcesListBox(Gtk.ListBox):

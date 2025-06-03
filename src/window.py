@@ -20,8 +20,8 @@
 from gi.repository import Adw, Gtk, Gdk, Gio, GLib, GObject
 from constrict.constrict_utils import compress, get_resolution, get_framerate, get_duration
 from constrict.shared import get_tmp_dir
-from constrict.enums import FpsMode, VideoCodec, QueuedVideoState
-from constrict.queued_video_row import QueuedVideoRow
+from constrict.enums import FpsMode, VideoCodec, SourceState
+from constrict.sources_row import SourcesRow
 from constrict.sources_list_box import SourcesListBox
 import threading
 import subprocess
@@ -188,7 +188,7 @@ class ConstrictWindow(Adw.ApplicationWindow):
             return
 
         for video in self.sources_list_box.get_all():
-            video.set_state(QueuedVideoState.PENDING)
+            video.set_state(SourceState.PENDING)
 
     def refresh_previews(self, widget, *args):
         # Return if called from a check button being 'unchecked'
@@ -333,7 +333,7 @@ class ConstrictWindow(Adw.ApplicationWindow):
                         GLib.idle_add(video.set_progress_text, None)
                     GLib.idle_add(video.set_progress_fraction, fraction)
 
-            video.set_state(QueuedVideoState.COMPRESSING)
+            video.set_state(SourceState.COMPRESSING)
 
             tmp_dir = get_tmp_dir()
             log_filename = f'constrict2pass-{self.get_id()}'
@@ -356,10 +356,10 @@ class ConstrictWindow(Adw.ApplicationWindow):
             )
 
             if self.cancelled:
-                video.set_state(QueuedVideoState.PENDING)
+                video.set_state(SourceState.PENDING)
                 break
 
-            video.set_state(QueuedVideoState.COMPLETE)
+            video.set_state(SourceState.COMPLETE)
 
         self.set_controls_lock(False)
         self.show_cancel_button(False)
@@ -377,7 +377,6 @@ class ConstrictWindow(Adw.ApplicationWindow):
         # ie. corrupt files etc.
         # TODO: merge staged video list with UI?
 
-        # existing_paths = list(map(lambda x: x.video_path, self.staged_videos))
         existing_paths = list(map(
             lambda x: x.video_path,
             self.sources_list_box.get_all()
@@ -412,7 +411,7 @@ class ConstrictWindow(Adw.ApplicationWindow):
             display_name = info.get_display_name() if info else video.get_basename()
             print(f'{video.get_basename()} - {video_path}')
 
-            staged_video = QueuedVideoRow(
+            staged_row = SourcesRow(
                 video.get_path(),
                 display_name,
                 video.hash(),
@@ -420,9 +419,9 @@ class ConstrictWindow(Adw.ApplicationWindow):
                 self.get_fps_mode
             )
 
-            staged_video.install_action('row.remove', None, self.remove_row)
+            staged_row.install_action('row.remove', None, self.remove_row)
 
-            staged_rows.append(staged_video)
+            staged_rows.append(staged_row)
 
         self.sources_list_box.add_sources(staged_rows)
 
