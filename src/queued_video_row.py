@@ -7,6 +7,7 @@ import threading
 import subprocess
 
 # FIXME: video row won't remove with multi windows
+# TODO: refactor name to VideoSourceRow
 
 @Gtk.Template(resource_path='/com/github/wartybix/Constrict/queued_video_row.ui')
 class QueuedVideoRow(Adw.ActionRow):
@@ -42,6 +43,9 @@ class QueuedVideoRow(Adw.ActionRow):
         self.state = QueuedVideoState.PENDING
 
         self.set_title(display_name)
+
+        self.install_action('row.move-up', None, self.move_up)
+        self.install_action('row.move-down', None, self.move_down)
 
         # TODO: add catch for thumbnailer, use video mimetype icon as fallback
 
@@ -81,6 +85,8 @@ class QueuedVideoRow(Adw.ActionRow):
     # TODO: make this work with non-flatpak
 
     def set_thumbnail(self, file_hash):
+        # TODO: add check for Totem. If not installed, use video-x-generic.
+
         tmp_dir = get_tmp_dir()
 
         print(f'temp dir: {tmp_dir}')
@@ -148,7 +154,6 @@ class QueuedVideoRow(Adw.ActionRow):
 
         self.progress_bar.set_visible(is_compressing)
         self.status_label.set_visible(is_complete)
-        self.action_set_enabled('row.remove', not is_compressing)
 
         self.state = state
 
@@ -163,3 +168,29 @@ class QueuedVideoRow(Adw.ActionRow):
 
     def set_progress_fraction(self, fraction):
         self.progress_bar.set_fraction(fraction)
+
+    def move_up(self, row, action_name, parameter):
+        list_box = row.get_parent()
+        prev_index = row.get_index() - 1
+        prev_row = list_box.get_row_at_index(prev_index)
+
+        if not prev_row:
+            print('previous row doesn\'t exist!')
+            return
+
+        list_box.move(row, prev_row)
+
+    def move_down(self, row, action_name, parameter):
+        list_box = row.get_parent()
+        next_index = row.get_index() + 1
+        next_row = list_box.get_row_at_index(next_index)
+
+        if not next_row or next_row == list_box.add_videos_button:
+            if not next_row:
+                print('next_row doesn\'t exist!')
+            elif next_row == list_box.add_videos_button:
+                print('next row is add videos button!')
+
+            return
+
+        list_box.move(row, next_row)

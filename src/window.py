@@ -17,11 +17,12 @@
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from gi.repository import Adw, Gtk, Gdk, Gio, GLib
+from gi.repository import Adw, Gtk, Gdk, Gio, GLib, GObject
 from constrict.constrict_utils import compress, get_resolution, get_framerate, get_duration
 from constrict.shared import get_tmp_dir
 from constrict.enums import FpsMode, VideoCodec, QueuedVideoState
 from constrict.queued_video_row import QueuedVideoRow
+from constrict.sources_list_box import SourcesListBox
 import threading
 import subprocess
 from pathlib import Path
@@ -37,8 +38,7 @@ class ConstrictWindow(Adw.ApplicationWindow):
     export_button = Gtk.Template.Child()
     cancel_bar = Gtk.Template.Child()
     cancel_button = Gtk.Template.Child()
-    video_queue = Gtk.Template.Child()
-    add_videos_button = Gtk.Template.Child()
+    sources_list_box = Gtk.Template.Child()
     target_size_row = Gtk.Template.Child()
     target_size_input = Gtk.Template.Child()
     auto_row = Gtk.Template.Child()
@@ -57,7 +57,6 @@ class ConstrictWindow(Adw.ApplicationWindow):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
-        self.staged_videos = []
         self.cancelled = False
         self.currently_processed = ''
 
@@ -71,7 +70,7 @@ class ConstrictWindow(Adw.ApplicationWindow):
 
         self.export_action = Gio.SimpleAction(name="export")
         self.export_action.connect("activate", self.export_file_dialog)
-        self.export_action.set_enabled(bool(self.staged_videos))
+        self.export_action.set_enabled(bool(self.sources_list_box.any()))
         self.add_action(self.export_action)
 
         self.cancel_action = Gio.SimpleAction(name="cancel")
@@ -177,6 +176,8 @@ class ConstrictWindow(Adw.ApplicationWindow):
         self.clear_all_action.set_enabled(not is_locked)
         self.export_action.set_enabled(not is_locked)
 
+        self.sources_list_box.set_locked(is_locked)
+
     # Return whether the passed widget is an unchecked GtkCheckButton
     def is_unchecked_checkbox(self, widget):
         return type(widget) is Gtk.CheckButton and not widget.get_active()
@@ -186,7 +187,7 @@ class ConstrictWindow(Adw.ApplicationWindow):
         if self.is_unchecked_checkbox(widget):
             return
 
-        for video in self.staged_videos:
+        for video in self.sources_list_box.get_all():
             video.set_state(QueuedVideoState.PENDING)
 
     def refresh_previews(self, widget, *args):
@@ -194,7 +195,9 @@ class ConstrictWindow(Adw.ApplicationWindow):
         if self.is_unchecked_checkbox(widget):
             return
 
-        for video in self.staged_videos:
+        sources = self.sources_list_box.get_all()
+
+        for video in sources:
             video.set_preview(self.get_target_size, self.get_fps_mode)
 
     def get_target_size(self):
@@ -238,10 +241,7 @@ class ConstrictWindow(Adw.ApplicationWindow):
         self.split_view.set_show_sidebar(not sidebar_shown)
 
     def delist_all(self, action, _):
-        for video in self.staged_videos:
-            self.video_queue.remove(video)
-
-        self.staged_videos = []
+        self.sources_list_box.remove_all()
 
         self.view_stack.set_visible_child_name('status_page')
         self.export_action.set_enabled(False)
@@ -312,7 +312,9 @@ class ConstrictWindow(Adw.ApplicationWindow):
         extra_quality = self.get_extra_quality()
         tolerance = self.get_tolerance()
 
-        for video in self.staged_videos:
+        source_list = self.sources_list_box.get_all()
+
+        for video in source_list:
             self.currently_processed = video.display_name
 
             # TODO: look into compact progress bar...
@@ -364,10 +366,9 @@ class ConstrictWindow(Adw.ApplicationWindow):
         self.cancelled = False
 
     def remove_row(self, widget, action_name, parameter):
-        self.staged_videos.remove(widget)
-        self.video_queue.remove(widget)
+        self.sources_list_box.remove(widget)
 
-        if not self.staged_videos:
+        if not self.sources_list_box.any():
             self.view_stack.set_visible_child_name('status_page')
             self.export_action.set_enabled(False)
 
@@ -375,10 +376,15 @@ class ConstrictWindow(Adw.ApplicationWindow):
         # TODO: better error handling
         # ie. corrupt files etc.
         # TODO: merge staged video list with UI?
-        self.video_queue.remove(self.add_videos_button)
 
-        existing_paths = list(map(lambda x: x.video_path, self.staged_videos))
+        # existing_paths = list(map(lambda x: x.video_path, self.staged_videos))
+        existing_paths = list(map(
+            lambda x: x.video_path,
+            self.sources_list_box.get_all()
+        ))
         print(f'existing: {existing_paths}')
+
+        staged_rows = []
 
         for video in video_list:
             # TODO: make async query?
@@ -416,12 +422,11 @@ class ConstrictWindow(Adw.ApplicationWindow):
 
             staged_video.install_action('row.remove', None, self.remove_row)
 
-            self.staged_videos.append(staged_video)
-            self.video_queue.add(staged_video)
+            staged_rows.append(staged_video)
 
-        self.video_queue.add(self.add_videos_button)
+        self.sources_list_box.add_sources(staged_rows)
 
-        if self.staged_videos:
+        if self.sources_list_box.any():
             self.view_stack.set_visible_child_name('queue_page')
 
         self.export_action.set_enabled(True)
@@ -448,7 +453,10 @@ class ConstrictWindow(Adw.ApplicationWindow):
 
         self.stage_videos(files)
 
-        existing_paths = list(map(lambda x: x.video_path, self.staged_videos))
+        existing_paths = list(map(
+            lambda x: x.video_path,
+            self.sources_list_box.get_all()
+        ))
         print(f'new list: {existing_paths}')
 
     def save_window_state(self):
