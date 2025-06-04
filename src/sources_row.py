@@ -29,7 +29,7 @@ from gi.repository import Adw, Gtk, Gio, GLib, Gdk
 from pathlib import Path
 from constrict.shared import get_tmp_dir
 from constrict.constrict_utils import get_encode_settings, get_resolution, get_framerate, get_duration
-from constrict.enums import SourceState
+from constrict.enums import SourceState, Thumbnailer
 import threading
 import subprocess
 
@@ -168,8 +168,25 @@ class SourcesRow(Adw.ActionRow):
     # TODO: make this work with non-flatpak
 
     def set_thumbnail(self, file_hash):
-        # TODO: add check for Totem. If not installed, use video-x-generic.
+        bin_totem = 'totem-video-thumbnailer'
+        bin_ffmpeg = 'ffmpegthumbnailer'
 
+        # Check Totem thumbnailer is installed.
+        # Use FFMPEG thumbnailer as a fallback.
+        # Use video-x-generic icon as the fallback's fallback.
+
+        totem_exists = GLib.find_program_in_path(bin_totem)
+        thumbnailer = Thumbnailer.TOTEM
+
+        if not totem_exists:
+            ffmpeg_exists = GLib.find_program_in_path(bin_ffmpeg)
+            thumbnailer = Thumbnailer.FFMPEG
+
+            if not ffmpeg_exists:
+                self.thumbnail.set_from_icon_name('video-x-generic')
+                return
+
+        # Check tmp directory is available to write.
         tmp_dir = get_tmp_dir()
 
         print(f'temp dir: {tmp_dir}')
@@ -182,11 +199,24 @@ class SourcesRow(Adw.ActionRow):
 
         print(thumb_file)
 
-        subprocess.run([
-            'totem-video-thumbnailer',
-            self.video_path,
-            thumb_file
-        ])
+        if thumbnailer == Thumbnailer.TOTEM:
+            subprocess.run([
+                bin_totem,
+                self.video_path,
+                thumb_file
+            ])
+        elif thumbnailer == Thumbnailer.FFMPEG:
+            subprocess.run([
+                bin_ffmpeg,
+                '-i',
+                self.video_path,
+                '-o',
+                thumb_file
+            ])
+        else:
+            raise Exception('Unknown thumbnailer set. Whoopsie daisies.')
+
+
         self.thumbnail.set_from_file(thumb_file)
 
     def set_preview(self, target_size_getter, fps_mode_getter):
@@ -277,3 +307,4 @@ class SourcesRow(Adw.ActionRow):
             return
 
         list_box.move(row, next_row)
+

@@ -31,7 +31,13 @@ class VideoCodec:
     AV1 = 2
     VP9 = 3
 
+
 class SourceState:
     PENDING = 0
     COMPRESSING = 1
     COMPLETE = 2
+
+
+class Thumbnailer:
+    TOTEM = 0
+    FFMPEG = 1
