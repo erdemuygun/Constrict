@@ -60,6 +60,8 @@ class SourcesListBox(Gtk.ListBox):
         index = index or row.get_index()
         length = length or self.get_length()
 
+        row.set_draggable(length > 1 and not self.locked)
+
         row.action_set_enabled(
             'row.move-up',
             index > 0 and not self.locked

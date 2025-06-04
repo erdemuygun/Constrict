@@ -1,4 +1,12 @@
-from gi.repository import Adw, Gtk, Gio, GLib
+# Acknowledgements: a lot of the code for dragging and dropping rows to
+# re-order them have been 'borrowed' from GNOME Settings and GNOME Music.
+# Thank you to the GNOME Project for making the implementation of this in my
+# own project less of a headache.
+# - https://gitlab.gnome.org/GNOME/gnome-control-center/-/blob/4b53cd7cf99e0370be3c35a34e1d31155498ad84/panels/keyboard/cc-input-row.c
+# - https://gitlab.gnome.org/GNOME/gnome-music/-/blob/a79f46a5d81cd48d26c55a6bf10fcd48c16e63ab/data/ui/SongWidget.ui
+# - https://gitlab.gnome.org/GNOME/gnome-music/-/blob/a79f46a5d81cd48d26c55a6bf10fcd48c16e63ab/gnomemusic/widgets/songwidget.py
+
+from gi.repository import Adw, Gtk, Gio, GLib, Gdk
 from pathlib import Path
 from constrict.shared import get_tmp_dir
 from constrict.constrict_utils import get_encode_settings, get_resolution, get_framerate, get_duration
@@ -16,6 +24,7 @@ class SourcesRow(Adw.ActionRow):
     progress_bar = Gtk.Template.Child()
     status_label = Gtk.Template.Child()
     menu_button = Gtk.Template.Child()
+    drag_source = Gtk.Template.Child()
 
     # TODO: investigate window becoming blank?
     # TODO: input validation against adding corrupt videos
@@ -25,9 +34,9 @@ class SourcesRow(Adw.ActionRow):
         self,
         video_path,
         display_name,
-        file_hash,
-        target_size_getter,
-        fps_mode_getter,
+        file_hash=None,
+        target_size_getter=None,
+        fps_mode_getter=None,
         **kwargs
     ):
         super().__init__(**kwargs)
@@ -49,19 +58,75 @@ class SourcesRow(Adw.ActionRow):
         # TODO: add catch for thumbnailer, use video mimetype icon as fallback
 
         # set thumbnail
-        thumb_thread = threading.Thread(
-            target=self.set_thumbnail,
-            args=[file_hash]
-        )
-        thumb_thread.daemon = True
-        thumb_thread.start()
 
-        preview_thread = threading.Thread(
-            target=self.set_preview,
-            args=[target_size_getter, fps_mode_getter]
-        )
-        preview_thread.daemon = True
-        preview_thread.start()
+        if file_hash:
+            thumb_thread = threading.Thread(
+                target=self.set_thumbnail,
+                args=[file_hash]
+            )
+            thumb_thread.daemon = True
+            thumb_thread.start()
+
+        if target_size_getter and fps_mode_getter:
+            preview_thread = threading.Thread(
+                target=self.set_preview,
+                args=[target_size_getter, fps_mode_getter]
+            )
+            preview_thread.daemon = True
+            preview_thread.start()
+
+        self.drag_widget = None
+
+    def set_draggable(self, can_drag):
+        propagation_phase = Gtk.PropagationPhase.CAPTURE if (
+            can_drag
+        ) else Gtk.PropagationPhase.NONE
+
+        self.drag_source.set_propagation_phase(propagation_phase)
+
+    @Gtk.Template.Callback()
+    def on_drag_prepare(self, drag_source, x, y):
+        self.drag_x = x
+        self.drag_y = y
+
+        return Gdk.ContentProvider.new_for_value(self)
+
+    @Gtk.Template.Callback()
+    def on_drag_begin(self, drag_source, drag):
+        self.drag_widget = Gtk.ListBox.new()
+        self.drag_widget.set_size_request(self.get_width(), self.get_height())
+
+        drag_row = SourcesRow(self.video_path, self.display_name)
+        drag_row.set_subtitle(self.get_subtitle())
+
+        thumb_storage_type = self.thumbnail.get_storage_type()
+        if thumb_storage_type == Gtk.ImageType.ICON_NAME:
+            icon_name = self.thumbnail.get_icon_name()
+            drag_row.thumbnail.set_from_icon_name(icon_name)
+        elif thumb_storage_type == Gtk.ImageType.PAINTABLE:
+            paintable = self.thumbnail.get_paintable()
+            drag_row.thumbnail.set_from_paintable(paintable)
+
+        self.drag_widget.append(drag_row)
+        self.drag_widget.drag_highlight_row(drag_row)
+
+        drag_icon = Gtk.DragIcon.get_for_drag(drag)
+        drag_icon.set_child(self.drag_widget)
+        drag.set_hotspot(self.drag_x, self.drag_y)
+
+    @Gtk.Template.Callback()
+    def on_drop(self, drop_target, source_row, x, y):
+        self.drag_widget = None
+        self.drag_x = 0
+        self.drag_y = 0
+
+        source_position = source_row.get_index()
+        target_position = self.get_index()
+        if source_position == target_position:
+            return False
+
+        list_box = self.get_parent()
+        list_box.move(source_row, self)
 
     def get_resolution(self):
         if not self.width or not self.height:

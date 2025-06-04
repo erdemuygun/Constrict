@@ -48,6 +48,22 @@
         </style>
       </object>
     </child>
+    <child>
+      <object class="GtkDragSource" id="drag_source">
+        <property name="actions">move</property>
+        <property name="propagation-phase">none</property>
+        <signal name="prepare" handler="on_drag_prepare" swapped="no"/>
+        <signal name="drag-begin" handler="on_drag_begin" swapped="no"/>
+      </object>
+    </child>
+    <child>
+      <object class="GtkDropTarget">
+        <property name="actions">move</property>
+        <property name="formats">SourcesRow</property>
+        <property name="preload">True</property>
+        <signal name="drop" handler="on_drop" swapped="no"/>
+      </object>
+    </child>
   </template>
   <menu id="row_actions">
     <section>
