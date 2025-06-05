@@ -113,7 +113,7 @@ class SourcesRow(Adw.ActionRow):
     @Gtk.Template.Callback()
     def on_drag_begin(self, drag_source, drag):
         self.drag_widget = Gtk.ListBox.new()
-        self.drag_widget.set_size_request(self.get_width(), self.get_height())
+        self.drag_widget.set_size_request(self.get_width(), -1)
 
         drag_row = SourcesRow(self.video_path, self.display_name)
         drag_row.set_subtitle(self.get_subtitle())
