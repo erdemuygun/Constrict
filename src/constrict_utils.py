@@ -150,7 +150,8 @@ def get_encoding_speed(frame_height, codec, extra_quality):
         case _:
             sys.exit('Error: unknown codec passed to get_encoding_speed')
 
-
+# Returns null if there's no problem while getting progress of an ffmpeg
+# operation. If there's an error, the error details will be returned.
 def get_progress(
     file_input,
     ffmpeg_cmd,
@@ -170,7 +171,7 @@ def get_progress(
         ffmpeg_cmd,
         stdin=subprocess.PIPE,
         stdout=subprocess.PIPE,
-        stderr=subprocess.STDOUT
+        stderr=subprocess.PIPE
     )
 
     for line in proc.stdout:
@@ -185,9 +186,23 @@ def get_progress(
             proc.kill()
             return
 
+    proc.wait()
+    returncode = proc.poll()
+
+    if returncode != 0:
+        str_message = ""
+        for line in proc.stderr:
+            str_message += str(line)
+        return str_message
+
+    return None
+
+
     # output_fn(subprocess.check_output(ffmpeg_cmd, text=True))
 
-
+# Returns null if there's no problem with transcoding.
+# If there's an error while transcoding, it'll return with the details of the
+# error.
 def transcode(
     file_input,
     file_output,
@@ -265,7 +280,17 @@ def transcode(
 
     print(" ".join(pass1_cmd))
     print(' Transcoding... (pass 1/2)')
-    get_progress(file_input, pass1_cmd, output_fn, frame_count, 0, cancel_event)
+    progress_res = get_progress(
+        file_input,
+        pass1_cmd,
+        output_fn,
+        frame_count,
+        0,
+        cancel_event
+    )
+
+    if progress_res != None:
+        return progress_res
 
     audio_channels = 1 if audio_bitrate < 12000 else 2
 
@@ -311,11 +336,23 @@ def transcode(
     ])
 
     if cancel_event():
-        return
+        return None
 
     print(" ".join(pass2_cmd))
     print(' Transcoding... (pass 2/2)')
-    get_progress(file_input, pass2_cmd, output_fn, frame_count, 1, cancel_event)
+    progress_res = get_progress(
+        file_input,
+        pass2_cmd,
+        output_fn,
+        frame_count,
+        1,
+        cancel_event
+    )
+
+    if progress_res != None:
+        return progress_res
+
+    return None
 
 
 def get_framerate(file_input):
@@ -584,6 +621,10 @@ check for reading permissions of input, writing permissions of output
 Add translatable file suffix (and customisable in preferences)
 """
 
+# TODO: investigate input bit depth of 10 not compressing to x264.
+
+# Returns None if compression went smoothly.
+# If there's an error while compressing, it'll return compression details.
 def compress(
     file_input,
     target_size_MiB,
@@ -619,7 +660,7 @@ def compress(
 
     if before_size_bytes <= target_size_bytes:
         # output_fn("File already meets the target size.")
-        return
+        return None
 
     source_fps = get_framerate(file_input)
     width, height = get_resolution(file_input)
@@ -650,7 +691,7 @@ def compress(
 
         if not encode_settings:
             # output_fn("Video bitrate got too low (1 kbps); aborting")
-            return
+            return None
 
         target_video_bitrate, target_audio_bitrate, target_height, target_fps = encode_settings
 
@@ -676,7 +717,7 @@ def compress(
 
         dest_frame_count = source_frame_count // (source_fps / target_fps)
 
-        transcode(
+        transcode_res = transcode(
             file_input,
             file_output,
             target_video_bitrate,
@@ -692,8 +733,11 @@ def compress(
             cancel_event
         )
 
+        if transcode_res != None:
+            return transcode_res
+
         if cancel_event():
-            return
+            return None
 
         after_size_bytes = os.stat(file_output).st_size
         percent_of_target = (100 / target_size_bytes) * after_size_bytes
@@ -713,6 +757,8 @@ def compress(
 
     time_taken = datetime.datetime.now().replace(microsecond=0) - start_time
     print(f"\nCompleted in {time_taken}.")
+
+    return None
 
 if __name__ == '__main__':
     arg_parser = argparse.ArgumentParser("constrict")

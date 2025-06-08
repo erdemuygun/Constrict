@@ -44,6 +44,7 @@ class SourcesRow(Adw.ActionRow):
     status_label = Gtk.Template.Child()
     menu_button = Gtk.Template.Child()
     drag_source = Gtk.Template.Child()
+    error_icon = Gtk.Template.Child()
 
     # TODO: investigate window becoming blank?
     # TODO: input validation against adding corrupt videos
@@ -261,12 +262,14 @@ class SourcesRow(Adw.ActionRow):
 
         is_compressing = state == SourceState.COMPRESSING
         is_complete = state == SourceState.COMPLETE
+        is_error = state == SourceState.ERROR
 
         if is_compressing:
             self.progress_bar.set_fraction(0.0)
 
         self.progress_bar.set_visible(is_compressing)
         self.status_label.set_visible(is_complete)
+        self.error_icon.set_visible(is_error)
 
         self.state = state
 
@@ -307,4 +310,5 @@ class SourcesRow(Adw.ActionRow):
             return
 
         list_box.move(row, next_row)
+
 

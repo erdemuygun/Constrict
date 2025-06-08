@@ -342,7 +342,7 @@ class ConstrictWindow(Adw.ApplicationWindow):
                 tmp_dir
             ) else str(Path(destination) / log_filename)
 
-            compress(
+            compress_res = compress(
                 video.video_path,
                 target_size,
                 fps_mode,
@@ -354,6 +354,10 @@ class ConstrictWindow(Adw.ApplicationWindow):
                 log_path,
                 lambda: self.cancelled
             )
+
+            if compress_res:
+                video.set_state(SourceState.ERROR)
+                break
 
             if self.cancelled:
                 video.set_state(SourceState.PENDING)

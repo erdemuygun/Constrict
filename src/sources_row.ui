@@ -24,6 +24,18 @@
       </object>
     </child>
     <child type="suffix">
+      <object class="GtkButton" id="error_icon">
+        <property name="icon-name">error-outline-symbolic</property>
+        <property name="tooltip-text" translatable="yes">Compression Error</property>
+        <property name="valign">center</property>
+        <property name="visible">false</property>
+        <style>
+          <class name="error"/>
+          <class name="flat"/>
+        </style>
+      </object>
+    </child>
+    <child type="suffix">
       <object class="GtkProgressBar" id="progress_bar">
         <property name="valign">center</property>
         <property name="show-text">true</property>
