@@ -653,8 +653,6 @@ def compress(
         print('yes, output is dir')
         print(f'file_output: {file_output}')
 
-    duration_seconds = get_duration(file_input)
-
     target_size_bytes = target_size_MiB * 1024 * 1024
     before_size_bytes = os.stat(file_input).st_size
 
@@ -662,11 +660,15 @@ def compress(
         # output_fn("File already meets the target size.")
         return None
 
-    source_fps = get_framerate(file_input)
-    width, height = get_resolution(file_input)
-    source_frame_count = get_frame_count(file_input)
-    # print(f'Resolution: {width}x{height}')
-    portrait = (width < height) ^ (get_rotation(file_input) == -90)  # xor gate
+    try:
+        duration_seconds = get_duration(file_input)
+        source_fps = get_framerate(file_input)
+        width, height = get_resolution(file_input)
+        source_frame_count = get_frame_count(file_input)
+        portrait = (width < height) ^ (get_rotation(file_input) == -90)
+    except subprocess.CalledProcessError:
+        return "Constrict: Could not retrieve video properties. Source video may be missing or corrupted."
+
     print(f'width heigher than height: {width < height}')
     print(f'rotation = {get_rotation(file_input)}')
     print(f'rotated = {get_rotation(file_input) == -90}')
