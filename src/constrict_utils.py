@@ -190,10 +190,10 @@ def get_progress(
     returncode = proc.poll()
 
     if returncode != 0:
-        str_message = ""
-        for line in proc.stderr:
-            str_message += str(line)
-        return str_message
+        errors = proc.communicate()[1]
+        decoded = errors.decode('utf-8')
+
+        return decoded
 
     return None
 
@@ -280,7 +280,7 @@ def transcode(
 
     print(" ".join(pass1_cmd))
     print(' Transcoding... (pass 1/2)')
-    progress_res = get_progress(
+    progress_error = get_progress(
         file_input,
         pass1_cmd,
         output_fn,
@@ -289,8 +289,8 @@ def transcode(
         cancel_event
     )
 
-    if progress_res != None:
-        return progress_res
+    if progress_error != None:
+        return progress_error
 
     audio_channels = 1 if audio_bitrate < 12000 else 2
 
@@ -340,7 +340,7 @@ def transcode(
 
     print(" ".join(pass2_cmd))
     print(' Transcoding... (pass 2/2)')
-    progress_res = get_progress(
+    progress_error = get_progress(
         file_input,
         pass2_cmd,
         output_fn,
@@ -349,8 +349,8 @@ def transcode(
         cancel_event
     )
 
-    if progress_res != None:
-        return progress_res
+    if progress_error != None:
+        return progress_error
 
     return None
 
@@ -717,7 +717,7 @@ def compress(
 
         dest_frame_count = source_frame_count // (source_fps / target_fps)
 
-        transcode_res = transcode(
+        transcode_error = transcode(
             file_input,
             file_output,
             target_video_bitrate,
@@ -733,8 +733,8 @@ def compress(
             cancel_event
         )
 
-        if transcode_res != None:
-            return transcode_res
+        if transcode_error != None:
+            return transcode_error
 
         if cancel_event():
             return None

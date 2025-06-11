@@ -57,6 +57,7 @@ class SourcesRow(Adw.ActionRow):
         file_hash=None,
         target_size_getter=None,
         fps_mode_getter=None,
+        error_action=lambda: None,
         **kwargs
     ):
         super().__init__(**kwargs)
@@ -69,11 +70,14 @@ class SourcesRow(Adw.ActionRow):
         self.fps = None
         self.duration = None
         self.state = SourceState.PENDING
+        self.error_details = ""
+        self.error_action = error_action
 
         self.set_title(display_name)
 
         self.install_action('row.move-up', None, self.move_up)
         self.install_action('row.move-down', None, self.move_down)
+        self.install_action('row.on-error', None, self.on_error_query)
 
         # TODO: add catch for thumbnailer, use video mimetype icon as fallback
 
@@ -147,6 +151,12 @@ class SourcesRow(Adw.ActionRow):
 
         list_box = self.get_parent()
         list_box.move(source_row, self)
+
+    def set_error(self, error_details):
+        self.error_details = error_details
+
+    def on_error_query(self, widget, action_name, parameter):
+        widget.error_action(widget.display_name, widget.error_details)
 
     def get_resolution(self):
         if not self.width or not self.height:

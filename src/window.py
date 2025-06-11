@@ -23,6 +23,7 @@ from constrict.shared import get_tmp_dir
 from constrict.enums import FpsMode, VideoCodec, SourceState
 from constrict.sources_row import SourcesRow
 from constrict.sources_list_box import SourcesListBox
+from constrict.error_dialog import ErrorDialog
 import threading
 import subprocess
 from pathlib import Path
@@ -302,6 +303,11 @@ class ConstrictWindow(Adw.ApplicationWindow):
             print('Compression stopped')
             self.cancelled = True
 
+    def error_dialog(self, file_name, error_details):
+        dialog = ErrorDialog(file_name, error_details)
+
+        dialog.present(self)
+
     def bulk_compress(self, destination):
         self.set_controls_lock(True)
         self.show_cancel_button(True)
@@ -342,7 +348,7 @@ class ConstrictWindow(Adw.ApplicationWindow):
                 tmp_dir
             ) else str(Path(destination) / log_filename)
 
-            compress_res = compress(
+            compress_error = compress(
                 video.video_path,
                 target_size,
                 fps_mode,
@@ -355,9 +361,10 @@ class ConstrictWindow(Adw.ApplicationWindow):
                 lambda: self.cancelled
             )
 
-            if compress_res:
+            if compress_error:
                 video.set_state(SourceState.ERROR)
-                break
+                video.set_error(compress_error)
+                continue
 
             if self.cancelled:
                 video.set_state(SourceState.PENDING)
@@ -420,7 +427,8 @@ class ConstrictWindow(Adw.ApplicationWindow):
                 display_name,
                 video.hash(),
                 self.get_target_size,
-                self.get_fps_mode
+                self.get_fps_mode,
+                self.error_dialog
             )
 
             staged_row.install_action('row.remove', None, self.remove_row)

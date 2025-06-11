@@ -34,7 +34,8 @@ constrict_sources = [
   'enums.py',
   'sources_row.py',
   'sources_list_box.py',
-  'shared.py'
+  'shared.py',
+  'error_dialog.py'
 ]
 
 install_data(constrict_sources, install_dir: moduledir)

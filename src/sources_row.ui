@@ -29,6 +29,7 @@
         <property name="tooltip-text" translatable="yes">Compression Error</property>
         <property name="valign">center</property>
         <property name="visible">false</property>
+        <property name="action-name">row.on-error</property>
         <style>
           <class name="error"/>
           <class name="flat"/>
