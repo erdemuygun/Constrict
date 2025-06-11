@@ -658,7 +658,7 @@ def compress(
 
     if before_size_bytes <= target_size_bytes:
         # output_fn("File already meets the target size.")
-        return None
+        return "Constrict: File already meets the target size."
 
     try:
         duration_seconds = get_duration(file_input)
