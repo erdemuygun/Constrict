@@ -38,248 +38,252 @@
           </object>
         </child>
         <property name="content">
-          <object class="AdwOverlaySplitView" id="split_view">
-            <property name="show-sidebar" bind-source="show_sidebar_button" bind-property="active" bind-flags="sync-create|bidirectional"/>
-            <property name="min-sidebar-width">300</property>
-            <property name="max-sidebar-width">400</property>
-            <property name="sidebar">
-              <object class="GtkScrolledWindow">
-                <child>
-                  <object class="GtkBox">
-                    <property name="orientation">vertical</property>
-                    <property name="spacing">12</property>
-                    <property name="margin-bottom">12</property>
-                    <property name="margin-top">12</property>
-                    <property name="margin-start">12</property>
-                    <property name="margin-end">12</property>
+          <object class="AdwToastOverlay" id="toast_overlay">
+            <property name="child">
+              <object class="AdwOverlaySplitView" id="split_view">
+                <property name="show-sidebar" bind-source="show_sidebar_button" bind-property="active" bind-flags="sync-create|bidirectional"/>
+                <property name="min-sidebar-width">300</property>
+                <property name="max-sidebar-width">400</property>
+                <property name="sidebar">
+                  <object class="GtkScrolledWindow">
                     <child>
-                      <object class="AdwPreferencesGroup">
-                        <!-- <property name="selection-mode">None</property> -->
+                      <object class="GtkBox">
+                        <property name="orientation">vertical</property>
+                        <property name="spacing">12</property>
+                        <property name="margin-bottom">12</property>
+                        <property name="margin-top">12</property>
+                        <property name="margin-start">12</property>
+                        <property name="margin-end">12</property>
                         <child>
-                          <object class="AdwSpinRow" id="target_size_row">
-                            <property name="title" translatable="yes">Target Size (MB)</property>
-                            <property name="numeric">True</property>
-                            <property name="adjustment">
-                              <object class="GtkAdjustment" id="target_size_input">
-                                <property name="lower">1</property>
-                                <property name="upper">999999</property>
-                                <property name="value">10</property>
-                                <property name="page-increment">10</property>
-                                <property name="step-increment">1</property>
+                          <object class="AdwPreferencesGroup">
+                            <!-- <property name="selection-mode">None</property> -->
+                            <child>
+                              <object class="AdwSpinRow" id="target_size_row">
+                                <property name="title" translatable="yes">Target Size (MB)</property>
+                                <property name="numeric">True</property>
+                                <property name="adjustment">
+                                  <object class="GtkAdjustment" id="target_size_input">
+                                    <property name="lower">1</property>
+                                    <property name="upper">999999</property>
+                                    <property name="value">10</property>
+                                    <property name="page-increment">10</property>
+                                    <property name="step-increment">1</property>
+                                  </object>
+                                </property>
                               </object>
-                            </property>
+                            </child>
                           </object>
                         </child>
-                      </object>
-                    </child>
-                    <child>
-                      <object class="AdwPreferencesGroup">
-                        <property name="title" translatable="yes">Framerate Limit</property>
-                        <child type="header-suffix">
-                          <object class="GtkMenuButton">
-                            <property name="icon-name">help-about-symbolic</property>
-                            <property name="tooltip-text" translatable="yes">More Information</property>
-                            <property name="popover">
-                              <!-- TODO: investigate this and screenreaders -->
-                              <object class="GtkPopover">
-                                <child>
-                                  <object class="GtkLabel">
-                                    <property name="halign">center</property>
-                                    <property name="margin-start">6</property>
-                                    <property name="margin-end">6</property>
-                                    <property name="margin-top">6</property>
-                                    <property name="margin-bottom">6</property>
-                                    <property name="label" translatable="yes">Videos compressed to low bitrates may be capped to 24 FPS, regardless of the option set.</property>
-                                    <property name="wrap">True</property>
-                                    <property name="max-width-chars">50</property>
-                                    <property name="valign">center</property>
+                        <child>
+                          <object class="AdwPreferencesGroup">
+                            <property name="title" translatable="yes">Framerate Limit</property>
+                            <child type="header-suffix">
+                              <object class="GtkMenuButton">
+                                <property name="icon-name">help-about-symbolic</property>
+                                <property name="tooltip-text" translatable="yes">More Information</property>
+                                <property name="popover">
+                                  <!-- TODO: investigate this and screenreaders -->
+                                  <object class="GtkPopover">
+                                    <child>
+                                      <object class="GtkLabel">
+                                        <property name="halign">center</property>
+                                        <property name="margin-start">6</property>
+                                        <property name="margin-end">6</property>
+                                        <property name="margin-top">6</property>
+                                        <property name="margin-bottom">6</property>
+                                        <property name="label" translatable="yes">Videos compressed to low bitrates may be capped to 24 FPS, regardless of the option set.</property>
+                                        <property name="wrap">True</property>
+                                        <property name="max-width-chars">50</property>
+                                        <property name="valign">center</property>
+                                      </object>
+                                    </child>
+                                  </object>
+                                </property>
+                                <style>
+                                  <class name="flat"/>
+                                </style>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="AdwActionRow" id="auto_row">
+                                <property name="activatable-widget">auto_check_button</property>
+                                <property name="title" translatable="yes">Automatic</property>
+                                <property name="subtitle" translatable="yes">Use the highest framerate without sacrificing resolution</property>
+                                <child type="prefix">
+                                  <object class="GtkCheckButton" id="auto_check_button">
+                                    <property name="active">True</property>
                                   </object>
                                 </child>
                               </object>
-                            </property>
-                            <style>
-                              <class name="flat"/>
-                            </style>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="AdwActionRow" id="auto_row">
-                            <property name="activatable-widget">auto_check_button</property>
-                            <property name="title" translatable="yes">Automatic</property>
-                            <property name="subtitle" translatable="yes">Use the highest framerate without sacrificing resolution</property>
-                            <child type="prefix">
-                              <object class="GtkCheckButton" id="auto_check_button">
-                                <property name="active">True</property>
-                              </object>
                             </child>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="AdwActionRow" id="clear_row">
-                            <property name="activatable-widget">clear_check_button</property>
-                            <property name="subtitle" translatable="yes">Ensure higher image clarity</property>
-                            <child type="prefix">
-                              <object class="GtkCheckButton" id="clear_check_button">
-                                <property name="group">auto_check_button</property>
-                              </object>
-                            </child>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="AdwActionRow" id="smooth_row">
-                            <property name="activatable-widget">smooth_check_button</property>
-                            <property name="subtitle" translatable="yes">Ensure smoother motion</property>
-                            <child type="prefix">
-                              <object class="GtkCheckButton" id="smooth_check_button">
-                                <property name="group">auto_check_button</property>
-                              </object>
-                            </child>
-                          </object>
-                        </child>
-                      </object>
-                    </child>
-                    <child>
-                      <object class="AdwPreferencesGroup">
-                        <property name="title" translatable="yes">Encoding Options</property>
-                        <child>
-                          <object class="AdwComboRow" id="codec_dropdown">
-                            <property name="title" translatable="yes">Video Codec</property>
-                            <property name="model">
-                              <object class="GtkStringList">
-                                <items>
-                                  <item translatable="no">H.264</item>
-                                  <item translatable="no">H.265 (HEVC)</item>
-                                  <item translatable="no">AV1</item>
-                                  <item translatable="no">VP9</item>
-                                </items>
-                              </object>
-                            </property>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="AdwSwitchRow" id="extra_quality_toggle">
-                            <property name="title" translatable="yes">Extra Quality</property>
-                            <property name="subtitle" translatable="yes">Increase image quality at the cost of compression time</property>
-                          </object>
-                        </child>
-                      </object>
-                    </child>
-                    <child>
-                      <object class="AdwPreferencesGroup">
-                        <property name="title" translatable="yes">Advanced Options</property>
-                        <child>
-                          <object class="AdwSpinRow" id="tolerance_row">
-                            <property name="title" translatable="yes">Tolerance (%)</property>
-                            <property name="subtitle" translatable="yes">How far end file sizes can be below target</property>
-                            <property name="numeric">True</property>
-                            <property name="adjustment">
-                              <object class="GtkAdjustment" id="tolerance_input">
-                                <property name="lower">5</property>
-                                <property name="upper">100</property>
-                                <property name="value">10</property>
-                                <property name="page-increment">10</property>
-                                <property name="step-increment">1</property>
-                              </object>
-                            </property>
-                          </object>
-                        </child>
-                        <child type="header-suffix">
-                          <object class="GtkMenuButton">
-                            <property name="icon-name">help-about-symbolic</property>
-                            <property name="tooltip-text" translatable="yes">More Information</property>
-                            <property name="popover">
-                              <object class="GtkPopover">
-                                <child>
-                                  <object class="GtkLabel">
-                                    <property name="halign">center</property>
-                                    <property name="margin-start">6</property>
-                                    <property name="margin-end">6</property>
-                                    <property name="margin-top">6</property>
-                                    <property name="margin-bottom">6</property>
-                                    <property name="label" translatable="yes">Decreasing the tolerance maximizes image quality by reducing how much compressed file sizes can be under target. However, this can increase the number of attempts needed to meet the target, increasing compression time. A tolerance of 10 % or more is recommended.</property>
-                                    <property name="wrap">True</property>
-                                    <property name="max-width-chars">50</property>
-                                    <property name="valign">center</property>
+                            <child>
+                              <object class="AdwActionRow" id="clear_row">
+                                <property name="activatable-widget">clear_check_button</property>
+                                <property name="subtitle" translatable="yes">Ensure higher image clarity</property>
+                                <child type="prefix">
+                                  <object class="GtkCheckButton" id="clear_check_button">
+                                    <property name="group">auto_check_button</property>
                                   </object>
                                 </child>
                               </object>
-                            </property>
-                            <style>
-                              <class name="flat"/>
-                            </style>
+                            </child>
+                            <child>
+                              <object class="AdwActionRow" id="smooth_row">
+                                <property name="activatable-widget">smooth_check_button</property>
+                                <property name="subtitle" translatable="yes">Ensure smoother motion</property>
+                                <child type="prefix">
+                                  <object class="GtkCheckButton" id="smooth_check_button">
+                                    <property name="group">auto_check_button</property>
+                                  </object>
+                                </child>
+                              </object>
+                            </child>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="AdwPreferencesGroup">
+                            <property name="title" translatable="yes">Encoding Options</property>
+                            <child>
+                              <object class="AdwComboRow" id="codec_dropdown">
+                                <property name="title" translatable="yes">Video Codec</property>
+                                <property name="model">
+                                  <object class="GtkStringList">
+                                    <items>
+                                      <item translatable="no">H.264</item>
+                                      <item translatable="no">H.265 (HEVC)</item>
+                                      <item translatable="no">AV1</item>
+                                      <item translatable="no">VP9</item>
+                                    </items>
+                                  </object>
+                                </property>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="AdwSwitchRow" id="extra_quality_toggle">
+                                <property name="title" translatable="yes">Extra Quality</property>
+                                <property name="subtitle" translatable="yes">Increase image quality at the cost of compression time</property>
+                              </object>
+                            </child>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="AdwPreferencesGroup">
+                            <property name="title" translatable="yes">Advanced Options</property>
+                            <child>
+                              <object class="AdwSpinRow" id="tolerance_row">
+                                <property name="title" translatable="yes">Tolerance (%)</property>
+                                <property name="subtitle" translatable="yes">How far end file sizes can be below target</property>
+                                <property name="numeric">True</property>
+                                <property name="adjustment">
+                                  <object class="GtkAdjustment" id="tolerance_input">
+                                    <property name="lower">5</property>
+                                    <property name="upper">100</property>
+                                    <property name="value">10</property>
+                                    <property name="page-increment">10</property>
+                                    <property name="step-increment">1</property>
+                                  </object>
+                                </property>
+                              </object>
+                            </child>
+                            <child type="header-suffix">
+                              <object class="GtkMenuButton">
+                                <property name="icon-name">help-about-symbolic</property>
+                                <property name="tooltip-text" translatable="yes">More Information</property>
+                                <property name="popover">
+                                  <object class="GtkPopover">
+                                    <child>
+                                      <object class="GtkLabel">
+                                        <property name="halign">center</property>
+                                        <property name="margin-start">6</property>
+                                        <property name="margin-end">6</property>
+                                        <property name="margin-top">6</property>
+                                        <property name="margin-bottom">6</property>
+                                        <property name="label" translatable="yes">Decreasing the tolerance maximizes image quality by reducing how much compressed file sizes can be under target. However, this can increase the number of attempts needed to meet the target, increasing compression time. A tolerance of 10 % or more is recommended.</property>
+                                        <property name="wrap">True</property>
+                                        <property name="max-width-chars">50</property>
+                                        <property name="valign">center</property>
+                                      </object>
+                                    </child>
+                                  </object>
+                                </property>
+                                <style>
+                                  <class name="flat"/>
+                                </style>
+                              </object>
+                            </child>
                           </object>
                         </child>
                       </object>
                     </child>
                   </object>
-                </child>
-              </object>
-            </property>
-            <property name="content">
-              <object class="AdwViewStack" id="view_stack">
-                <child>
-                  <object class="AdwViewStackPage">
-                    <property name="name">status_page</property>
-                    <!-- TODO: remove? <property name="title">Status Page</property>-->
-                    <property name="child">
-                      <object class="AdwStatusPage" id="status_page">
-                        <property name="icon-name">video-encoder-symbolic</property>
-                        <property name="title" translatable="yes">Compress Videos</property>
-                        <property name="description" translatable="yes">Drag and drop videos here</property>
+                </property>
+                <property name="content">
+                  <object class="AdwViewStack" id="view_stack">
+                    <child>
+                      <object class="AdwViewStackPage">
+                        <property name="name">status_page</property>
+                        <!-- TODO: remove? <property name="title">Status Page</property>-->
                         <property name="child">
-                          <object class="GtkButton">
-                            <!-- TRANSLATORS: please use U+2026 Horizontal ellipsis (…) instead of '...', if applicable to your language -->
-                            <property name="label" translatable="yes">Open…</property>
-                            <property name="action-name">win.open</property>
-                            <property name="can-shrink">True</property>
-                            <property name="halign">GTK_ALIGN_CENTER</property>
-                            <style>
-                              <class name="pill"/>
-                              <class name="suggested-action"/>
-                            </style>
+                          <object class="AdwStatusPage" id="status_page">
+                            <property name="icon-name">video-encoder-symbolic</property>
+                            <property name="title" translatable="yes">Compress Videos</property>
+                            <property name="description" translatable="yes">Drag and drop videos here</property>
+                            <property name="child">
+                              <object class="GtkButton">
+                                <!-- TRANSLATORS: please use U+2026 Horizontal ellipsis (…) instead of '...', if applicable to your language -->
+                                <property name="label" translatable="yes">Open…</property>
+                                <property name="action-name">win.open</property>
+                                <property name="can-shrink">True</property>
+                                <property name="halign">GTK_ALIGN_CENTER</property>
+                                <style>
+                                  <class name="pill"/>
+                                  <class name="suggested-action"/>
+                                </style>
+                              </object>
+                            </property>
                           </object>
                         </property>
                       </object>
-                    </property>
-                  </object>
-                </child>
-                <child>
-                  <object class="AdwViewStackPage">
-                    <property name="name">queue_page</property>
-                    <!-- TODO remove? property name="title">Queue Page</property>-->
-                    <property name="child">
-                      <object class="AdwToolbarView" id="queue_page">
-                        <child>
-                          <object class="GtkScrolledWindow">
+                    </child>
+                    <child>
+                      <object class="AdwViewStackPage">
+                        <property name="name">queue_page</property>
+                        <!-- TODO remove? property name="title">Queue Page</property>-->
+                        <property name="child">
+                          <object class="AdwToolbarView" id="queue_page">
                             <child>
-                              <object class="GtkViewport">
-                                <property name="vexpand">True</property>
+                              <object class="GtkScrolledWindow">
                                 <child>
-                                  <object class="GtkBox">
-                                    <property name="spacing">12</property>
-                                    <!-- <property name="margin-bottom">12</property> -->
-                                    <property name="margin-top">24</property>
-                                    <property name="margin-bottom">24</property>
-                                    <property name="margin-start">12</property>
-                                    <property name="margin-end">12</property>
-                                    <property name="orientation">vertical</property>
+                                  <object class="GtkViewport">
+                                    <property name="vexpand">True</property>
                                     <child>
-                                      <object class="AdwClamp">
+                                      <object class="GtkBox">
+                                        <property name="spacing">12</property>
+                                        <!-- <property name="margin-bottom">12</property> -->
+                                        <property name="margin-top">24</property>
+                                        <property name="margin-bottom">24</property>
+                                        <property name="margin-start">12</property>
+                                        <property name="margin-end">12</property>
+                                        <property name="orientation">vertical</property>
                                         <child>
-                                          <object class="AdwPreferencesGroup">
-                                            <property name="title" translatable="yes">Video Sources</property>
-                                            <child type="header-suffix">
-                                              <object class="GtkButton" id="clear_all_button">
-                                                <property name="label" translatable="yes">Clear All</property>
-                                                <property name="action-name">win.clear_all</property>
-                                                <property name="valign">center</property>
-                                                <style>
-                                                  <class name="flat"/>
-                                                </style>
-                                              </object>
-                                            </child>
+                                          <object class="AdwClamp">
                                             <child>
-                                              <object class="SourcesListBox" id="sources_list_box"/>
+                                              <object class="AdwPreferencesGroup">
+                                                <property name="title" translatable="yes">Video Sources</property>
+                                                <child type="header-suffix">
+                                                  <object class="GtkButton" id="clear_all_button">
+                                                    <property name="label" translatable="yes">Clear All</property>
+                                                    <property name="action-name">win.clear_all</property>
+                                                    <property name="valign">center</property>
+                                                    <style>
+                                                      <class name="flat"/>
+                                                    </style>
+                                                  </object>
+                                                </child>
+                                                <child>
+                                                  <object class="SourcesListBox" id="sources_list_box"/>
+                                                </child>
+                                              </object>
                                             </child>
                                           </object>
                                         </child>
@@ -289,48 +293,48 @@
                                 </child>
                               </object>
                             </child>
-                          </object>
-                        </child>
-                        <child type="bottom">
-                          <object class="GtkActionBar" id="export_bar">
-                            <child type="center">
-                              <object class="GtkButton" id="export_button">
-                                <!-- TRANSLATORS: please use U+2026 Horizontal ellipsis (…) instead of '...', if applicable to your language -->
-                                <property name="label" translatable="yes">Export To…</property>
-                                <property name="action-name">win.export</property>
-                                <property name="halign">GTK_ALIGN_CENTER</property>
-                                <property name="margin-top">6</property>
-                                <property name="margin-bottom">6</property>
-                                <style>
-                                  <class name="pill"/>
-                                  <class name="suggested-action"/>
-                                </style>
+                            <child type="bottom">
+                              <object class="GtkActionBar" id="export_bar">
+                                <child type="center">
+                                  <object class="GtkButton" id="export_button">
+                                    <!-- TRANSLATORS: please use U+2026 Horizontal ellipsis (…) instead of '...', if applicable to your language -->
+                                    <property name="label" translatable="yes">Export To…</property>
+                                    <property name="action-name">win.export</property>
+                                    <property name="halign">GTK_ALIGN_CENTER</property>
+                                    <property name="margin-top">6</property>
+                                    <property name="margin-bottom">6</property>
+                                    <style>
+                                      <class name="pill"/>
+                                      <class name="suggested-action"/>
+                                    </style>
+                                  </object>
+                                </child>
+                              </object>
+                            </child>
+                            <child type="bottom">
+                              <object class="GtkActionBar" id="cancel_bar">
+                                <property name="visible">False</property>
+                                <child type="center">
+                                  <object class="GtkButton" id="cancel_button">
+                                    <!-- TRANSLATORS: please use U+2026 Horizontal ellipsis (…) instead of '...', if applicable to your language -->
+                                    <property name="label" translatable="yes">Cancel…</property>
+                                    <property name="action-name">win.cancel</property>
+                                    <property name="halign">GTK_ALIGN_CENTER</property>
+                                    <property name="margin-top">6</property>
+                                    <property name="margin-bottom">6</property>
+                                    <style>
+                                      <class name="pill"/>
+                                    </style>
+                                  </object>
+                                </child>
                               </object>
                             </child>
                           </object>
-                        </child>
-                        <child type="bottom">
-                          <object class="GtkActionBar" id="cancel_bar">
-                            <property name="visible">False</property>
-                            <child type="center">
-                              <object class="GtkButton" id="cancel_button">
-                                <!-- TRANSLATORS: please use U+2026 Horizontal ellipsis (…) instead of '...', if applicable to your language -->
-                                <property name="label" translatable="yes">Cancel…</property>
-                                <property name="action-name">win.cancel</property>
-                                <property name="halign">GTK_ALIGN_CENTER</property>
-                                <property name="margin-top">6</property>
-                                <property name="margin-bottom">6</property>
-                                <style>
-                                  <class name="pill"/>
-                                </style>
-                              </object>
-                            </child>
-                          </object>
-                        </child>
+                        </property>
                       </object>
-                    </property>
+                    </child>
                   </object>
-                </child>
+                </property>
               </object>
             </property>
           </object>

@@ -52,6 +52,7 @@ class ConstrictWindow(Adw.ApplicationWindow):
     extra_quality_toggle = Gtk.Template.Child()
     tolerance_row = Gtk.Template.Child()
     tolerance_input = Gtk.Template.Child()
+    toast_overlay = Gtk.Template.Child()
 
     # TODO: add dialog on window close
 
@@ -308,6 +309,9 @@ class ConstrictWindow(Adw.ApplicationWindow):
 
         dialog.present(self)
 
+    def show_error_from_toast(self, toast):
+        self.error_dialog(toast.video.display_name, toast.video.error_details)
+
     def bulk_compress(self, destination):
         self.set_controls_lock(True)
         self.show_cancel_button(True)
@@ -339,7 +343,7 @@ class ConstrictWindow(Adw.ApplicationWindow):
                         GLib.idle_add(video.set_progress_text, None)
                     GLib.idle_add(video.set_progress_fraction, fraction)
 
-            video.set_state(SourceState.COMPRESSING)
+            GLib.idle_add(video.set_state, SourceState.COMPRESSING)
 
             tmp_dir = get_tmp_dir()
             log_filename = f'constrict2pass-{self.get_id()}'
@@ -362,18 +366,32 @@ class ConstrictWindow(Adw.ApplicationWindow):
             )
 
             if compress_error:
-                video.set_state(SourceState.ERROR)
+                GLib.idle_add(video.set_state, SourceState.ERROR)
                 video.set_error(compress_error)
+
+                # TRANSLATORS: {} represents the filename of the video with the
+                # error.
+                # Please use “” instead of "", if applicable to your language.
+                toast = Adw.Toast.new(_(
+                    'Error compressing “{}”'.format(video.display_name)
+                ))
+                toast.set_button_label(_('View Details'))
+                toast.video = video
+
+                toast.connect('button-clicked', self.show_error_from_toast)
+
+                GLib.idle_add(self.toast_overlay.add_toast, toast)
+
                 continue
 
             if self.cancelled:
-                video.set_state(SourceState.PENDING)
+                GLib.idle_add(video.set_state, SourceState.PENDING)
                 break
 
-            video.set_state(SourceState.COMPLETE)
+            GLib.idle_add(video.set_state, SourceState.COMPLETE)
 
-        self.set_controls_lock(False)
-        self.show_cancel_button(False)
+        GLib.idle_add(self.set_controls_lock, False)
+        GLib.idle_add(self.show_cancel_button, False)
         self.cancelled = False
 
     def remove_row(self, widget, action_name, parameter):
