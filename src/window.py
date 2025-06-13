@@ -392,6 +392,10 @@ class ConstrictWindow(Adw.ApplicationWindow):
 
         GLib.idle_add(self.set_controls_lock, False)
         GLib.idle_add(self.show_cancel_button, False)
+
+        toast = Adw.Toast.new(_('Compression Complete'))
+        GLib.idle_add(self.toast_overlay.add_toast, toast)
+
         self.cancelled = False
 
     def remove_row(self, widget, action_name, parameter):

@@ -48,6 +48,7 @@ class SourcesRow(Adw.ActionRow):
 
     # TODO: investigate window becoming blank?
     # TODO: input validation against adding corrupt videos
+    # TODO: add banner for problematic videos
     # TODO: check for source video file being updated/removed post-queue?
 
     def __init__(
