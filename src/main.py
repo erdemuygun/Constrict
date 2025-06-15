@@ -99,7 +99,7 @@ class ConstrictApplication(Adw.Application):
                                 issue_url='https://github.com/Wartybix/Constrict/issues',
                                 license_type='GTK_LICENSE_GPL_3_0',
                                 copyright='© 2025 Wartybix')
-        about.add_credit_section(
+        about.add_acknowledgement_section(
             # TRANSLATORS: Braces represent the name of the repository (e.g. 8mb)
             # Please use ‘’ characters instead of '', if applicable to your language.
             _('‘{}’ repository by').format('8mb'),
@@ -110,9 +110,9 @@ class ConstrictApplication(Adw.Application):
         )
         about.add_acknowledgement_section(
             _('Circular progress indicator (C version) by'),
-            'Christian Hergert https://gitlab.gnome.org/chergert'
+            ['Christian Hergert https://gitlab.gnome.org/chergert']
         )
-        about.add_credit_section(
+        about.add_acknowledgement_section(
             _('GApplication local option handling by'),
             ['kramo https://kramo.page']
         )
@@ -149,3 +149,4 @@ def main(version):
     """The application's entry point."""
     app = ConstrictApplication()
     return app.run(sys.argv)
+
