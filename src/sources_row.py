@@ -30,6 +30,7 @@ from pathlib import Path
 from constrict.shared import get_tmp_dir
 from constrict.constrict_utils import get_encode_settings, get_resolution, get_framerate, get_duration
 from constrict.enums import SourceState, Thumbnailer
+from constrict.progress_pie import ProgressPie
 import threading
 import subprocess
 
@@ -45,6 +46,9 @@ class SourcesRow(Adw.ActionRow):
     menu_button = Gtk.Template.Child()
     drag_source = Gtk.Template.Child()
     error_icon = Gtk.Template.Child()
+    progress_pie = Gtk.Template.Child()
+    progress_spinner = Gtk.Template.Child()
+    progress_button = Gtk.Template.Child()
 
     # TODO: investigate window becoming blank?
     # TODO: input validation against adding corrupt videos
@@ -276,9 +280,9 @@ class SourcesRow(Adw.ActionRow):
         is_error = state == SourceState.ERROR
 
         if is_compressing:
-            self.progress_bar.set_fraction(0.0)
+            self.set_progress_fraction(0.0)
 
-        self.progress_bar.set_visible(is_compressing)
+        self.progress_button.set_visible(is_compressing)
         self.status_label.set_visible(is_complete)
         self.error_icon.set_visible(is_error)
 
@@ -293,8 +297,13 @@ class SourcesRow(Adw.ActionRow):
     def pulse_progress(self):
         self.progress_bar.pulse()
 
+    def enable_spinner(self, enable_spinner):
+        self.progress_pie.set_visible(not enable_spinner)
+        self.progress_spinner.set_visible(enable_spinner)
+
     def set_progress_fraction(self, fraction):
         self.progress_bar.set_fraction(fraction)
+        self.progress_pie.set_fraction(fraction)
 
     def move_up(self, row, action_name, parameter):
         list_box = row.get_parent()

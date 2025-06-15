@@ -108,6 +108,10 @@ class ConstrictApplication(Adw.Application):
                 'Ethan Martin https://github.com/yuckdevchan'
             ]
         )
+        about.add_acknowledgement_section(
+            _('Circular progress indicator (C version) by'),
+            'Christian Hergert https://gitlab.gnome.org/chergert'
+        )
         about.add_credit_section(
             _('GApplication local option handling by'),
             ['kramo https://kramo.page']

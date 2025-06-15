@@ -37,10 +37,44 @@
       </object>
     </child>
     <child type="suffix">
-      <object class="GtkProgressBar" id="progress_bar">
-        <property name="valign">center</property>
-        <property name="show-text">true</property>
+      <object class="GtkMenuButton" id="progress_button">
         <property name="visible">false</property>
+        <property name="child">
+          <object class="GtkBox">
+            <child>
+              <object class="ProgressPie" id="progress_pie">
+                <property name="width-request">16</property>
+                <property name="height-request">16</property>
+              </object>
+            </child>
+            <child>
+              <object class="AdwSpinner" id="progress_spinner">
+                <property name="visible">false</property>
+                <property name="width-request">16</property>
+                <property name="height-request">16</property>
+              </object>
+            </child>
+          </object>
+        </property>
+        <property name="valign">center</property>
+        <property name="popover">
+          <object class="GtkPopover">
+            <child>
+              <object class="GtkProgressBar" id="progress_bar">
+                <property name="show-text">true</property>
+                <property name="valign">center</property>
+                <property name="halign">center</property>
+                <property name="margin-start">6</property>
+                <property name="margin-end">6</property>
+                <property name="margin-top">6</property>
+                <property name="margin-bottom">6</property>
+              </object>
+            </child>
+          </object>
+        </property>
+        <style>
+          <class name="flat"/>
+        </style>
       </object>
     </child>
     <child type="suffix">

@@ -327,11 +327,14 @@ class ConstrictWindow(Adw.ApplicationWindow):
         for video in source_list:
             self.currently_processed = video.display_name
 
-            # TODO: look into compact progress bar...
+            # TODO: check multiple attempts on VP9... will it still display
+            # 'analyzing' prompts on attempt 2+?
+            # TODO: have VP9 reset to 0% on pass 2, not 50%.
 
             if codec == VideoCodec.VP9:
                 # TRANSLATORS: please use U+2026 Horizontal ellipsis (…) instead of '...', if applicable to your language
-                video.set_progress_text(_('Analyzing…'))
+                GLib.idle_add(video.set_progress_text, _('Analyzing…'))
+                GLib.idle_add(video.enable_spinner, True)
 
             def update_progress(fraction):
                 print(f'progress updated - {round(fraction * 100)}%')
@@ -341,6 +344,7 @@ class ConstrictWindow(Adw.ApplicationWindow):
                 else:
                     if video.get_progress_text():
                         GLib.idle_add(video.set_progress_text, None)
+                        GLib.idle_add(video.enable_spinner, False)
                     GLib.idle_add(video.set_progress_fraction, fraction)
 
             GLib.idle_add(video.set_state, SourceState.COMPRESSING)
