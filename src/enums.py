@@ -37,6 +37,7 @@ class SourceState:
     COMPRESSING = 1
     COMPLETE = 2
     ERROR = 3
+    BROKEN = 4
 
 
 class Thumbnailer:

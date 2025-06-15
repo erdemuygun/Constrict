@@ -37,8 +37,38 @@
       </object>
     </child>
     <child type="suffix">
+      <object class="GtkMenuButton" id="video_broken_button">
+        <property name="icon-name">broken-video-symbolic</property>
+        <property name="tooltip-text" translatable="yes">View Error Details</property>
+        <property name="valign">center</property>
+        <property name="visible">false</property>
+        <property name="popover">
+          <object class="GtkPopover">
+            <child>
+              <object class="GtkLabel">
+                <property name="label" translatable="yes">Cannot load video. It may be missing or corrupted.</property>
+                <property name="margin-start">6</property>
+                <property name="margin-end">6</property>
+                <property name="margin-top">6</property>
+                <property name="margin-bottom">6</property>
+                <property name="wrap">True</property>
+                <property name="max-width-chars">50</property>
+                <property name="valign">center</property>
+                <property name="halign">center</property>
+              </object>
+            </child>
+          </object>
+        </property>
+        <style>
+          <class name="error"/>
+          <class name="flat"/>
+        </style>
+      </object>
+    </child>
+    <child type="suffix">
       <object class="GtkMenuButton" id="progress_button">
         <property name="visible">false</property>
+        <property name="tooltip-text" translatable="yes">View Compression Progress</property>
         <property name="child">
           <object class="GtkBox">
             <child>

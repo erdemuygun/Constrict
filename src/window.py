@@ -18,7 +18,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 from gi.repository import Adw, Gtk, Gdk, Gio, GLib, GObject
-from constrict.constrict_utils import compress, get_resolution, get_framerate, get_duration
+from constrict.constrict_utils import compress
 from constrict.shared import get_tmp_dir
 from constrict.enums import FpsMode, VideoCodec, SourceState
 from constrict.sources_row import SourcesRow
@@ -88,13 +88,13 @@ class ConstrictWindow(Adw.ApplicationWindow):
         self.clear_check_button.connect("toggled", self.refresh_previews)
         self.smooth_check_button.connect("toggled", self.refresh_previews)
 
-        self.target_size_input.connect("value-changed", self.reset_queue)
-        self.auto_check_button.connect("toggled", self.reset_queue)
-        self.clear_check_button.connect("toggled", self.reset_queue)
-        self.smooth_check_button.connect("toggled", self.reset_queue)
-        self.codec_dropdown.connect("notify::selected", self.reset_queue)
-        self.extra_quality_toggle.connect("notify::active", self.reset_queue)
-        self.tolerance_input.connect("value-changed", self.reset_queue)
+        self.target_size_input.connect("value-changed", self.refresh_source_states)
+        self.auto_check_button.connect("toggled", self.refresh_source_states)
+        self.clear_check_button.connect("toggled", self.refresh_source_states)
+        self.smooth_check_button.connect("toggled", self.refresh_source_states)
+        self.codec_dropdown.connect("notify::selected", self.refresh_source_states)
+        self.extra_quality_toggle.connect("notify::active", self.refresh_source_states)
+        self.tolerance_input.connect("value-changed", self.refresh_source_states)
 
         self.settings = Gio.Settings(schema_id='com.github.wartybix.Constrict')
         self.settings.bind(
@@ -184,13 +184,14 @@ class ConstrictWindow(Adw.ApplicationWindow):
     def is_unchecked_checkbox(self, widget):
         return type(widget) is Gtk.CheckButton and not widget.get_active()
 
-    def reset_queue(self, widget, *args):
+    def refresh_source_states(self, widget, *args):
         # Return if called from a check button being 'unchecked'
         if self.is_unchecked_checkbox(widget):
             return
 
         for video in self.sources_list_box.get_all():
-            video.set_state(SourceState.PENDING)
+            if video.state != SourceState.BROKEN:
+                video.set_state(SourceState.PENDING)
 
     def refresh_previews(self, widget, *args):
         # Return if called from a check button being 'unchecked'

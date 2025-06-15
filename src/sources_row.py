@@ -49,11 +49,13 @@ class SourcesRow(Adw.ActionRow):
     progress_pie = Gtk.Template.Child()
     progress_spinner = Gtk.Template.Child()
     progress_button = Gtk.Template.Child()
+    video_broken_button = Gtk.Template.Child()
 
     # TODO: investigate window becoming blank?
     # TODO: input validation against adding corrupt videos
     # TODO: add banner for problematic videos
     # TODO: check for source video file being updated/removed post-queue?
+    # TODO: make set_preview async on update, not just in constructor
 
     def __init__(
         self,
@@ -83,10 +85,6 @@ class SourcesRow(Adw.ActionRow):
         self.install_action('row.move-up', None, self.move_up)
         self.install_action('row.move-down', None, self.move_down)
         self.install_action('row.on-error', None, self.on_error_query)
-
-        # TODO: add catch for thumbnailer, use video mimetype icon as fallback
-
-        # set thumbnail
 
         if file_hash:
             thumb_thread = threading.Thread(
@@ -181,7 +179,8 @@ class SourcesRow(Adw.ActionRow):
 
         return self.duration
 
-    # TODO: make this work with non-flatpak
+    # TODO: make thumb and preview UI setters use GLib idle add.
+    # TODO: transfer state widgets to drag widgets.
 
     def set_thumbnail(self, file_hash):
         bin_totem = 'totem-video-thumbnailer'
@@ -232,13 +231,19 @@ class SourcesRow(Adw.ActionRow):
         else:
             raise Exception('Unknown thumbnailer set. Whoopsie daisies.')
 
-
         self.thumbnail.set_from_file(thumb_file)
 
     def set_preview(self, target_size_getter, fps_mode_getter):
-        width, height = self.get_resolution()
-        fps = self.get_fps()
-        duration = self.get_duration()
+        if self.state == SourceState.BROKEN:
+            return
+
+        try:
+            width, height = self.get_resolution()
+            fps = self.get_fps()
+            duration = self.get_duration()
+        except subprocess.CalledProcessError:
+            self.set_state(SourceState.BROKEN)
+            return
 
         target_size = target_size_getter()
         fps_mode = fps_mode_getter()
@@ -278,6 +283,7 @@ class SourcesRow(Adw.ActionRow):
         is_compressing = state == SourceState.COMPRESSING
         is_complete = state == SourceState.COMPLETE
         is_error = state == SourceState.ERROR
+        is_broken = state == SourceState.BROKEN
 
         if is_compressing:
             self.set_progress_fraction(0.0)
@@ -285,6 +291,7 @@ class SourcesRow(Adw.ActionRow):
         self.progress_button.set_visible(is_compressing)
         self.status_label.set_visible(is_complete)
         self.error_icon.set_visible(is_error)
+        self.video_broken_button.set_visible(is_broken)
 
         self.state = state
 
