@@ -251,6 +251,11 @@
                         <!-- TODO remove? property name="title">Queue Page</property>-->
                         <property name="child">
                           <object class="AdwToolbarView" id="queue_page">
+                            <child type="top">
+                              <object class="AdwBanner" id="warning_banner">
+                                <property name="title" translatable="yes">Issues with video sources — fix before compressing</property>
+                              </object>
+                            </child>
                             <child>
                               <object class="GtkScrolledWindow">
                                 <child>

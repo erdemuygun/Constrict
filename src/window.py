@@ -53,6 +53,7 @@ class ConstrictWindow(Adw.ApplicationWindow):
     tolerance_row = Gtk.Template.Child()
     tolerance_input = Gtk.Template.Child()
     toast_overlay = Gtk.Template.Child()
+    warning_banner = Gtk.Template.Child()
 
     # TODO: add dialog on window close
 
@@ -185,12 +186,14 @@ class ConstrictWindow(Adw.ApplicationWindow):
 
     def set_warning_state(self, is_error):
         self.export_action.set_enabled(not is_error)
+        self.warning_banner.set_revealed(is_error)
 
     def refresh_can_export(self):
         sources = self.sources_list_box.get_all()
 
         if not sources:
             self.export_action.set_enabled(False)
+            self.warning_banner.set_revealed(False)
             self.view_stack.set_visible_child_name('status_page')
             return
 
