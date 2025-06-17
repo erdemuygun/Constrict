@@ -129,6 +129,7 @@ class SourcesRow(Adw.ActionRow):
 
         drag_row = SourcesRow(self.video_path, self.display_name)
         drag_row.set_subtitle(self.get_subtitle())
+        drag_row.set_state(self.state)
 
         thumb_storage_type = self.thumbnail.get_storage_type()
         if thumb_storage_type == Gtk.ImageType.ICON_NAME:
@@ -181,7 +182,6 @@ class SourcesRow(Adw.ActionRow):
         return self.duration
 
     # TODO: make thumb and preview UI setters use GLib idle add.
-    # TODO: transfer state widgets to drag widgets.
 
     def set_thumbnail(self, file_hash):
         bin_totem = 'totem-video-thumbnailer'
