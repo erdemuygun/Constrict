@@ -199,7 +199,10 @@ class SourcesRow(Adw.ActionRow):
             thumbnailer = Thumbnailer.FFMPEG
 
             if not ffmpeg_exists:
-                self.thumbnail.set_from_icon_name('video-x-generic')
+                GLib.idle_add(
+                    self.thumbnail.set_from_icon_name,
+                    'video-x-generic'
+                )
                 return
 
         # Check tmp directory is available to write.
@@ -208,7 +211,7 @@ class SourcesRow(Adw.ActionRow):
         print(f'temp dir: {tmp_dir}')
 
         if not tmp_dir:
-            self.thumbnail.set_from_icon_name('video-x-generic')
+            GLib.idle_add(self.thumbnail.set_from_icon_name, 'video-x-generic')
             return
 
         thumb_file = str(tmp_dir / f'{file_hash}.jpg')
@@ -232,7 +235,7 @@ class SourcesRow(Adw.ActionRow):
         else:
             raise Exception('Unknown thumbnailer set. Whoopsie daisies.')
 
-        self.thumbnail.set_from_file(thumb_file)
+        GLib.idle_add(self.thumbnail.set_from_file, thumb_file)
 
     def get_size(self):
         if self.size:
@@ -301,7 +304,7 @@ class SourcesRow(Adw.ActionRow):
         self.refresh_state(video_bitrate, target_size)
 
         if self.state == SourceState.INCOMPATIBLE:
-            self.set_subtitle('')
+            GLib.idle_add(self.set_subtitle, '')
             return
 
         src_pixels = self.height if self.height < self.width else self.width
@@ -313,7 +316,7 @@ class SourcesRow(Adw.ActionRow):
             self.get_direction() == Gtk.TextDirection.RTL
         ) else f'{src_label} → {dest_label}'
 
-        self.set_subtitle(subtitle)
+        GLib.idle_add(self.set_subtitle, subtitle)
 
     def set_state(self, state):
         # If new state and old state are the same:
@@ -329,11 +332,11 @@ class SourcesRow(Adw.ActionRow):
         if is_compressing:
             self.set_progress_fraction(0.0)
 
-        self.progress_button.set_visible(is_compressing)
-        self.status_label.set_visible(is_complete)
-        self.error_icon.set_visible(is_error)
-        self.video_broken_button.set_visible(is_broken)
-        self.incompatible_button.set_visible(is_incompatible)
+        GLib.idle_add(self.progress_button.set_visible, is_compressing)
+        GLib.idle_add(self.status_label.set_visible, is_complete)
+        GLib.idle_add(self.error_icon.set_visible, is_error)
+        GLib.idle_add(self.video_broken_button.set_visible, is_broken)
+        GLib.idle_add(self.incompatible_button.set_visible, is_incompatible)
 
         self.state = state
 
@@ -351,8 +354,8 @@ class SourcesRow(Adw.ActionRow):
         self.progress_spinner.set_visible(enable_spinner)
 
     def set_progress_fraction(self, fraction):
-        self.progress_bar.set_fraction(fraction)
-        self.progress_pie.set_fraction(fraction)
+        GLib.idle_add(self.progress_bar.set_fraction, fraction)
+        GLib.idle_add(self.progress_pie.set_fraction, fraction)
 
     def move_up(self, row, action_name, parameter):
         list_box = row.get_parent()
