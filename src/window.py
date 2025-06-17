@@ -183,6 +183,24 @@ class ConstrictWindow(Adw.ApplicationWindow):
     def is_unchecked_checkbox(self, widget):
         return type(widget) is Gtk.CheckButton and not widget.get_active()
 
+    def set_warning_state(self, is_error):
+        self.export_action.set_enabled(not is_error)
+
+    def refresh_can_export(self):
+        sources = self.sources_list_box.get_all()
+
+        if not sources:
+            self.export_action.set_enabled(False)
+            self.view_stack.set_visible_child_name('status_page')
+            return
+
+        for video in sources:
+            if video.state in [SourceState.BROKEN, SourceState.INCOMPATIBLE]:
+                self.set_warning_state(True)
+                return
+
+        self.set_warning_state(False)
+
     def refresh_previews(self, widget, *args):
         # Return if called from a check button being 'unchecked'
         if self.is_unchecked_checkbox(widget):
@@ -192,6 +210,8 @@ class ConstrictWindow(Adw.ApplicationWindow):
 
         for video in sources:
             video.set_preview(self.get_target_size, self.get_fps_mode)
+
+        self.refresh_can_export()
 
     def get_target_size(self):
         return int(self.target_size_input.get_value())
@@ -235,9 +255,7 @@ class ConstrictWindow(Adw.ApplicationWindow):
 
     def delist_all(self, action, _):
         self.sources_list_box.remove_all()
-
-        self.view_stack.set_visible_child_name('status_page')
-        self.export_action.set_enabled(False)
+        self.refresh_can_export()
 
     def show_cancel_button(self, is_compressing):
         self.cancel_bar.set_visible(is_compressing)
@@ -394,10 +412,7 @@ class ConstrictWindow(Adw.ApplicationWindow):
 
     def remove_row(self, widget, action_name, parameter):
         self.sources_list_box.remove(widget)
-
-        if not self.sources_list_box.any():
-            self.view_stack.set_visible_child_name('status_page')
-            self.export_action.set_enabled(False)
+        self.refresh_can_export()
 
     def stage_videos(self, video_list):
         # TODO: better error handling
@@ -444,7 +459,8 @@ class ConstrictWindow(Adw.ApplicationWindow):
                 video.hash(),
                 self.get_target_size,
                 self.get_fps_mode,
-                self.error_dialog
+                self.error_dialog,
+                self.set_warning_state
             )
 
             staged_row.install_action('row.remove', None, self.remove_row)

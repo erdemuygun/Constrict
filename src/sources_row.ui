@@ -16,6 +16,7 @@
       </object>
     </child>
     <child type="prefix">
+      <!-- TODO: hide drag handle + other window buttons on compress -->
       <object class="GtkImage">
         <property name="icon_name">list-drag-handle-symbolic</property>
         <style>

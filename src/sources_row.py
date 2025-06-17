@@ -68,6 +68,7 @@ class SourcesRow(Adw.ActionRow):
         target_size_getter=None,
         fps_mode_getter=None,
         error_action=lambda: None,
+        warning_action=lambda: None,
         **kwargs
     ):
         super().__init__(**kwargs)
@@ -82,6 +83,7 @@ class SourcesRow(Adw.ActionRow):
         self.state = SourceState.PENDING
         self.error_details = ""
         self.error_action = error_action
+        self.warning_action = warning_action
         self.size = None
 
         self.set_title(display_name)
@@ -331,6 +333,9 @@ class SourcesRow(Adw.ActionRow):
 
         if is_compressing:
             self.set_progress_fraction(0.0)
+
+        if is_broken or is_incompatible:
+            GLib.idle_add(self.warning_action, True)
 
         GLib.idle_add(self.progress_button.set_visible, is_compressing)
         GLib.idle_add(self.status_label.set_visible, is_complete)
