@@ -526,9 +526,6 @@ def get_encode_settings(
     # To account for metadata and such to prevent overshooting
     target_video_bitrate = round(target_video_bitrate * 0.99)
 
-    if target_video_bitrate < 1000:
-        return None
-
     preset_height = None
     max_fps = None
 
@@ -691,11 +688,10 @@ def compress(
 
         print(encode_settings)
 
-        if not encode_settings:
-            # output_fn("Video bitrate got too low (1 kbps); aborting")
-            return None
-
         target_video_bitrate, target_audio_bitrate, target_height, target_fps = encode_settings
+
+        if target_video_bitrate < 1000:
+            return "Constrict: Video bitrate got too low (<1 Kbps). The target size may be too low for this file."
 
         print(f'Target height {target_height}')
 

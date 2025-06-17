@@ -88,13 +88,12 @@ class ConstrictWindow(Adw.ApplicationWindow):
         self.clear_check_button.connect("toggled", self.refresh_previews)
         self.smooth_check_button.connect("toggled", self.refresh_previews)
 
-        self.target_size_input.connect("value-changed", self.refresh_source_states)
-        self.auto_check_button.connect("toggled", self.refresh_source_states)
-        self.clear_check_button.connect("toggled", self.refresh_source_states)
-        self.smooth_check_button.connect("toggled", self.refresh_source_states)
-        self.codec_dropdown.connect("notify::selected", self.refresh_source_states)
-        self.extra_quality_toggle.connect("notify::active", self.refresh_source_states)
-        self.tolerance_input.connect("value-changed", self.refresh_source_states)
+        self.codec_dropdown.connect("notify::selected", self.refresh_previews)
+        self.extra_quality_toggle.connect(
+            "notify::active",
+            self.refresh_previews
+        )
+        self.tolerance_input.connect("value-changed", self.refresh_previews)
 
         self.settings = Gio.Settings(schema_id='com.github.wartybix.Constrict')
         self.settings.bind(
@@ -183,15 +182,6 @@ class ConstrictWindow(Adw.ApplicationWindow):
     # Return whether the passed widget is an unchecked GtkCheckButton
     def is_unchecked_checkbox(self, widget):
         return type(widget) is Gtk.CheckButton and not widget.get_active()
-
-    def refresh_source_states(self, widget, *args):
-        # Return if called from a check button being 'unchecked'
-        if self.is_unchecked_checkbox(widget):
-            return
-
-        for video in self.sources_list_box.get_all():
-            if video.state != SourceState.BROKEN:
-                video.set_state(SourceState.PENDING)
 
     def refresh_previews(self, widget, *args):
         # Return if called from a check button being 'unchecked'
@@ -371,8 +361,7 @@ class ConstrictWindow(Adw.ApplicationWindow):
             )
 
             if compress_error:
-                GLib.idle_add(video.set_state, SourceState.ERROR)
-                video.set_error(compress_error)
+                GLib.idle_add(video.set_error, compress_error)
 
                 # TRANSLATORS: {} represents the filename of the video with the
                 # error.

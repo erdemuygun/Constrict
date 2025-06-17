@@ -33,6 +33,7 @@ from constrict.enums import SourceState, Thumbnailer
 from constrict.progress_pie import ProgressPie
 import threading
 import subprocess
+import os
 
 # FIXME: video row won't remove with multi windows
 
@@ -50,6 +51,8 @@ class SourcesRow(Adw.ActionRow):
     progress_spinner = Gtk.Template.Child()
     progress_button = Gtk.Template.Child()
     video_broken_button = Gtk.Template.Child()
+    incompatible_button = Gtk.Template.Child()
+    incompatible_label = Gtk.Template.Child()
 
     # TODO: investigate window becoming blank?
     # TODO: input validation against adding corrupt videos
@@ -79,6 +82,7 @@ class SourcesRow(Adw.ActionRow):
         self.state = SourceState.PENDING
         self.error_details = ""
         self.error_action = error_action
+        self.size = None
 
         self.set_title(display_name)
 
@@ -155,9 +159,6 @@ class SourcesRow(Adw.ActionRow):
         list_box = self.get_parent()
         list_box.move(source_row, self)
 
-    def set_error(self, error_details):
-        self.error_details = error_details
-
     def on_error_query(self, widget, action_name, parameter):
         widget.error_action(widget.display_name, widget.error_details)
 
@@ -233,6 +234,44 @@ class SourcesRow(Adw.ActionRow):
 
         self.thumbnail.set_from_file(thumb_file)
 
+    def get_size(self):
+        if self.size:
+            return self.size
+
+        self.size = os.stat(self.video_path).st_size
+        return self.size
+
+    def set_incompatible(self, incompatible_msg):
+        self.incompatible_label.set_label(incompatible_msg)
+        self.set_state(SourceState.INCOMPATIBLE)
+
+    def set_error(self, error_details):
+        self.error_details = error_details
+        self.set_state(SourceState.ERROR)
+
+    def refresh_state(self, video_bitrate, target_size):
+        if self.state == SourceState.BROKEN:
+            return
+        elif self.get_size() < target_size * 1024 * 1024:
+            size_mb = round(self.get_size() / 1024 / 1024, 1)
+            # TRANSLATORS: both {} are file size values in MB.
+            # Please use U+202F Narrow no-break space (' ') between value and
+            # unit.
+            self.set_incompatible(
+                _('Video file size ({} MB) already meets the target size ({} MB).')
+                .format(size_mb, target_size)
+            )
+        elif video_bitrate < 1000: # TODO: increase this threshold?
+            # TRANSLATORS: {} is a file size value in MB.
+            # Please use U+202F Narrow no-break space (' ') between value and
+            # unit.
+            self.set_incompatible(
+                _('Target size ({} MB) is too low for this file.')
+                .format(target_size)
+            )
+        else:
+            self.set_state(SourceState.PENDING)
+
     def set_preview(self, target_size_getter, fps_mode_getter):
         if self.state == SourceState.BROKEN:
             return
@@ -257,10 +296,13 @@ class SourcesRow(Adw.ActionRow):
             duration
         )
 
-        if not encode_settings:
-            return
+        video_bitrate, _, target_pixels, target_fps = encode_settings
 
-        _, _, target_pixels, target_fps = encode_settings
+        self.refresh_state(video_bitrate, target_size)
+
+        if self.state == SourceState.INCOMPATIBLE:
+            self.set_subtitle('')
+            return
 
         src_pixels = self.height if self.height < self.width else self.width
 
@@ -270,8 +312,6 @@ class SourcesRow(Adw.ActionRow):
         subtitle = f'{dest_label} ← {src_label}' if (
             self.get_direction() == Gtk.TextDirection.RTL
         ) else f'{src_label} → {dest_label}'
-
-
 
         self.set_subtitle(subtitle)
 
@@ -284,6 +324,7 @@ class SourcesRow(Adw.ActionRow):
         is_complete = state == SourceState.COMPLETE
         is_error = state == SourceState.ERROR
         is_broken = state == SourceState.BROKEN
+        is_incompatible = state == SourceState.INCOMPATIBLE
 
         if is_compressing:
             self.set_progress_fraction(0.0)
@@ -292,6 +333,7 @@ class SourcesRow(Adw.ActionRow):
         self.status_label.set_visible(is_complete)
         self.error_icon.set_visible(is_error)
         self.video_broken_button.set_visible(is_broken)
+        self.incompatible_button.set_visible(is_incompatible)
 
         self.state = state
 
