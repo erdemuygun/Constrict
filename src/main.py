@@ -50,10 +50,39 @@ class ConstrictApplication(Adw.Application):
         self.create_action('about', self.on_about_action)
         self.create_action('preferences', self.on_preferences_action)
 
+        self.open_dir_action = Gio.SimpleAction(
+            name="open-dir",
+            parameter_type=GLib.VariantType.new('s')
+        )
+        self.open_dir_action.connect("activate", self.open_dir)
+        self.add_action(self.open_dir_action)
+
+        self.focus_window_action = Gio.SimpleAction(
+            name="focus-window",
+            parameter_type=GLib.VariantType.new('i')
+        )
+        self.focus_window_action.connect("activate", self.focus_window)
+        self.add_action(self.focus_window_action)
+
         self.set_accels_for_action('app.new-window', ['<primary>n'])
         self.set_accels_for_action('win.toggle-sidebar', ['F9'])
         self.set_accels_for_action('win.open', ['<Ctrl>o'])
         self.set_accels_for_action('win.export', ['<Ctrl>e'])
+
+    def open_dir(self, widget, dir_path_gvariant):
+        dir_path = dir_path_gvariant.get_string()
+
+        export_dir_file = Gio.File.new_for_path(dir_path)
+        file_launcher = Gtk.FileLauncher.new(export_dir_file)
+        file_launcher.launch()
+
+    def focus_window(self, widget, window_id_gvariant):
+        window_id = window_id_gvariant.get_int32()
+
+        window = self.get_window_by_id(window_id)
+
+        if window:
+            window.present()
 
     def do_activate(self):
         """Called when the application is activated.

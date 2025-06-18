@@ -11,6 +11,7 @@ Keywords=Compress;Video;Movie;Film;Clip;
 StartupNotify=true
 DBusActivatable=true
 Actions=new-window;
+X-GNOME-UsesNotifications=true
 
 [Desktop Action new-window]
 Name=New Window

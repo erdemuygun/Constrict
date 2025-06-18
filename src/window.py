@@ -55,7 +55,7 @@ class ConstrictWindow(Adw.ApplicationWindow):
     toast_overlay = Gtk.Template.Child()
     warning_banner = Gtk.Template.Child()
 
-    # TODO: add dialog on window close
+    # TODO: add dialog on window close (and <ctrl>q app close)
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -215,6 +215,7 @@ class ConstrictWindow(Adw.ApplicationWindow):
             video.set_preview(self.get_target_size, self.get_fps_mode)
 
         self.refresh_can_export()
+        self.withdraw_complete_notification()
 
     def get_target_size(self):
         return int(self.target_size_input.get_value())
@@ -284,7 +285,10 @@ class ConstrictWindow(Adw.ApplicationWindow):
         folder_path = folder.get_path()
         print(folder_path)
 
-        thread = threading.Thread(target=self.bulk_compress, args=[folder_path])
+        thread = threading.Thread(
+            target=self.bulk_compress,
+            args=[folder_path]
+        )
         thread.daemon = True
         thread.start()
 
@@ -323,6 +327,48 @@ class ConstrictWindow(Adw.ApplicationWindow):
 
     def show_error_from_toast(self, toast):
         self.error_dialog(toast.video.display_name, toast.video.error_details)
+
+    def get_complete_notification_id(self):
+        return f'compress-complete-{self.get_id()}'
+
+    def withdraw_complete_notification(self):
+        notification_id = self.get_complete_notification_id()
+        self.get_application().withdraw_notification(notification_id)
+
+    def send_complete_notification(self, sources_list, export_dir):
+        notification = Gio.Notification.new(_('Compression Complete'))
+        notification.set_category('transfer.complete')
+
+        if len(sources_list) == 1:
+            video_name = sources_list[0].display_name
+            # TRANSLATORS: {} represents the filename of the video that has
+            # been processed.
+            # Please use ‘’ instead of '', if applicable to your language.
+            notification.set_body(_('‘{}’ processed').format(video_name))
+        else:
+            notification.set_body(
+                # TRANSLATORS: {} represents the number of files that have been
+                # processed.
+                _('{} files processed').format(len(sources_list))
+            )
+
+        window_id_gvariant = GLib.Variant.new_int32(self.get_id())
+        notification.set_default_action_and_target(
+            'app.focus-window',
+            window_id_gvariant
+        )
+
+        export_string_gvariant = GLib.Variant.new_string(export_dir)
+        notification.add_button_with_target(
+            _('Open Export Directory'),
+            'app.open-dir',
+            export_string_gvariant
+        )
+
+        self.get_application().send_notification(
+            self.get_complete_notification_id(),
+            notification
+        )
 
     def bulk_compress(self, destination):
         self.set_controls_lock(True)
@@ -410,6 +456,8 @@ class ConstrictWindow(Adw.ApplicationWindow):
 
         toast = Adw.Toast.new(_('Compression Complete'))
         GLib.idle_add(self.toast_overlay.add_toast, toast)
+
+        self.send_complete_notification(source_list, destination)
 
         self.cancelled = False
 
@@ -520,6 +568,7 @@ class ConstrictWindow(Adw.ApplicationWindow):
     def do_close_request(self):
         print('close request made')
 
+        self.withdraw_complete_notification()
         self.save_window_state()
 
         return False
