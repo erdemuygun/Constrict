@@ -20,6 +20,9 @@
         <property name="top-bar-style">raised</property>
         <child type="top">
           <object class="AdwHeaderBar">
+            <property name="title-widget">
+              <object class="AdwWindowTitle" id="window_title"/>
+            </property>
             <child type="start">
               <object class="GtkToggleButton" id="show_sidebar_button">
                 <property name="icon-name">sidebar-show-symbolic</property>

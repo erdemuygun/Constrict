@@ -54,14 +54,20 @@ class ConstrictWindow(Adw.ApplicationWindow):
     tolerance_input = Gtk.Template.Child()
     toast_overlay = Gtk.Template.Child()
     warning_banner = Gtk.Template.Child()
+    window_title = Gtk.Template.Child()
 
     # TODO: add dialog on window close (and <ctrl>q app close)
+    # TODO: close on <ctrl>w
+    # TODO: remember open/export folders
+    # TODO: make mneumonics visible on <alt>
+    # TODO: inhibit suspend on compress: https://docs.gtk.org/gtk4/method.Application.inhibit.html
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
         self.cancelled = False
         self.currently_processed = ''
+        self.window_title.set_title(self.get_title())
 
         self.toggle_sidebar_action = Gio.SimpleAction(name="toggle-sidebar")
         self.toggle_sidebar_action.connect("activate", self.toggle_sidebar)
@@ -204,6 +210,50 @@ class ConstrictWindow(Adw.ApplicationWindow):
 
         self.set_warning_state(False)
 
+    def set_compressing_title(self, current_index, export_dir):
+        sources = self.sources_list_box.get_all()
+
+        if len(sources) == 1:
+            file_name = sources[0].display_name
+            # TRANSLATORS: {} represents the filename of the video currently
+            # being processed. Please use “” instead of '', if applicable to
+            # your language.
+            self.set_title(_('Processing “{}”').format(file_name))
+        else:
+            self.set_title(
+                # TRANSLATORS: The first {} represents the index of the video
+                # currently being processed. The second {} represents the total
+                # number of videos being processed.
+                _('{}/{} Videos Processed').format(current_index, len(sources))
+            )
+
+        self.window_title.set_title(self.get_title())
+        self.window_title.set_subtitle(
+            # TRANSLATORS: {} represents the path of the directory being
+            # exported to. Please use “” instead of "", if applicable to your
+            # language.
+            _('Exporting to “{}”').format(export_dir)
+        )
+
+    def set_queued_title(self):
+        sources = self.sources_list_box.get_all()
+
+        if len(sources) == 0:
+            self.set_title(_('Constrict'))
+        elif len(sources) == 1:
+            vid_name = sources[0].display_name
+            # TRANSLATORS: {} represents the filename of the video currently
+            # queued. Please use “” instead of '', if applicable to your
+            # language.
+            self.set_title(_('“{}” Queued').format(vid_name))
+        else:
+            vid_count = len(sources)
+            # TRANSLATORS: {} represents the number of files queued.
+            self.set_title(_('{} Videos Queued').format(vid_count))
+
+        self.window_title.set_title(self.get_title())
+        self.window_title.set_subtitle('')
+
     def refresh_previews(self, widget, *args):
         # Return if called from a check button being 'unchecked'
         if self.is_unchecked_checkbox(widget):
@@ -260,6 +310,7 @@ class ConstrictWindow(Adw.ApplicationWindow):
     def delist_all(self, action, _):
         self.sources_list_box.remove_all()
         self.refresh_can_export()
+        self.set_queued_title()
 
     def show_cancel_button(self, is_compressing):
         self.cancel_bar.set_visible(is_compressing)
@@ -380,9 +431,20 @@ class ConstrictWindow(Adw.ApplicationWindow):
         extra_quality = self.get_extra_quality()
         tolerance = self.get_tolerance()
 
+        dest_file = Gio.File.new_for_path(destination)
+        dest_info = dest_file.query_info(
+            'standard::display-name',
+            Gio.FileQueryInfoFlags.NONE,
+            None
+        )
+        dest_display_name = dest_info.get_display_name()
+
         source_list = self.sources_list_box.get_all()
 
-        for video in source_list:
+        for i in range(len(source_list)):
+            self.set_compressing_title(i, dest_display_name)
+
+            video = source_list[i]
             self.currently_processed = video.display_name
 
             # TODO: check multiple attempts on VP9... will it still display
@@ -454,6 +516,10 @@ class ConstrictWindow(Adw.ApplicationWindow):
         GLib.idle_add(self.set_controls_lock, False)
         GLib.idle_add(self.show_cancel_button, False)
 
+        self.set_queued_title()
+
+        # TODO: don't show 'complete' messages on cancelled?
+
         toast = Adw.Toast.new(_('Compression Complete'))
         GLib.idle_add(self.toast_overlay.add_toast, toast)
 
@@ -464,6 +530,7 @@ class ConstrictWindow(Adw.ApplicationWindow):
     def remove_row(self, widget, action_name, parameter):
         self.sources_list_box.remove(widget)
         self.refresh_can_export()
+        self.set_queued_title()
 
     def stage_videos(self, video_list):
         # TODO: better error handling
@@ -522,9 +589,9 @@ class ConstrictWindow(Adw.ApplicationWindow):
 
         if self.sources_list_box.any():
             self.view_stack.set_visible_child_name('queue_page')
-
-        self.export_action.set_enabled(True)
-        self.export_button.grab_focus()
+            self.export_action.set_enabled(True)
+            self.export_button.grab_focus()
+            self.set_queued_title()
 
     def open_file_dialog(self, action, parameter):
         # Create new file selection dialog, using "open" mode
@@ -572,3 +639,4 @@ class ConstrictWindow(Adw.ApplicationWindow):
         self.save_window_state()
 
         return False
+
