@@ -655,7 +655,7 @@ def compress(
 
     if before_size_bytes <= target_size_bytes:
         # output_fn("File already meets the target size.")
-        return "Constrict: File already meets the target size."
+        return (None, None, "Constrict: File already meets the target size.")
 
     try:
         duration_seconds = get_duration(file_input)
@@ -664,7 +664,7 @@ def compress(
         source_frame_count = get_frame_count(file_input)
         portrait = (width < height) ^ (get_rotation(file_input) == -90)
     except subprocess.CalledProcessError:
-        return "Constrict: Could not retrieve video properties. Source video may be missing or corrupted."
+        return (None, None, "Constrict: Could not retrieve video properties. Source video may be missing or corrupted.")
 
     print(f'width heigher than height: {width < height}')
     print(f'rotation = {get_rotation(file_input)}')
@@ -691,7 +691,7 @@ def compress(
         target_video_bitrate, target_audio_bitrate, target_height, target_fps = encode_settings
 
         if target_video_bitrate < 1000:
-            return "Constrict: Video bitrate got too low (<1 Kbps). The target size may be too low for this file."
+            return (None, None, "Constrict: Video bitrate got too low (<1 Kbps). The target size may be too low for this file.")
 
         print(f'Target height {target_height}')
 
@@ -732,10 +732,10 @@ def compress(
         )
 
         if transcode_error != None:
-            return transcode_error
+            return (None, None, transcode_error)
 
         if cancel_event():
-            return None
+            return (None, None, None)
 
         after_size_bytes = os.stat(file_output).st_size
         percent_of_target = (100 / target_size_bytes) * after_size_bytes
@@ -756,7 +756,7 @@ def compress(
     time_taken = datetime.datetime.now().replace(microsecond=0) - start_time
     print(f"\nCompleted in {time_taken}.")
 
-    return None
+    return (file_output, after_size_bytes, None)
 
 if __name__ == '__main__':
     arg_parser = argparse.ArgumentParser("constrict")

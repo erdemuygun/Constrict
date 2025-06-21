@@ -476,7 +476,9 @@ class ConstrictWindow(Adw.ApplicationWindow):
                 tmp_dir
             ) else str(Path(destination) / log_filename)
 
-            compress_error = compress(
+            # TODO: make 'compressed' suffix translatable/customisable
+
+            dest_video_path, end_size_bytes, compress_error = compress(
                 video.video_path,
                 target_size,
                 fps_mode,
@@ -511,7 +513,10 @@ class ConstrictWindow(Adw.ApplicationWindow):
                 GLib.idle_add(video.set_state, SourceState.PENDING)
                 break
 
-            GLib.idle_add(video.set_state, SourceState.COMPLETE)
+
+            # GLib.idle_add(video.set_state, SourceState.COMPLETE)
+            end_size_mb = round(end_size_bytes / 1024 / 1024, 1)
+            video.set_complete(dest_video_path, end_size_mb)
 
         GLib.idle_add(self.set_controls_lock, False)
         GLib.idle_add(self.show_cancel_button, False)
@@ -639,4 +644,5 @@ class ConstrictWindow(Adw.ApplicationWindow):
         self.save_window_state()
 
         return False
+
 

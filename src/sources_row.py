@@ -43,7 +43,6 @@ class SourcesRow(Adw.ActionRow):
 
     thumbnail = Gtk.Template.Child()
     progress_bar = Gtk.Template.Child()
-    status_label = Gtk.Template.Child()
     menu_button = Gtk.Template.Child()
     drag_source = Gtk.Template.Child()
     error_icon = Gtk.Template.Child()
@@ -53,6 +52,9 @@ class SourcesRow(Adw.ActionRow):
     video_broken_button = Gtk.Template.Child()
     incompatible_button = Gtk.Template.Child()
     incompatible_label = Gtk.Template.Child()
+    complete_button = Gtk.Template.Child()
+    complete_label = Gtk.Template.Child()
+    complete_popover = Gtk.Template.Child()
 
     # TODO: investigate window becoming blank?
     # TODO: input validation against adding corrupt videos
@@ -85,12 +87,18 @@ class SourcesRow(Adw.ActionRow):
         self.error_action = error_action
         self.warning_action = warning_action
         self.size = None
+        self.compressed_path = None
 
         self.set_title(display_name)
 
         self.install_action('row.move-up', None, self.move_up)
         self.install_action('row.move-down', None, self.move_down)
         self.install_action('row.on-error', None, self.on_error_query)
+        self.install_action(
+            'row.find-compressed-file',
+            None,
+            self.find_compressed_file
+        )
 
         if file_hash:
             thumb_thread = threading.Thread(
@@ -254,6 +262,16 @@ class SourcesRow(Adw.ActionRow):
         self.error_details = error_details
         self.set_state(SourceState.ERROR)
 
+    def set_complete(self, compressed_video_path, compressed_size_mb):
+        GLib.idle_add(
+            self.complete_label.set_label,
+            # TRANSLATORS: the {} represents a file size value in MB. Please
+            # use U+202F narrow no-break space (' ') between value and unit.
+            _('Video compressed to {} MB.').format(compressed_size_mb)
+        )
+        self.compressed_path = compressed_video_path
+        self.set_state(SourceState.COMPLETE)
+
     def refresh_state(self, video_bitrate, target_size):
         if self.state == SourceState.BROKEN:
             return
@@ -338,7 +356,7 @@ class SourcesRow(Adw.ActionRow):
             GLib.idle_add(self.warning_action, True)
 
         GLib.idle_add(self.progress_button.set_visible, is_compressing)
-        GLib.idle_add(self.status_label.set_visible, is_complete)
+        GLib.idle_add(self.complete_button.set_visible, is_complete)
         GLib.idle_add(self.error_icon.set_visible, is_error)
         GLib.idle_add(self.video_broken_button.set_visible, is_broken)
         GLib.idle_add(self.incompatible_button.set_visible, is_incompatible)
@@ -361,6 +379,12 @@ class SourcesRow(Adw.ActionRow):
     def set_progress_fraction(self, fraction):
         GLib.idle_add(self.progress_bar.set_fraction, fraction)
         GLib.idle_add(self.progress_pie.set_fraction, fraction)
+
+    def find_compressed_file(self, row, action_name, parameter):
+        self.complete_popover.popdown()
+        compressed_file = Gio.File.new_for_path(self.compressed_path)
+        file_launcher = Gtk.FileLauncher.new(compressed_file)
+        file_launcher.open_containing_folder()
 
     def move_up(self, row, action_name, parameter):
         list_box = row.get_parent()
@@ -387,5 +411,6 @@ class SourcesRow(Adw.ActionRow):
             return
 
         list_box.move(row, next_row)
+
 
 
