@@ -182,6 +182,7 @@ class ConstrictWindow(Adw.ApplicationWindow):
         self.tolerance_row.set_sensitive(not is_locked)
 
         self.clear_all_action.set_enabled(not is_locked)
+        self.open_action.set_enabled(not is_locked)
         self.export_action.set_enabled(not is_locked)
 
         self.sources_list_box.set_locked(is_locked)
