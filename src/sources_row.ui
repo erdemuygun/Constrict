@@ -16,12 +16,17 @@
       </object>
     </child>
     <child type="prefix">
-      <!-- TODO: hide drag handle + other window buttons on compress -->
-      <object class="GtkImage">
-        <property name="icon_name">list-drag-handle-symbolic</property>
-        <style>
-          <class name="drag-handle"/>
-        </style>
+      <object class="GtkRevealer" id="drag_handle_revealer">
+        <property name="transition-type">GTK_REVEALER_TRANSITION_TYPE_SLIDE_RIGHT</property>
+        <property name="reveal_child">true</property>
+        <property name="child">
+          <object class="GtkImage">
+            <property name="icon_name">list-drag-handle-symbolic</property>
+            <style>
+              <class name="drag-handle"/>
+            </style>
+          </object>
+        </property>
       </object>
     </child>
     <child type="suffix">

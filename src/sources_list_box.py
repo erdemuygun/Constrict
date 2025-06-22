@@ -17,7 +17,7 @@
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from gi.repository import Adw, Gtk
+from gi.repository import Adw, Gtk, GLib
 
 @Gtk.Template(resource_path='/com/github/wartybix/Constrict/sources_list_box.ui')
 class SourcesListBox(Gtk.ListBox):
@@ -80,6 +80,7 @@ class SourcesListBox(Gtk.ListBox):
         length = length or self.get_length()
 
         row.set_draggable(length > 1 and not self.locked)
+        GLib.idle_add(row.show_drag_handle, not self.locked)
 
         row.action_set_enabled(
             'row.move-up',

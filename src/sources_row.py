@@ -55,6 +55,7 @@ class SourcesRow(Adw.ActionRow):
     complete_button = Gtk.Template.Child()
     complete_label = Gtk.Template.Child()
     complete_popover = Gtk.Template.Child()
+    drag_handle_revealer = Gtk.Template.Child()
 
     # TODO: investigate window becoming blank?
     # TODO: input validation against adding corrupt videos
@@ -375,6 +376,9 @@ class SourcesRow(Adw.ActionRow):
     def enable_spinner(self, enable_spinner):
         self.progress_pie.set_visible(not enable_spinner)
         self.progress_spinner.set_visible(enable_spinner)
+
+    def show_drag_handle(self, shown):
+        self.drag_handle_revealer.set_reveal_child(shown)
 
     def set_progress_fraction(self, fraction):
         GLib.idle_add(self.progress_bar.set_fraction, fraction)
