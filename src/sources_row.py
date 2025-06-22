@@ -385,8 +385,8 @@ class SourcesRow(Adw.ActionRow):
         GLib.idle_add(self.progress_pie.set_fraction, fraction)
 
     def find_compressed_file(self, row, action_name, parameter):
-        self.complete_popover.popdown()
-        compressed_file = Gio.File.new_for_path(self.compressed_path)
+        row.complete_popover.popdown()
+        compressed_file = Gio.File.new_for_path(row.compressed_path)
         file_launcher = Gtk.FileLauncher.new(compressed_file)
         file_launcher.open_containing_folder()
 
