@@ -192,24 +192,34 @@ class ConstrictWindow(Adw.ApplicationWindow):
         return type(widget) is Gtk.CheckButton and not widget.get_active()
 
     def set_warning_state(self, is_error):
-        self.export_action.set_enabled(not is_error)
-        self.warning_banner.set_revealed(is_error)
+        GLib.idle_add(self.export_action.set_enabled, not is_error)
+        GLib.idle_add(self.warning_banner.set_revealed, is_error)
 
     def refresh_can_export(self):
         sources = self.sources_list_box.get_all()
 
         if not sources:
-            self.export_action.set_enabled(False)
-            self.warning_banner.set_revealed(False)
-            self.view_stack.set_visible_child_name('status_page')
+            GLib.idle_add(self.export_action.set_enabled, False)
+            GLib.idle_add(self.warning_banner.set_revealed, False)
+            GLib.idle_add(
+                self.view_stack.set_visible_child_name,
+                'status_page'
+            )
             return
+
+        complete_count = 0
 
         for video in sources:
             if video.state in [SourceState.BROKEN, SourceState.INCOMPATIBLE]:
                 self.set_warning_state(True)
                 return
+            elif video.state == SourceState.COMPLETE:
+                complete_count += 1
 
         self.set_warning_state(False)
+
+        if complete_count == len(sources):
+            GLib.idle_add(self.export_action.set_enabled, False)
 
     def set_compressing_title(self, current_index, export_dir):
         sources = self.sources_list_box.get_all()
@@ -446,6 +456,10 @@ class ConstrictWindow(Adw.ApplicationWindow):
             self.set_compressing_title(i, dest_display_name)
 
             video = source_list[i]
+
+            if video.state == SourceState.COMPLETE:
+                continue
+
             self.currently_processed = video.display_name
 
             # TODO: check multiple attempts on VP9... will it still display
@@ -521,6 +535,7 @@ class ConstrictWindow(Adw.ApplicationWindow):
 
         GLib.idle_add(self.set_controls_lock, False)
         GLib.idle_add(self.show_cancel_button, False)
+        self.refresh_can_export()
 
         self.set_queued_title()
 
