@@ -417,8 +417,8 @@ class ConstrictWindow(Adw.ApplicationWindow):
             video_name = sources_list[0].display_name
             # TRANSLATORS: {} represents the filename of the video that has
             # been processed.
-            # Please use ‘’ instead of '', if applicable to your language.
-            notification.set_body(_('‘{}’ processed').format(video_name))
+            # Please use “” instead of "", if applicable to your language.
+            notification.set_body(_('“{}” processed').format(video_name))
         else:
             notification.set_body(
                 # TRANSLATORS: {} represents the number of files that have been
