@@ -336,6 +336,12 @@ class ConstrictWindow(Adw.ApplicationWindow):
     def export_file_dialog(self, action, parameter):
         native = Gtk.FileDialog()
 
+        initial_folder_path = self.settings.get_string('export-initial-folder')
+
+        if initial_folder_path:
+            initial_folder = Gio.File.new_for_path(initial_folder_path)
+            native.set_initial_folder(initial_folder)
+
         # TODO: change folder select UI? idk
         native.select_folder(self, None, self.on_export_response)
 
@@ -351,7 +357,7 @@ class ConstrictWindow(Adw.ApplicationWindow):
             return
 
         folder_path = folder.get_path()
-        print(folder_path)
+        self.settings.set_string('export-initial-folder', folder_path)
 
         thread = threading.Thread(
             target=self.bulk_compress,
@@ -634,6 +640,12 @@ class ConstrictWindow(Adw.ApplicationWindow):
         native.set_default_filter(video_filter)
         native.set_title(_('Pick Videos'))
 
+        initial_folder_path = self.settings.get_string('open-initial-folder')
+
+        if initial_folder_path:
+            initial_folder = Gio.File.new_for_path(initial_folder_path)
+            native.set_initial_folder(initial_folder)
+
         native.open_multiple(self, None, self.on_open_response)
 
     def on_open_response(self, dialog, result):
@@ -642,13 +654,13 @@ class ConstrictWindow(Adw.ApplicationWindow):
         if not files:
             return
 
-        self.stage_videos(files)
+        new_initial_folder_path = files[0].get_parent().get_path()
+        self.settings.set_string(
+            'open-initial-folder',
+            new_initial_folder_path
+        )
 
-        existing_paths = list(map(
-            lambda x: x.video_path,
-            self.sources_list_box.get_all()
-        ))
-        print(f'new list: {existing_paths}')
+        self.stage_videos(files)
 
     def save_window_state(self):
         self.settings.set_boolean('window-maximized', self.is_maximized())

@@ -46,5 +46,11 @@
 		<key name="tolerance" type="i">
 			<default>10</default>
 		</key>
+		<key name="open-initial-folder" type="s">
+			<default>""</default>
+		</key>
+		<key name="export-initial-folder" type="s">
+			<default>""</default>
+		</key>
 	</schema>
 </schemalist>
