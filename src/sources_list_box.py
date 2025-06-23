@@ -18,6 +18,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 from gi.repository import Adw, Gtk, GLib
+from constrict.shared import update_ui
 
 @Gtk.Template(resource_path='/com/github/wartybix/Constrict/sources_list_box.ui')
 class SourcesListBox(Gtk.ListBox):
@@ -31,16 +32,16 @@ class SourcesListBox(Gtk.ListBox):
 
     def remove(self, child):
         super().remove(child)
-        self.update_rows()
+        self.update_rows(False)
 
     def remove_all(self):
         super().remove_all()
         self.append(self.add_videos_button)
 
-    def set_locked(self, locked):
+    def set_locked(self, locked, daemon):
         self.locked = locked
 
-        self.update_rows()
+        self.update_rows(daemon)
 
     def get_length(self):
         return self.add_videos_button.get_index()
@@ -55,7 +56,7 @@ class SourcesListBox(Gtk.ListBox):
             self.insert(row, dest_index)
             dest_index += 1
 
-        self.update_rows()
+        self.update_rows(False)
 
     def get_all(self):
         length = self.get_length()
@@ -73,14 +74,14 @@ class SourcesListBox(Gtk.ListBox):
         self.remove(source_row)
         self.insert(source_row, dest_index)
 
-        self.update_rows()
+        self.update_rows(False)
 
-    def update_row(self, row, index=None, length=None):
+    def update_row(self, row, index, length, daemon):
         index = index or row.get_index()
         length = length or self.get_length()
 
         row.set_draggable(length > 1 and not self.locked)
-        GLib.idle_add(row.show_drag_handle, not self.locked)
+        update_ui(row.show_drag_handle, not self.locked, daemon)
 
         row.action_set_enabled(
             'row.move-up',
@@ -95,9 +96,9 @@ class SourcesListBox(Gtk.ListBox):
             not self.locked
         )
 
-    def update_rows(self):
+    def update_rows(self, daemon):
         rows = self.get_all()
 
         for i in range(len(rows)):
             row = rows[i]
-            self.update_row(row, i, len(rows))
+            self.update_row(row, i, len(rows), daemon)

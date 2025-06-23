@@ -31,3 +31,15 @@ def get_tmp_dir():
         print('Warning: could not get tmp directory')
 
     return constrict_tmp_dir if successful else None
+
+def update_ui(function, arg, daemon):
+    if daemon:
+        if arg is not None:
+            GLib.idle_add(function, arg)
+        else:
+            GLib.idle_add(function)
+    else:
+        if arg is not None:
+            function(arg)
+        else:
+            function()

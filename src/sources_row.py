@@ -27,7 +27,7 @@
 
 from gi.repository import Adw, Gtk, Gio, GLib, Gdk
 from pathlib import Path
-from constrict.shared import get_tmp_dir
+from constrict.shared import get_tmp_dir, update_ui
 from constrict.constrict_utils import get_encode_settings, get_resolution, get_framerate, get_duration
 from constrict.enums import SourceState, Thumbnailer
 from constrict.progress_pie import ProgressPie
@@ -71,7 +71,7 @@ class SourcesRow(Adw.ActionRow):
         target_size_getter=None,
         fps_mode_getter=None,
         error_action=lambda: None,
-        warning_action=lambda: None,
+        warning_action=None,
         **kwargs
     ):
         super().__init__(**kwargs)
@@ -104,7 +104,7 @@ class SourcesRow(Adw.ActionRow):
         if file_hash:
             thumb_thread = threading.Thread(
                 target=self.set_thumbnail,
-                args=[file_hash]
+                args=[file_hash, True]
             )
             thumb_thread.daemon = True
             thumb_thread.start()
@@ -112,7 +112,7 @@ class SourcesRow(Adw.ActionRow):
         if target_size_getter and fps_mode_getter:
             preview_thread = threading.Thread(
                 target=self.set_preview,
-                args=[target_size_getter, fps_mode_getter]
+                args=[target_size_getter, fps_mode_getter, True]
             )
             preview_thread.daemon = True
             preview_thread.start()
@@ -140,7 +140,7 @@ class SourcesRow(Adw.ActionRow):
 
         drag_row = SourcesRow(self.video_path, self.display_name)
         drag_row.set_subtitle(self.get_subtitle())
-        drag_row.set_state(self.state)
+        drag_row.set_state(self.state, False)
 
         thumb_storage_type = self.thumbnail.get_storage_type()
         if thumb_storage_type == Gtk.ImageType.ICON_NAME:
@@ -194,7 +194,7 @@ class SourcesRow(Adw.ActionRow):
 
     # TODO: make thumb and preview UI setters use GLib idle add.
 
-    def set_thumbnail(self, file_hash):
+    def set_thumbnail(self, file_hash, daemon):
         bin_totem = 'totem-video-thumbnailer'
         bin_ffmpeg = 'ffmpegthumbnailer'
 
@@ -210,9 +210,10 @@ class SourcesRow(Adw.ActionRow):
             thumbnailer = Thumbnailer.FFMPEG
 
             if not ffmpeg_exists:
-                GLib.idle_add(
+                update_ui(
                     self.thumbnail.set_from_icon_name,
-                    'video-x-generic'
+                    'video-x-generic',
+                    daemon
                 )
                 return
 
@@ -222,7 +223,11 @@ class SourcesRow(Adw.ActionRow):
         print(f'temp dir: {tmp_dir}')
 
         if not tmp_dir:
-            GLib.idle_add(self.thumbnail.set_from_icon_name, 'video-x-generic')
+            update_ui(
+                self.thumbnail.set_from_icon_name,
+                'video-x-generic',
+                daemon
+            )
             return
 
         thumb_file = str(tmp_dir / f'{file_hash}.jpg')
@@ -246,7 +251,7 @@ class SourcesRow(Adw.ActionRow):
         else:
             raise Exception('Unknown thumbnailer set. Whoopsie daisies.')
 
-        GLib.idle_add(self.thumbnail.set_from_file, thumb_file)
+        update_ui(self.thumbnail.set_from_file, thumb_file, daemon)
 
     def get_size(self):
         if self.size:
@@ -255,25 +260,26 @@ class SourcesRow(Adw.ActionRow):
         self.size = os.stat(self.video_path).st_size
         return self.size
 
-    def set_incompatible(self, incompatible_msg):
-        self.incompatible_label.set_label(incompatible_msg)
-        self.set_state(SourceState.INCOMPATIBLE)
+    def set_incompatible(self, incompatible_msg, daemon):
+        update_ui(self.incompatible_label.set_label, incompatible_msg, daemon)
+        self.set_state(SourceState.INCOMPATIBLE, daemon)
 
-    def set_error(self, error_details):
+    def set_error(self, error_details, daemon):
         self.error_details = error_details
-        self.set_state(SourceState.ERROR)
+        self.set_state(SourceState.ERROR, daemon)
 
-    def set_complete(self, compressed_video_path, compressed_size_mb):
-        GLib.idle_add(
+    def set_complete(self, compressed_video_path, compressed_size_mb, daemon):
+        update_ui(
             self.complete_label.set_label,
             # TRANSLATORS: the {} represents a file size value in MB. Please
             # use U+202F narrow no-break space (' ') between value and unit.
-            _('Video compressed to {} MB.').format(compressed_size_mb)
+            _('Video compressed to {} MB.').format(compressed_size_mb),
+            daemon
         )
         self.compressed_path = compressed_video_path
-        self.set_state(SourceState.COMPLETE)
+        self.set_state(SourceState.COMPLETE, daemon)
 
-    def refresh_state(self, video_bitrate, target_size):
+    def refresh_state(self, video_bitrate, target_size, daemon):
         if self.state == SourceState.BROKEN:
             return
         elif self.get_size() < target_size * 1024 * 1024:
@@ -283,7 +289,8 @@ class SourcesRow(Adw.ActionRow):
             # unit.
             self.set_incompatible(
                 _('Video file size ({} MB) already meets the target size ({} MB).')
-                .format(size_mb, target_size)
+                    .format(size_mb, target_size),
+                daemon
             )
         elif video_bitrate < 1000: # TODO: increase this threshold?
             # TRANSLATORS: {} is a file size value in MB.
@@ -291,12 +298,13 @@ class SourcesRow(Adw.ActionRow):
             # unit.
             self.set_incompatible(
                 _('Target size ({} MB) is too low for this file.')
-                .format(target_size)
+                    .format(target_size),
+                daemon
             )
         else:
-            self.set_state(SourceState.PENDING)
+            self.set_state(SourceState.PENDING, daemon)
 
-    def set_preview(self, target_size_getter, fps_mode_getter):
+    def set_preview(self, target_size_getter, fps_mode_getter, daemon):
         if self.state == SourceState.BROKEN:
             return
 
@@ -305,7 +313,7 @@ class SourcesRow(Adw.ActionRow):
             fps = self.get_fps()
             duration = self.get_duration()
         except subprocess.CalledProcessError:
-            self.set_state(SourceState.BROKEN)
+            self.set_state(SourceState.BROKEN, daemon)
             return
 
         target_size = target_size_getter()
@@ -322,10 +330,10 @@ class SourcesRow(Adw.ActionRow):
 
         video_bitrate, _, target_pixels, target_fps = encode_settings
 
-        self.refresh_state(video_bitrate, target_size)
+        self.refresh_state(video_bitrate, target_size, daemon)
 
         if self.state == SourceState.INCOMPATIBLE:
-            GLib.idle_add(self.set_subtitle, '')
+            update_ui(self.set_subtitle, '', daemon)
             return
 
         src_pixels = self.height if self.height < self.width else self.width
@@ -337,9 +345,9 @@ class SourcesRow(Adw.ActionRow):
             self.get_direction() == Gtk.TextDirection.RTL
         ) else f'{src_label} → {dest_label}'
 
-        GLib.idle_add(self.set_subtitle, subtitle)
+        update_ui(self.set_subtitle, subtitle, daemon)
 
-    def set_state(self, state):
+    def set_state(self, state, daemon):
         # If new state and old state are the same:
         if state == self.state:
             return
@@ -351,38 +359,42 @@ class SourcesRow(Adw.ActionRow):
         is_incompatible = state == SourceState.INCOMPATIBLE
 
         if is_compressing:
-            self.set_progress_fraction(0.0)
+            self.set_progress_fraction(0.0, daemon)
 
-        if is_broken or is_incompatible:
-            GLib.idle_add(self.warning_action, True)
+        if (is_broken or is_incompatible) and self.warning_action:
+            self.warning_action(True, daemon)
 
-        GLib.idle_add(self.progress_button.set_visible, is_compressing)
-        GLib.idle_add(self.complete_button.set_visible, is_complete)
-        GLib.idle_add(self.error_icon.set_visible, is_error)
-        GLib.idle_add(self.video_broken_button.set_visible, is_broken)
-        GLib.idle_add(self.incompatible_button.set_visible, is_incompatible)
+        update_ui(self.progress_button.set_visible, is_compressing, daemon)
+        update_ui(self.complete_button.set_visible, is_complete, daemon)
+        update_ui(self.error_icon.set_visible, is_error, daemon)
+        update_ui(self.video_broken_button.set_visible, is_broken, daemon)
+        update_ui(
+            self.incompatible_button.set_visible,
+            is_incompatible,
+            daemon
+        )
 
         self.state = state
 
-    def set_progress_text(self, label):
-        self.progress_bar.set_text(label)
+    def set_progress_text(self, label, daemon):
+        update_ui(self.progress_bar.set_text, label, daemon)
 
     def get_progress_text(self):
         return self.progress_bar.get_text()
 
-    def pulse_progress(self):
-        self.progress_bar.pulse()
+    def pulse_progress(self, daemon):
+        update_ui(self.progress_bar.pulse, None, False)
 
-    def enable_spinner(self, enable_spinner):
-        self.progress_pie.set_visible(not enable_spinner)
-        self.progress_spinner.set_visible(enable_spinner)
+    def enable_spinner(self, enable_spinner, daemon):
+        update_ui(self.progress_pie.set_visible, not enable_spinner, daemon)
+        update_ui(self.progress_spinner.set_visible, enable_spinner, daemon)
 
     def show_drag_handle(self, shown):
         self.drag_handle_revealer.set_reveal_child(shown)
 
-    def set_progress_fraction(self, fraction):
-        GLib.idle_add(self.progress_bar.set_fraction, fraction)
-        GLib.idle_add(self.progress_pie.set_fraction, fraction)
+    def set_progress_fraction(self, fraction, daemon):
+        update_ui(self.progress_bar.set_fraction, fraction, daemon)
+        update_ui(self.progress_pie.set_fraction, fraction, daemon)
 
     def find_compressed_file(self, row, action_name, parameter):
         row.complete_popover.popdown()

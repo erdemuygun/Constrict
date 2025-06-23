@@ -622,6 +622,7 @@ Add translatable file suffix (and customisable in preferences)
 
 # Returns None if compression went smoothly.
 # If there's an error while compressing, it'll return compression details.
+# TODO: change return values to passed functions -- makes more sense
 def compress(
     file_input,
     target_size_MiB,

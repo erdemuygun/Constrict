@@ -19,7 +19,7 @@
 
 from gi.repository import Adw, Gtk, Gdk, Gio, GLib, GObject
 from constrict.constrict_utils import compress
-from constrict.shared import get_tmp_dir
+from constrict.shared import get_tmp_dir, update_ui
 from constrict.enums import FpsMode, VideoCodec, SourceState
 from constrict.sources_row import SourcesRow
 from constrict.sources_list_box import SourcesListBox
@@ -172,38 +172,44 @@ class ConstrictWindow(Adw.ApplicationWindow):
         # Tell the callee to continue
         return Gdk.DragAction.COPY
 
-    def set_controls_lock(self, is_locked):
-        self.target_size_row.set_sensitive(not is_locked)
-        self.auto_row.set_sensitive(not is_locked)
-        self.clear_row.set_sensitive(not is_locked)
-        self.smooth_row.set_sensitive(not is_locked)
-        self.codec_dropdown.set_sensitive(not is_locked)
-        self.extra_quality_toggle.set_sensitive(not is_locked)
-        self.tolerance_row.set_sensitive(not is_locked)
+    def set_controls_lock(self, is_locked, daemon):
+        update_ui(self.target_size_row.set_sensitive, not is_locked, daemon)
+        update_ui(self.auto_row.set_sensitive, not is_locked, daemon)
+        update_ui(self.clear_row.set_sensitive, not is_locked, daemon)
+        update_ui(self.smooth_row.set_sensitive, not is_locked, daemon)
+        update_ui(self.codec_dropdown.set_sensitive, not is_locked, daemon)
+        update_ui(
+            self.extra_quality_toggle.set_sensitive,
+            not is_locked,
+            daemon
+        )
+        update_ui(self.tolerance_row.set_sensitive, not is_locked, daemon)
 
+        update_ui(self.clear_all_action.set_enabled, not is_locked, daemon)
         self.clear_all_action.set_enabled(not is_locked)
         self.open_action.set_enabled(not is_locked)
         self.export_action.set_enabled(not is_locked)
 
-        self.sources_list_box.set_locked(is_locked)
+        self.sources_list_box.set_locked(is_locked, daemon)
 
     # Return whether the passed widget is an unchecked GtkCheckButton
     def is_unchecked_checkbox(self, widget):
         return type(widget) is Gtk.CheckButton and not widget.get_active()
 
-    def set_warning_state(self, is_error):
-        GLib.idle_add(self.export_action.set_enabled, not is_error)
-        GLib.idle_add(self.warning_banner.set_revealed, is_error)
+    def set_warning_state(self, is_error, daemon):
+        update_ui(self.export_action.set_enabled, not is_error, daemon)
+        update_ui(self.warning_banner.set_revealed, is_error, daemon)
 
-    def refresh_can_export(self):
+    def refresh_can_export(self, daemon):
         sources = self.sources_list_box.get_all()
 
         if not sources:
-            GLib.idle_add(self.export_action.set_enabled, False)
-            GLib.idle_add(self.warning_banner.set_revealed, False)
-            GLib.idle_add(
+            update_ui(self.export_action.set_enabled, False, daemon)
+            update_ui(self.warning_banner.set_revealed, False, daemon)
+            update_ui(
                 self.view_stack.set_visible_child_name,
-                'status_page'
+                'status_page',
+                daemon
             )
             return
 
@@ -211,15 +217,15 @@ class ConstrictWindow(Adw.ApplicationWindow):
 
         for video in sources:
             if video.state in [SourceState.BROKEN, SourceState.INCOMPATIBLE]:
-                self.set_warning_state(True)
+                self.set_warning_state(True, daemon)
                 return
             elif video.state == SourceState.COMPLETE:
                 complete_count += 1
 
-        self.set_warning_state(False)
+        self.set_warning_state(False, daemon)
 
         if complete_count == len(sources):
-            GLib.idle_add(self.export_action.set_enabled, False)
+            update_ui(self.export_action.set_enabled, False, daemon)
 
     def set_compressing_title(self, current_index, export_dir):
         sources = self.sources_list_box.get_all()
@@ -246,7 +252,7 @@ class ConstrictWindow(Adw.ApplicationWindow):
             _('Exporting to “{}”').format(export_dir)
         )
 
-    def set_queued_title(self):
+    def set_queued_title(self, daemon):
         sources = self.sources_list_box.get_all()
 
         if len(sources) == 0:
@@ -262,8 +268,8 @@ class ConstrictWindow(Adw.ApplicationWindow):
             # TRANSLATORS: {} represents the number of files queued.
             self.set_title(_('{} Videos Queued').format(vid_count))
 
-        self.window_title.set_title(self.get_title())
-        self.window_title.set_subtitle('')
+        update_ui(self.window_title.set_title, self.get_title(), daemon)
+        update_ui(self.window_title.set_subtitle, '', daemon)
 
     def refresh_previews(self, widget, *args):
         # Return if called from a check button being 'unchecked'
@@ -273,9 +279,9 @@ class ConstrictWindow(Adw.ApplicationWindow):
         sources = self.sources_list_box.get_all()
 
         for video in sources:
-            video.set_preview(self.get_target_size, self.get_fps_mode)
+            video.set_preview(self.get_target_size, self.get_fps_mode, False)
 
-        self.refresh_can_export()
+        self.refresh_can_export(False)
         self.withdraw_complete_notification()
 
     def get_target_size(self):
@@ -320,12 +326,12 @@ class ConstrictWindow(Adw.ApplicationWindow):
 
     def delist_all(self, action, _):
         self.sources_list_box.remove_all()
-        self.refresh_can_export()
-        self.set_queued_title()
+        self.refresh_can_export(False)
+        self.set_queued_title(False)
 
-    def show_cancel_button(self, is_compressing):
-        self.cancel_bar.set_visible(is_compressing)
-        self.export_bar.set_visible(not is_compressing)
+    def show_cancel_button(self, is_compressing, daemon):
+        update_ui(self.cancel_bar.set_visible, is_compressing, daemon)
+        update_ui(self.export_bar.set_visible, not is_compressing, daemon)
 
     def export_file_dialog(self, action, parameter):
         native = Gtk.FileDialog()
@@ -349,7 +355,7 @@ class ConstrictWindow(Adw.ApplicationWindow):
 
         thread = threading.Thread(
             target=self.bulk_compress,
-            args=[folder_path]
+            args=[folder_path, True]
         )
         thread.daemon = True
         thread.start()
@@ -432,9 +438,9 @@ class ConstrictWindow(Adw.ApplicationWindow):
             notification
         )
 
-    def bulk_compress(self, destination):
-        self.set_controls_lock(True)
-        self.show_cancel_button(True)
+    def bulk_compress(self, destination, daemon):
+        self.set_controls_lock(True, daemon)
+        self.show_cancel_button(True, daemon)
 
         target_size = self.get_target_size()
         fps_mode = self.get_fps_mode()
@@ -467,22 +473,23 @@ class ConstrictWindow(Adw.ApplicationWindow):
             # TODO: have VP9 reset to 0% on pass 2, not 50%.
 
             if codec == VideoCodec.VP9:
-                # TRANSLATORS: please use U+2026 Horizontal ellipsis (…) instead of '...', if applicable to your language
-                GLib.idle_add(video.set_progress_text, _('Analyzing…'))
-                GLib.idle_add(video.enable_spinner, True)
+                # TRANSLATORS: please use U+2026 Horizontal ellipsis (…)
+                # instead of '...', if applicable to your language
+                video.set_progress_text(_('Analyzing…'), daemon)
+                video.enable_spinner(True, daemon)
 
             def update_progress(fraction):
                 print(f'progress updated - {round(fraction * 100)}%')
                 if fraction == 0.0 and codec == VideoCodec.VP9:
-                    GLib.idle_add(video.pulse_progress)
+                    video.pulse_progress(daemon)
                     print('pulsed')
                 else:
                     if video.get_progress_text():
-                        GLib.idle_add(video.set_progress_text, None)
-                        GLib.idle_add(video.enable_spinner, False)
-                    GLib.idle_add(video.set_progress_fraction, fraction)
+                        video.set_progress_text(None, daemon)
+                        video.enable_spinner(False, daemon)
+                    video.set_progress_fraction(fraction, daemon)
 
-            GLib.idle_add(video.set_state, SourceState.COMPRESSING)
+            video.set_state(SourceState.COMPRESSING, daemon)
 
             tmp_dir = get_tmp_dir()
             log_filename = f'constrict2pass-{self.get_id()}'
@@ -507,7 +514,7 @@ class ConstrictWindow(Adw.ApplicationWindow):
             )
 
             if compress_error:
-                GLib.idle_add(video.set_error, compress_error)
+                video.set_error(compress_error, daemon)
 
                 # TRANSLATORS: {} represents the filename of the video with the
                 # error.
@@ -520,29 +527,28 @@ class ConstrictWindow(Adw.ApplicationWindow):
 
                 toast.connect('button-clicked', self.show_error_from_toast)
 
-                GLib.idle_add(self.toast_overlay.add_toast, toast)
+                update_ui(self.toast_overlay.add_toast, toast, daemon)
 
                 continue
 
             if self.cancelled:
-                GLib.idle_add(video.set_state, SourceState.PENDING)
+                video.set_state(SourceState.PENDING, daemon)
                 break
 
 
-            # GLib.idle_add(video.set_state, SourceState.COMPLETE)
             end_size_mb = round(end_size_bytes / 1024 / 1024, 1)
-            video.set_complete(dest_video_path, end_size_mb)
+            video.set_complete(dest_video_path, end_size_mb, daemon)
 
-        GLib.idle_add(self.set_controls_lock, False)
-        GLib.idle_add(self.show_cancel_button, False)
-        self.refresh_can_export()
+        self.set_controls_lock(False, daemon)
+        self.show_cancel_button(False, daemon)
+        self.refresh_can_export(daemon)
 
-        self.set_queued_title()
+        self.set_queued_title(daemon)
 
         # TODO: don't show 'complete' messages on cancelled?
 
         toast = Adw.Toast.new(_('Compression Complete'))
-        GLib.idle_add(self.toast_overlay.add_toast, toast)
+        update_ui(self.toast_overlay.add_toast, toast, daemon)
 
         self.send_complete_notification(source_list, destination)
 
@@ -550,8 +556,8 @@ class ConstrictWindow(Adw.ApplicationWindow):
 
     def remove_row(self, widget, action_name, parameter):
         self.sources_list_box.remove(widget)
-        self.refresh_can_export()
-        self.set_queued_title()
+        self.refresh_can_export(False)
+        self.set_queued_title(False)
 
     def stage_videos(self, video_list):
         # TODO: better error handling
@@ -612,7 +618,7 @@ class ConstrictWindow(Adw.ApplicationWindow):
             self.view_stack.set_visible_child_name('queue_page')
             self.export_action.set_enabled(True)
             self.export_button.grab_focus()
-            self.set_queued_title()
+            self.set_queued_title(False)
 
     def open_file_dialog(self, action, parameter):
         # Create new file selection dialog, using "open" mode
