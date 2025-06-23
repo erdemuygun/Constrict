@@ -545,12 +545,15 @@ class ConstrictWindow(Adw.ApplicationWindow):
 
         self.set_queued_title(daemon)
 
-        # TODO: don't show 'complete' messages on cancelled?
+        if self.cancelled:
+            toast = Adw.Toast.new(_('Compression Cancelled'))
+            toast.set_priority(Adw.ToastPriority.HIGH)
+            update_ui(self.toast_overlay.add_toast, toast, daemon)
+        else:
+            toast = Adw.Toast.new(_('Compression Complete'))
+            update_ui(self.toast_overlay.add_toast, toast, daemon)
 
-        toast = Adw.Toast.new(_('Compression Complete'))
-        update_ui(self.toast_overlay.add_toast, toast, daemon)
-
-        self.send_complete_notification(source_list, destination)
+            self.send_complete_notification(source_list, destination)
 
         self.cancelled = False
 
