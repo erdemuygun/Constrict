@@ -56,16 +56,14 @@ class ConstrictWindow(Adw.ApplicationWindow):
     warning_banner = Gtk.Template.Child()
     window_title = Gtk.Template.Child()
 
-    # TODO: add dialog on window close (and <ctrl>q app close)
     # TODO: close on <ctrl>w
-    # TODO: remember open/export folders
     # TODO: make mneumonics visible on <alt>
     # TODO: inhibit suspend on compress: https://docs.gtk.org/gtk4/method.Application.inhibit.html
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
-        self.cancelled = False
+        self.compressing = False
         self.currently_processed = ''
         self.window_title.set_title(self.get_title())
 
@@ -83,7 +81,7 @@ class ConstrictWindow(Adw.ApplicationWindow):
         self.add_action(self.export_action)
 
         self.cancel_action = Gio.SimpleAction(name="cancel")
-        self.cancel_action.connect("activate", self.cancel_dialog)
+        self.cancel_action.connect("activate", self.on_cancel)
         self.add_action(self.cancel_action)
 
         self.clear_all_action = Gio.SimpleAction(name="clear_all")
@@ -366,7 +364,10 @@ class ConstrictWindow(Adw.ApplicationWindow):
         thread.daemon = True
         thread.start()
 
-    def cancel_dialog(self, action, parameter):
+    def on_cancel(self, action, parameter):
+        self.show_cancel_dialog(False)
+
+    def show_cancel_dialog(self, quit_on_stop):
         dialog = Adw.AlertDialog.new(
             _('Stop Compression?'),
             # TRANSLATORS: {} represents the filename of the video currently
@@ -376,6 +377,8 @@ class ConstrictWindow(Adw.ApplicationWindow):
                 'Progress made compressing “{}” will be permanently lost'
             ).format(self.currently_processed)
         )
+
+        dialog.quit_on_stop = quit_on_stop
 
         dialog.add_response('cancel', _('Cancel'))
         dialog.add_response('stop', _('Stop'))
@@ -392,7 +395,9 @@ class ConstrictWindow(Adw.ApplicationWindow):
 
         if choice == 'stop':
             print('Compression stopped')
-            self.cancelled = True
+            self.compressing = False
+            if dialog.quit_on_stop:
+                self.close()
 
     def error_dialog(self, file_name, error_details):
         dialog = ErrorDialog(file_name, error_details)
@@ -447,6 +452,7 @@ class ConstrictWindow(Adw.ApplicationWindow):
     def bulk_compress(self, destination, daemon):
         self.set_controls_lock(True, daemon)
         self.show_cancel_button(True, daemon)
+        self.compressing = True
 
         target_size = self.get_target_size()
         fps_mode = self.get_fps_mode()
@@ -516,7 +522,7 @@ class ConstrictWindow(Adw.ApplicationWindow):
                 destination,
                 update_progress,
                 log_path,
-                lambda: self.cancelled
+                lambda: not self.compressing
             )
 
             if compress_error:
@@ -537,7 +543,7 @@ class ConstrictWindow(Adw.ApplicationWindow):
 
                 continue
 
-            if self.cancelled:
+            if not self.compressing:
                 video.set_state(SourceState.PENDING, daemon)
                 break
 
@@ -551,7 +557,7 @@ class ConstrictWindow(Adw.ApplicationWindow):
 
         self.set_queued_title(daemon)
 
-        if self.cancelled:
+        if not self.compressing:
             toast = Adw.Toast.new(_('Compression Cancelled'))
             toast.set_priority(Adw.ToastPriority.HIGH)
             update_ui(self.toast_overlay.add_toast, toast, daemon)
@@ -561,7 +567,7 @@ class ConstrictWindow(Adw.ApplicationWindow):
 
             self.send_complete_notification(source_list, destination)
 
-        self.cancelled = False
+        self.compressing = False
 
     def remove_row(self, widget, action_name, parameter):
         self.sources_list_box.remove(widget)
@@ -674,8 +680,12 @@ class ConstrictWindow(Adw.ApplicationWindow):
         self.settings.set_boolean('extra-quality', self.get_extra_quality())
         self.settings.set_int('tolerance', self.get_tolerance())
 
-    def do_close_request(self):
+    def do_close_request(self, force=False):
         print('close request made')
+
+        if self.compressing:
+            self.show_cancel_dialog(True)
+            return True
 
         self.withdraw_complete_notification()
         self.save_window_state()

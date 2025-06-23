@@ -173,6 +173,13 @@ class ConstrictApplication(Adw.Application):
         if shortcuts:
             self.set_accels_for_action(f"app.{name}", shortcuts)
 
+    # override
+    def quit(self):
+        windows = self.get_windows()
+
+        for window in windows:
+            window.close()
+
 
 def main(version):
     """The application's entry point."""
