@@ -58,6 +58,7 @@ class ConstrictWindow(Adw.ApplicationWindow):
 
     # TODO: make mneumonics visible on <alt>
     # TODO: inhibit suspend on compress: https://docs.gtk.org/gtk4/method.Application.inhibit.html
+    # TODO: paste videos with <ctrl>v
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -578,10 +579,6 @@ class ConstrictWindow(Adw.ApplicationWindow):
         self.set_queued_title(False)
 
     def stage_videos(self, video_list):
-        # TODO: better error handling
-        # ie. corrupt files etc.
-        # TODO: merge staged video list with UI?
-
         existing_paths = list(map(
             lambda x: x.video_path,
             self.sources_list_box.get_all()
@@ -591,7 +588,6 @@ class ConstrictWindow(Adw.ApplicationWindow):
         staged_rows = []
 
         for video in video_list:
-            # TODO: make async query?
             video_path = video.get_path()
 
             if video_path in existing_paths:

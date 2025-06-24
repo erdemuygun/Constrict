@@ -153,8 +153,6 @@ class ConstrictApplication(Adw.Application):
 
     #TODO: preference ideas
     # target size unit (e.g., MB, MiB, GB, etc.)
-    # sound on complete
-    # default export directory?
 
     def on_preferences_action(self, widget, _):
         """Callback for the app.preferences action."""

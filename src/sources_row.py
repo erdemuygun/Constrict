@@ -192,8 +192,6 @@ class SourcesRow(Adw.ActionRow):
 
         return self.duration
 
-    # TODO: make thumb and preview UI setters use GLib idle add.
-
     def set_thumbnail(self, file_hash, daemon):
         bin_totem = 'totem-video-thumbnailer'
         bin_ffmpeg = 'ffmpegthumbnailer'

@@ -572,50 +572,22 @@ def get_encode_settings(
 
 
 """ TODO:
-check for non-existent files (or non-video files) -- exit 1 with error msg
-allow different units for desired file size
 add input validation for arguments
 add overwrite confirmation and argument
 add 'source overwrite' mode: -o value same as input file path
 check for when file size doesnt change
-add more error checking for very low target file sizes
-add support for bulk compression
-force container on any file name
-add 'general compression' mode - no target file size(?)
-reconsider where log and streamable files go (output dir rather than PWD?)
-check for output file directory permissions
-add verbosity options (GUI and quiet)
-don't use streamable temp file with quiet verbosity mode
-add overwrite-safe default file outputs (streamable file and compressed file)
 Add check when video bitrate calculation goes over original bitrate
 change how tolerance works
-inhibit suspend while running
 get rid of all this unused and commented out code
-investigate error messages and performance further
-use some kind of maths magic to reduce number of attempts at low file sizes
-improve bitrate recalculation, change from simple multiplication (!!)
-check calculations for bitrate etc. are correct (i.e. MiB vs MB etc)
-add checkers for codecs
-clean up ffmpeg 2pass logs after compression
 improve text formatting
 check framerate text indicator
-Fix 'Application provided invalid, non monotonically increasing dts to muxer in stream'
-Add speed options (CONSIDER HANDBRAKE PRESETS)
-See about 64K audio? and capping audio based on original audio bitrate...
-Add preview mode for GUI version
-Lower to 16 FPS instead of 24?
 add 10 bit support?
 Clean up AV1 text output
-revisit qt-faststart (doesn't work on fedora)
-perhaps check out FFmpeg python libraries? revisit using pv for progress
 change output_fn argument to be raw data, not strings (human readable strings
     should be created on the interface side, not in these functions).
-change 'pv' command to output to output_fn, not writing directly to the
-    terminal.
 use a sliding window for repeated compression attempts?
 check for reading permissions of input, writing permissions of output
 - (do this preemptively on the interface end)
-Add translatable file suffix (and customisable in preferences)
 """
 
 # TODO: investigate input bit depth of 10 not compressing to x264.

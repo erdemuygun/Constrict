@@ -225,7 +225,6 @@
                     <child>
                       <object class="AdwViewStackPage">
                         <property name="name">status_page</property>
-                        <!-- TODO: remove? <property name="title">Status Page</property>-->
                         <property name="child">
                           <object class="AdwStatusPage" id="status_page">
                             <property name="icon-name">video-encoder-symbolic</property>
@@ -251,7 +250,6 @@
                     <child>
                       <object class="AdwViewStackPage">
                         <property name="name">queue_page</property>
-                        <!-- TODO remove? property name="title">Queue Page</property>-->
                         <property name="child">
                           <object class="AdwToolbarView" id="queue_page">
                             <child type="top">
