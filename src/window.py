@@ -56,7 +56,6 @@ class ConstrictWindow(Adw.ApplicationWindow):
     warning_banner = Gtk.Template.Child()
     window_title = Gtk.Template.Child()
 
-    # TODO: close on <ctrl>w
     # TODO: make mneumonics visible on <alt>
     # TODO: inhibit suspend on compress: https://docs.gtk.org/gtk4/method.Application.inhibit.html
 
@@ -87,6 +86,10 @@ class ConstrictWindow(Adw.ApplicationWindow):
         self.clear_all_action = Gio.SimpleAction(name="clear_all")
         self.clear_all_action.connect("activate", self.delist_all)
         self.add_action(self.clear_all_action)
+
+        self.close_action = Gio.SimpleAction(name="close")
+        self.close_action.connect("activate", lambda *_: self.close())
+        self.add_action(self.close_action)
 
         self.target_size_input.connect("value-changed", self.refresh_previews)
         self.auto_check_button.connect("toggled", self.refresh_previews)

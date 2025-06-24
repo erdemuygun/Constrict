@@ -47,6 +47,7 @@ class ConstrictApplication(Adw.Application):
 
         self.create_action('new-window', lambda *_: self.do_activate(), ['<primary>n'])
         self.create_action('quit', lambda *_: self.quit(), ['<primary>q'])
+        # self.create_action('close-window', self.close_window, ['<primary>w'])
         self.create_action('about', self.on_about_action)
         self.create_action('preferences', self.on_preferences_action)
 
@@ -68,6 +69,7 @@ class ConstrictApplication(Adw.Application):
         self.set_accels_for_action('win.toggle-sidebar', ['F9'])
         self.set_accels_for_action('win.open', ['<Ctrl>o'])
         self.set_accels_for_action('win.export', ['<Ctrl>e'])
+        self.set_accels_for_action('win.close', ['<Ctrl>w'])
 
     def open_dir(self, widget, dir_path_gvariant):
         dir_path = dir_path_gvariant.get_string()
@@ -172,6 +174,10 @@ class ConstrictApplication(Adw.Application):
         self.add_action(action)
         if shortcuts:
             self.set_accels_for_action(f"app.{name}", shortcuts)
+
+    def close_window(self, *args):
+        current_window = self.get_active_window()
+        current_window.close()
 
     # override
     def quit(self):
