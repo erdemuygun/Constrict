@@ -35,7 +35,6 @@ import threading
 import subprocess
 import os
 
-# FIXME: video row won't remove with multi windows
 
 @Gtk.Template(resource_path='/com/github/wartybix/Constrict/sources_row.ui')
 class SourcesRow(Adw.ActionRow):
@@ -72,6 +71,7 @@ class SourcesRow(Adw.ActionRow):
         fps_mode_getter=None,
         error_action=lambda: None,
         warning_action=None,
+        remove_action=lambda: None,
         **kwargs
     ):
         super().__init__(**kwargs)
@@ -87,6 +87,7 @@ class SourcesRow(Adw.ActionRow):
         self.error_details = ""
         self.error_action = error_action
         self.warning_action = warning_action
+        self.remove_action = remove_action
         self.size = None
         self.compressed_path = None
 
@@ -100,6 +101,7 @@ class SourcesRow(Adw.ActionRow):
             None,
             self.find_compressed_file
         )
+        self.install_action('row.remove', None, self.on_remove)
 
         if file_hash:
             thumb_thread = threading.Thread(
@@ -170,6 +172,9 @@ class SourcesRow(Adw.ActionRow):
 
         list_box = self.get_parent()
         list_box.move(source_row, self)
+
+    def on_remove(self, sources_row, action_name, parameter):
+        sources_row.remove_action(sources_row)
 
     def on_error_query(self, widget, action_name, parameter):
         widget.error_action(widget.display_name, widget.error_details)

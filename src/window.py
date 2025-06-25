@@ -573,8 +573,8 @@ class ConstrictWindow(Adw.ApplicationWindow):
 
         self.compressing = False
 
-    def remove_row(self, widget, action_name, parameter):
-        self.sources_list_box.remove(widget)
+    def remove_row(self, row):
+        self.sources_list_box.remove(row)
         self.refresh_can_export(False)
         self.set_queued_title(False)
 
@@ -619,10 +619,9 @@ class ConstrictWindow(Adw.ApplicationWindow):
                 self.get_target_size,
                 self.get_fps_mode,
                 self.error_dialog,
-                self.set_warning_state
+                self.set_warning_state,
+                self.remove_row
             )
-
-            staged_row.install_action('row.remove', None, self.remove_row)
 
             staged_rows.append(staged_row)
 
