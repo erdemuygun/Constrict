@@ -34,7 +34,7 @@ class ConstrictApplication(Adw.Application):
 
     def __init__(self):
         super().__init__(application_id='com.github.wartybix.Constrict',
-                         flags=Gio.ApplicationFlags.DEFAULT_FLAGS)
+                         flags=Gio.ApplicationFlags.HANDLES_OPEN)
 
         self.add_main_option(
             'new-window',
@@ -86,7 +86,10 @@ class ConstrictApplication(Adw.Application):
         if window:
             window.present()
 
-    def do_activate(self):
+    def do_open(self, gfiles, n_files, hint):
+        self.do_activate(gfiles)
+
+    def do_activate(self, gfiles=[]):
         """Called when the application is activated.
 
         We raise the application's main window, creating it if
@@ -97,6 +100,10 @@ class ConstrictApplication(Adw.Application):
             active_window.save_window_state()
 
         win = ConstrictWindow(application=self)
+
+        if gfiles:
+            win.stage_videos(gfiles)
+
         win.present()
 
     # do_handle_local_options is taken from kramo's Showtime project and has
