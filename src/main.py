@@ -27,7 +27,7 @@ gi.require_version('Adw', '1')
 from gi.repository import Gtk, Gio, Adw, GLib
 from .window import ConstrictWindow
 
-# TODO: add 'open with' file support
+# FIXME: icon doesn't show in all contexts on the flatpak version.
 
 class ConstrictApplication(Adw.Application):
     """The main application singleton class."""
