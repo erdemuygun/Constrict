@@ -160,6 +160,15 @@ class SourcesRow(Adw.ActionRow):
         drag.set_hotspot(self.drag_x, self.drag_y)
 
     @Gtk.Template.Callback()
+    def on_motion(self, drop_target, x, y):
+        row_to_drop = drop_target.get_value()
+        source_list_box = row_to_drop.get_parent()
+        this_list_box = self.get_parent()
+
+        # Don't allow drop if source and target are not in the same list box.
+        return Gdk.DragAction.MOVE if this_list_box == source_list_box else 0
+
+    @Gtk.Template.Callback()
     def on_drop(self, drop_target, source_row, x, y):
         self.drag_widget = None
         self.drag_x = 0
@@ -170,8 +179,15 @@ class SourcesRow(Adw.ActionRow):
         if source_position == target_position:
             return False
 
-        list_box = self.get_parent()
-        list_box.move(source_row, self)
+        this_list_box = self.get_parent()
+        source_list_box = source_row.get_parent()
+
+        # Only allow re-arranging rows in the same window. I.e., do not allow
+        # dragging of sources to the list box of another Constrict window.
+        if this_list_box != source_list_box:
+            return False
+
+        this_list_box.move(source_row, self)
 
     def on_remove(self, sources_row, action_name, parameter):
         sources_row.remove_action(sources_row)

@@ -203,6 +203,7 @@
         <property name="actions">move</property>
         <property name="formats">SourcesRow</property>
         <property name="preload">True</property>
+        <signal name="motion" handler="on_motion" swapped="no"/>
         <signal name="drop" handler="on_drop" swapped="no"/>
       </object>
     </child>

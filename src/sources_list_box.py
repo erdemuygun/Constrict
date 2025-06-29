@@ -20,7 +20,6 @@
 from gi.repository import Adw, Gtk, GLib
 from constrict.shared import update_ui
 
-# FIXME: Prevent drag + drop across windows.
 # FIXME: Error state is removed when any video is staged.
 
 @Gtk.Template(resource_path='/com/github/wartybix/Constrict/sources_list_box.ui')
