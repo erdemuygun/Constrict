@@ -56,9 +56,6 @@ class SourcesRow(Adw.ActionRow):
     complete_popover = Gtk.Template.Child()
     drag_handle_revealer = Gtk.Template.Child()
 
-    # TODO: investigate window becoming blank?
-    # TODO: input validation against adding corrupt videos
-    # TODO: add banner for problematic videos
     # TODO: check for source video file being updated/removed post-queue?
     # TODO: make set_preview async on update, not just in constructor
 
