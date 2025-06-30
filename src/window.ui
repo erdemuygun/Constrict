@@ -62,7 +62,8 @@
                             <!-- <property name="selection-mode">None</property> -->
                             <child>
                               <object class="AdwSpinRow" id="target_size_row">
-                                <property name="title" translatable="yes">Target Size (MB)</property>
+                                <property name="title" translatable="yes">Target _Size (MB)</property>
+                                <property name="use-underline">True</property>
                                 <property name="numeric">True</property>
                                 <property name="adjustment">
                                   <object class="GtkAdjustment" id="target_size_input">
@@ -110,7 +111,8 @@
                             <child>
                               <object class="AdwActionRow" id="auto_row">
                                 <property name="activatable-widget">auto_check_button</property>
-                                <property name="title" translatable="yes">Automatic</property>
+                                <property name="title" translatable="yes">_Automatic</property>
+                                <property name="use-underline">True</property>
                                 <property name="subtitle" translatable="yes">Use the highest framerate without sacrificing resolution</property>
                                 <child type="prefix">
                                   <object class="GtkCheckButton" id="auto_check_button">
@@ -122,6 +124,7 @@
                             <child>
                               <object class="AdwActionRow" id="clear_row">
                                 <property name="activatable-widget">clear_check_button</property>
+                                <property name="use-underline">True</property>
                                 <property name="subtitle" translatable="yes">Ensure higher image clarity</property>
                                 <child type="prefix">
                                   <object class="GtkCheckButton" id="clear_check_button">
@@ -133,6 +136,7 @@
                             <child>
                               <object class="AdwActionRow" id="smooth_row">
                                 <property name="activatable-widget">smooth_check_button</property>
+                                <property name="use-underline">True</property>
                                 <property name="subtitle" translatable="yes">Ensure smoother motion</property>
                                 <child type="prefix">
                                   <object class="GtkCheckButton" id="smooth_check_button">
@@ -148,7 +152,8 @@
                             <property name="title" translatable="yes">Encoding Options</property>
                             <child>
                               <object class="AdwComboRow" id="codec_dropdown">
-                                <property name="title" translatable="yes">Video Codec</property>
+                                <property name="title" translatable="yes">_Video Codec</property>
+                                <property name="use-underline">True</property>
                                 <property name="model">
                                   <object class="GtkStringList">
                                     <items>
@@ -163,7 +168,8 @@
                             </child>
                             <child>
                               <object class="AdwSwitchRow" id="extra_quality_toggle">
-                                <property name="title" translatable="yes">Extra Quality</property>
+                                <property name="title" translatable="yes">Extra _Quality</property>
+                                <property name="use-underline">True</property>
                                 <property name="subtitle" translatable="yes">Increase image quality at the cost of compression time</property>
                               </object>
                             </child>
@@ -174,7 +180,8 @@
                             <property name="title" translatable="yes">Advanced Options</property>
                             <child>
                               <object class="AdwSpinRow" id="tolerance_row">
-                                <property name="title" translatable="yes">Tolerance (%)</property>
+                                <property name="title" translatable="yes">_Tolerance (%)</property>
+                                <property name="use-underline">True</property>
                                 <property name="subtitle" translatable="yes">How far end file sizes can be below target</property>
                                 <property name="numeric">True</property>
                                 <property name="adjustment">
@@ -233,7 +240,8 @@
                             <property name="child">
                               <object class="GtkButton">
                                 <!-- TRANSLATORS: please use U+2026 Horizontal ellipsis (…) instead of '...', if applicable to your language -->
-                                <property name="label" translatable="yes">Open…</property>
+                                <property name="label" translatable="yes">_Open…</property>
+                                <property name="use-underline">True</property>
                                 <property name="action-name">win.open</property>
                                 <property name="can-shrink">True</property>
                                 <property name="halign">GTK_ALIGN_CENTER</property>
@@ -278,7 +286,8 @@
                                                 <property name="title" translatable="yes">Video Sources</property>
                                                 <child type="header-suffix">
                                                   <object class="GtkButton" id="clear_all_button">
-                                                    <property name="label" translatable="yes">Clear All</property>
+                                                    <property name="label" translatable="yes">_Clear All</property>
+                                                    <property name="use-underline">True</property>
                                                     <property name="action-name">win.clear_all</property>
                                                     <property name="valign">center</property>
                                                     <style>
@@ -304,7 +313,8 @@
                                 <child type="center">
                                   <object class="GtkButton" id="export_button">
                                     <!-- TRANSLATORS: please use U+2026 Horizontal ellipsis (…) instead of '...', if applicable to your language -->
-                                    <property name="label" translatable="yes">Export To…</property>
+                                    <property name="label" translatable="yes">_Export To…</property>
+                                    <property name="use-underline">True</property>
                                     <property name="action-name">win.export</property>
                                     <property name="halign">GTK_ALIGN_CENTER</property>
                                     <property name="margin-top">6</property>
@@ -323,7 +333,8 @@
                                 <child type="center">
                                   <object class="GtkButton" id="cancel_button">
                                     <!-- TRANSLATORS: please use U+2026 Horizontal ellipsis (…) instead of '...', if applicable to your language -->
-                                    <property name="label" translatable="yes">Cancel…</property>
+                                    <property name="label" translatable="yes">_Cancel…</property>
+                                    <property name="use-underline">True</property>
                                     <property name="action-name">win.cancel</property>
                                     <property name="halign">GTK_ALIGN_CENTER</property>
                                     <property name="margin-top">6</property>

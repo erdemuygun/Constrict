@@ -56,9 +56,7 @@ class ConstrictWindow(Adw.ApplicationWindow):
     warning_banner = Gtk.Template.Child()
     window_title = Gtk.Template.Child()
 
-    # TODO: make mneumonics visible on <alt>
     # TODO: inhibit suspend on compress: https://docs.gtk.org/gtk4/method.Application.inhibit.html
-    # TODO: paste videos with <ctrl>v
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -160,8 +158,8 @@ class ConstrictWindow(Adw.ApplicationWindow):
         # Please use U+202F Narrow no-break space (' ') between value and unit.
         fps_label = _('{} FPS')
 
-        self.clear_row.set_title(fps_label.format('30'))
-        self.smooth_row.set_title(fps_label.format('60'))
+        self.clear_row.set_title(fps_label.format('_30'))
+        self.smooth_row.set_title(fps_label.format('_60'))
 
 
     def on_drop(self, drop_target, value: Gdk.FileList, x, y, user_data=None):
@@ -384,8 +382,8 @@ class ConstrictWindow(Adw.ApplicationWindow):
 
         dialog.quit_on_stop = quit_on_stop
 
-        dialog.add_response('cancel', _('Cancel'))
-        dialog.add_response('stop', _('Stop'))
+        dialog.add_response('cancel', _('_Cancel'))
+        dialog.add_response('stop', _('_Stop'))
 
         dialog.set_response_appearance(
             'stop',
@@ -538,7 +536,7 @@ class ConstrictWindow(Adw.ApplicationWindow):
                 toast = Adw.Toast.new(_(
                     'Error compressing “{}”'.format(video.display_name)
                 ))
-                toast.set_button_label(_('View Details'))
+                toast.set_button_label(_('View _Details'))
                 toast.video = video
 
                 toast.connect('button-clicked', self.show_error_from_toast)

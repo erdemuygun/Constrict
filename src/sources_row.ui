@@ -211,11 +211,11 @@
   <menu id="row_actions">
     <section>
       <item>
-        <attribute name="label" translatable="yes">Move Up</attribute>
+        <attribute name="label" translatable="yes">Move _Up</attribute>
         <attribute name="action">row.move-up</attribute>
       </item>
       <item>
-        <attribute name="label" translatable="yes">Move Down</attribute>
+        <attribute name="label" translatable="yes">Move _Down</attribute>
         <attribute name="action">row.move-down</attribute>
       </item>
     </section>
