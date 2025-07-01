@@ -610,8 +610,15 @@ def compress(
     print(f'rotated = {get_rotation(file_input) == -90}')
     print(f'portrait = {portrait}')
 
-    # TODO: add try catch here to test if file is writable.
-    Path(file_output).touch()
+    try:
+        Path(file_output).touch(exist_ok=False)
+    except FileExistsError:
+        # This should never reasonably happen if a unique file name has been
+        # passed to this function as file_output.
+        return (None, None, "Constrict: Could not create exported file. A file with the reserved name already exists.")
+    except PermissionError:
+        return (None, None, "Constrict: Could not create exported file. There are insufficient permissions to create a file at the requested export path.")
+
 
     factor = 0
     attempt = 0
