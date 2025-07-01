@@ -52,5 +52,8 @@
 		<key name="export-initial-folder" type="s">
 			<default>""</default>
 		</key>
+	  <key name="custom-export-suffix" type="s">
+	    <default>""</default>
+	  </key>
 	</schema>
 </schemalist>

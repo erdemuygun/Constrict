@@ -27,6 +27,7 @@ from constrict.error_dialog import ErrorDialog
 import threading
 import subprocess
 from pathlib import Path
+import os
 
 
 @Gtk.Template(resource_path='/com/github/wartybix/Constrict/window.ui')
@@ -102,7 +103,7 @@ class ConstrictWindow(Adw.ApplicationWindow):
         )
         self.tolerance_input.connect("value-changed", self.refresh_previews)
 
-        self.settings = Gio.Settings(schema_id='com.github.wartybix.Constrict')
+        self.settings = self.get_application().get_settings()
         self.settings.bind(
             'window-width',
             self,
@@ -451,7 +452,27 @@ class ConstrictWindow(Adw.ApplicationWindow):
             notification
         )
 
-    def bulk_compress(self, destination, daemon):
+    def get_unique_path(self, file_path):
+        """
+        Returns a unique file path for the file path given. Ensures that no file is
+        overwritten, as if the input file path already exists, the file path output
+        will be in the form of '{file_root}-{n}{file_ext}' where n incremented with
+        every existing file in the directory.
+
+        Do not use if you *want* to overwrite something.
+        """
+
+        final_path = file_path
+        root_ext = os.path.splitext(file_path)
+
+        counter = 0
+        while os.path.exists(final_path):
+            counter += 1
+            final_path = f'{root_ext[0]}-{counter}{root_ext[1]}'
+
+        return final_path
+
+    def bulk_compress(self, destination_dir, daemon):
         self.set_controls_lock(True, daemon)
         self.show_cancel_button(True, daemon)
         self.compressing = True
@@ -462,7 +483,7 @@ class ConstrictWindow(Adw.ApplicationWindow):
         extra_quality = self.get_extra_quality()
         tolerance = self.get_tolerance()
 
-        dest_file = Gio.File.new_for_path(destination)
+        dest_file = Gio.File.new_for_path(destination_dir)
         dest_info = dest_file.query_info(
             'standard::display-name',
             Gio.FileQueryInfoFlags.NONE,
@@ -510,18 +531,26 @@ class ConstrictWindow(Adw.ApplicationWindow):
 
             log_path = str(tmp_dir / log_filename) if (
                 tmp_dir
-            ) else str(Path(destination) / log_filename)
+            ) else str(Path(destination_dir) / log_filename)
 
-            # TODO: make 'compressed' suffix translatable/customisable
+            input_basename = os.path.basename(video.video_path)
+            merged = os.path.join(destination_dir, input_basename)
+            root_ext = os.path.splitext(merged)
+
+            custom_suffix = self.settings.get_string('custom-export-suffix')
+            suffix = custom_suffix or self.get_application().default_suffix
+
+            output_path = f'{root_ext[0]}{suffix}.mp4'
+            output_path_unique = self.get_unique_path(output_path)
 
             dest_video_path, end_size_bytes, compress_error = compress(
                 video.video_path,
+                output_path_unique,
                 target_size,
                 fps_mode,
                 extra_quality,
                 codec,
                 tolerance,
-                destination,
                 update_progress,
                 log_path,
                 lambda: not self.compressing
@@ -567,7 +596,7 @@ class ConstrictWindow(Adw.ApplicationWindow):
             toast = Adw.Toast.new(_('Compression Complete'))
             update_ui(self.toast_overlay.add_toast, toast, daemon)
 
-            self.send_complete_notification(source_list, destination)
+            self.send_complete_notification(source_list, destination_dir)
 
         self.compressing = False
 

@@ -25,6 +25,7 @@ import os
 import argparse
 import datetime
 import re
+from pathlib import Path
 from constrict.enums import FpsMode, VideoCodec
 
 # Module responsible for compression logic. This script can be packaged
@@ -42,27 +43,6 @@ def get_duration(file_input):
             file_input
         ])[:-1]
     )
-
-
-def new_file(file_path):
-    """
-    Returns a unique file path for the file path given. Ensures that no file is
-    overwritten, as if the input file path already exists, the file path output
-    will be in the form of '{file_root}-{n}{file_ext}' where n incremented with
-    every existing file in the directory.
-
-    Do not use if you *want* to overwrite something.
-    """
-
-    final_path = file_path
-    root_ext = os.path.splitext(file_path)
-
-    counter = 0
-    while os.path.exists(final_path):
-        counter += 1
-        final_path = f'{root_ext[0]}-{counter}{root_ext[1]}'
-
-    return final_path
 
 
 def get_res_preset(bitrate, source_width, source_height, framerate):
@@ -597,31 +577,17 @@ check for reading permissions of input, writing permissions of output
 # TODO: change return values to passed functions -- makes more sense
 def compress(
     file_input,
+    file_output,
     target_size_MiB,
     framerate_option='auto',
     extra_quality=False,
     codec=VideoCodec.H264,
     tolerance=10,
-    file_output=None,
     output_fn=lambda x: None,
     log_path=None,
     cancel_event=lambda x: None
 ):
     start_time = datetime.datetime.now().replace(microsecond=0)
-
-    def output_template(dest):
-        root_ext = os.path.splitext(dest)
-        return new_file(f'{root_ext[0]} (compressed).mp4')
-
-    if file_output is None:
-        file_output = output_template(file_input)
-    elif os.path.isdir(file_output):
-        basename = os.path.basename(file_input)
-        merged = os.path.join(file_output, basename)
-        file_output = output_template(merged)
-
-        print('yes, output is dir')
-        print(f'file_output: {file_output}')
 
     target_size_bytes = target_size_MiB * 1024 * 1024
     before_size_bytes = os.stat(file_input).st_size
@@ -643,6 +609,9 @@ def compress(
     print(f'rotation = {get_rotation(file_input)}')
     print(f'rotated = {get_rotation(file_input) == -90}')
     print(f'portrait = {portrait}')
+
+    # TODO: add try catch here to test if file is writable.
+    Path(file_output).touch()
 
     factor = 0
     attempt = 0

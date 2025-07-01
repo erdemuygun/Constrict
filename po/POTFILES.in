@@ -7,3 +7,11 @@ src/main.py
 src/window.py
 src/window.ui
 src/gtk/help-overlay.ui
+src/sources_row.py
+src/sources_row.ui
+src/sources_list_box.py
+src/sources_list_box.ui
+src/preferences_dialog.py
+src/preferences_dialog.ui
+src/error_dialog.py
+src/error_dialog.ui

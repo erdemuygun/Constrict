@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+  <requires lib="gtk" version="4.0"/>
+  <requires lib="Adw" version="1.0"/>
+  <template class="PreferencesDialog" parent="AdwPreferencesDialog">
+    <property name="title" translatable="true">Preferences</property>
+    <child>
+      <object class="AdwPreferencesPage">
+        <child>
+          <object class="AdwPreferencesGroup" id="suffix_preferences_group">
+            <property name="title" translatable="true">Exported Video Suffix</property>
+            <property name="description" translatable="true">Used in file names for exported videos, between the base name and extension. If the custom suffix is left empty, the default suffix of “ (compressed)” will be used.</property>
+            <child>
+              <object class="AdwEntryRow" id="suffix_entry_row">
+                <property name="title" translatable="yes">Custom Suffix</property>
+                <property name="show-apply-button">True</property>
+              </object>
+            </child>
+          </object>
+        </child>
+      </object>
+    </child>
+  </template>
+</interface>
