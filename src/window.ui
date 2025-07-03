@@ -360,6 +360,7 @@
     </property>
   </template>
   <menu id="primary_menu">
+    <!-- TODO: divider? -->
     <section>
       <item>
         <attribute name="label" translatable="yes">_New Window</attribute>

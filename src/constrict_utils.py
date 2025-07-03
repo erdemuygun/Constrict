@@ -585,7 +585,8 @@ def compress(
     tolerance=10,
     output_fn=lambda x: None,
     log_path=None,
-    cancel_event=lambda x: None
+    cancel_event=lambda x: None,
+    on_new_attempt=lambda x: None
 ):
     start_time = datetime.datetime.now().replace(microsecond=0)
 
@@ -638,6 +639,14 @@ def compress(
         print(encode_settings)
 
         target_video_bitrate, target_audio_bitrate, target_height, target_fps = encode_settings
+
+        on_new_attempt(
+            attempt,
+            target_video_bitrate,
+            target_height,
+            target_fps
+        )
+        output_fn(0)
 
         if target_video_bitrate < 1000:
             return (None, None, "Constrict: Video bitrate got too low (<1 Kbps). The target size may be too low for this file.")

@@ -25,6 +25,8 @@ from constrict.shared import update_ui
 class PreferencesDialog(Adw.PreferencesDialog):
     __gtype_name__ = "PreferencesDialog"
 
+    # TODO: adjust dialog size?
+
     suffix_preferences_group = Gtk.Template.Child()
     suffix_entry_row = Gtk.Template.Child()
 

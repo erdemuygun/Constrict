@@ -55,6 +55,9 @@ class SourcesRow(Adw.ActionRow):
     complete_label = Gtk.Template.Child()
     complete_popover = Gtk.Template.Child()
     drag_handle_revealer = Gtk.Template.Child()
+    attempt_label = Gtk.Template.Child()
+    target_details_label = Gtk.Template.Child()
+    progress_details_label = Gtk.Template.Child()
 
     # TODO: check for source video file being updated/removed post-queue?
     # TODO: make set_preview async on update, not just in constructor
@@ -393,7 +396,7 @@ class SourcesRow(Adw.ActionRow):
         self.state = state
 
     def set_progress_text(self, label, daemon):
-        update_ui(self.progress_bar.set_text, label, daemon)
+        update_ui(self.progress_details_label.set_text, label, daemon)
 
     def get_progress_text(self):
         return self.progress_bar.get_text()
@@ -408,9 +411,39 @@ class SourcesRow(Adw.ActionRow):
     def show_drag_handle(self, shown):
         self.drag_handle_revealer.set_reveal_child(shown)
 
+    def set_attempt_details(
+        self,
+        attempt_no,
+        vid_bitrate,
+        vid_height,
+        vid_fps,
+        daemon
+    ):
+        # TRANSLATORS: {} represents the attempt number.
+        attempt_no_label = _('Attempt {}').format(str(attempt_no))
+        update_ui(self.attempt_label.set_label, attempt_no_label, daemon)
+
+        # TRANSLATORS: the first {} represents a bitrate value (e.g. '50 Kbps')
+        # The second {} represents details about the frame height and FPS
+        # (e.g. '1080p@60')
+        target_details_label = _('Compressing to {} ({})').format(
+            f'{vid_bitrate // 1000} Kbps',
+            f'{vid_height}p@{vid_fps}'
+        )
+        update_ui(
+            self.target_details_label.set_label,
+            target_details_label,
+            daemon
+        )
+
     def set_progress_fraction(self, fraction, daemon):
         update_ui(self.progress_bar.set_fraction, fraction, daemon)
         update_ui(self.progress_pie.set_fraction, fraction, daemon)
+
+        # TODO: add estimated time
+
+        progress_text = f'{int(round(fraction * 100, 0))} %'
+        update_ui(self.progress_details_label.set_label, progress_text, daemon)
 
     def find_compressed_file(self, row, action_name, parameter):
         row.complete_popover.popdown()

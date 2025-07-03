@@ -347,11 +347,6 @@ class ConstrictWindow(Adw.ApplicationWindow):
         native.select_folder(self, None, self.on_export_response)
 
     def on_export_response(self, dialog, result):
-        # TODO: process video locally before moving to real directory?
-        # TODO: remove multi-window file conflicts by checking if file exists
-        # on pass 2 (rather than at the start)
-        # TODO: cancel compression on window close (w/ dialog)
-
         folder = dialog.select_folder_finish(result)
 
         if not folder:
@@ -503,26 +498,34 @@ class ConstrictWindow(Adw.ApplicationWindow):
 
             self.currently_processed = video.display_name
 
-            # TODO: check multiple attempts on VP9... will it still display
-            # 'analyzing' prompts on attempt 2+?
             # TODO: have VP9 reset to 0% on pass 2, not 50%.
-
-            if codec == VideoCodec.VP9:
-                # TRANSLATORS: please use U+2026 Horizontal ellipsis (…)
-                # instead of '...', if applicable to your language
-                video.set_progress_text(_('Analyzing…'), daemon)
-                video.enable_spinner(True, daemon)
 
             def update_progress(fraction):
                 print(f'progress updated - {round(fraction * 100)}%')
                 if fraction == 0.0 and codec == VideoCodec.VP9:
+                    # TRANSLATORS: please use U+2026 Horizontal ellipsis (…)
+                    # instead of '...', if applicable to your language
+                    video.set_progress_text(_('Analyzing…'), daemon)
+                    video.enable_spinner(True, daemon)
                     video.pulse_progress(daemon)
                     print('pulsed')
                 else:
-                    if video.get_progress_text():
-                        video.set_progress_text(None, daemon)
-                        video.enable_spinner(False, daemon)
+                    video.enable_spinner(False, daemon)
                     video.set_progress_fraction(fraction, daemon)
+
+            def set_attempt_details(
+                attempt,
+                target_vid_bitrate,
+                target_height,
+                target_fps
+            ):
+                video.set_attempt_details(
+                    attempt,
+                    target_vid_bitrate,
+                    target_height,
+                    target_fps,
+                    daemon
+                )
 
             video.set_state(SourceState.COMPRESSING, daemon)
 
@@ -553,7 +556,8 @@ class ConstrictWindow(Adw.ApplicationWindow):
                 tolerance,
                 update_progress,
                 log_path,
-                lambda: not self.compressing
+                lambda: not self.compressing,
+                set_attempt_details
             )
 
             if compress_error:
