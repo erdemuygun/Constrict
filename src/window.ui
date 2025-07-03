@@ -360,12 +360,13 @@
     </property>
   </template>
   <menu id="primary_menu">
-    <!-- TODO: divider? -->
     <section>
       <item>
         <attribute name="label" translatable="yes">_New Window</attribute>
         <attribute name="action">app.new-window</attribute>
       </item>
+    </section>
+    <section>
       <item>
         <attribute name="label" translatable="yes">_Preferences</attribute>
         <attribute name="action">app.preferences</attribute>
