@@ -1,0 +1,70 @@
+# attempt_fail_box.py
+#
+# Copyright 2025 Wartybix
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+#
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+from gi.repository import Adw, Gtk, GLib
+from constrict.shared import update_ui
+
+
+@Gtk.Template(resource_path='/com/github/wartybix/Constrict/attempt_fail_box.ui')
+class AttemptFailBox(Gtk.Box):
+    __gtype_name__ = "AttemptFailBox"
+
+    attempt_label = Gtk.Template.Child()
+    target_label = Gtk.Template.Child()
+    failure_icon = Gtk.Template.Child()
+    failure_details_label = Gtk.Template.Child()
+
+    # TODO: add audio details? to current attempt details too
+    # TODO: make popover scrollable?
+
+    def __init__(
+        self,
+        attempt_no,
+        vid_bitrate,
+        vid_height,
+        vid_fps,
+        compressed_size_bytes,
+        target_size_bytes,
+        **kwargs
+    ):
+        super().__init__(**kwargs)
+
+        # TRANSLATORS: {} represents the attempt number.
+        self.attempt_label.set_label(_("Attempt {}").format(str(attempt_no)))
+
+        target_str = f"{str(vid_bitrate // 1000)} Kbps ({vid_height}p@{vid_fps})"
+        self.target_label.set_label(target_str)
+
+        compressed_size_mb = round(compressed_size_bytes / 1024 / 1024, 1)
+        compressed_size_str = f"{str(compressed_size_mb)} MB"
+
+        if compressed_size_bytes >= target_size_bytes:
+            self.failure_icon.set_from_icon_name('arrow2-up-symbolic')
+            # TRANSLATORS: the {} represents the file size.
+            fail_msg = _('Compressed file size was too large ({})').format(
+                compressed_size_str
+            )
+            self.failure_details_label.set_label(fail_msg)
+        else:
+            self.failure_icon.set_from_icon_name('arrow2-down-symbolic')
+            # TRANSLATORS: the {} represents the file size.
+            fail_msg = _('Compressed file size was too small ({})').format(
+                compressed_size_str
+            )
+            self.failure_details_label.set_label(fail_msg)

@@ -160,7 +160,7 @@ def get_progress(
             frame = re.search('[0-9]+', line_string)
             frame_int = int(frame.group())
             output_fn((frame_count * pass_num + frame_int) / (frame_count * 2))
-        print(line_string)
+        # print(line_string)
 
         if cancel_event() == True:
             proc.kill()
@@ -571,6 +571,7 @@ check for reading permissions of input, writing permissions of output
 """
 
 # TODO: investigate input bit depth of 10 not compressing to x264.
+# TODO: fix default lambda functions
 
 # Returns None if compression went smoothly.
 # If there's an error while compressing, it'll return compression details.
@@ -586,9 +587,11 @@ def compress(
     output_fn=lambda x: None,
     log_path=None,
     cancel_event=lambda x: None,
-    on_new_attempt=lambda x: None
+    on_new_attempt=lambda x: None,
+    on_attempt_fail=lambda x: None
 ):
     start_time = datetime.datetime.now().replace(microsecond=0)
+    output_fn(0)
 
     target_size_bytes = target_size_MiB * 1024 * 1024
     before_size_bytes = os.stat(file_input).st_size
@@ -624,6 +627,16 @@ def compress(
     factor = 0
     attempt = 0
     while (factor > 1.0 + (tolerance / 100)) or (factor < 1):
+        if attempt > 0:
+            on_attempt_fail(
+                attempt,
+                target_video_bitrate,
+                target_height,
+                target_fps,
+                after_size_bytes,
+                target_size_bytes
+            )
+
         attempt = attempt + 1
 
         encode_settings = get_encode_settings(

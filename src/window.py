@@ -24,6 +24,7 @@ from constrict.enums import FpsMode, VideoCodec, SourceState
 from constrict.sources_row import SourcesRow
 from constrict.sources_list_box import SourcesListBox
 from constrict.error_dialog import ErrorDialog
+from constrict.current_attempt_box import CurrentAttemptBox
 import threading
 import subprocess
 from pathlib import Path
@@ -500,18 +501,22 @@ class ConstrictWindow(Adw.ApplicationWindow):
 
             # TODO: have VP9 reset to 0% on pass 2, not 50%.
 
+            progress_box = CurrentAttemptBox()
+            video.initiate_popover_box(progress_box, daemon)
+
             def update_progress(fraction):
                 print(f'progress updated - {round(fraction * 100)}%')
                 if fraction == 0.0 and codec == VideoCodec.VP9:
                     # TRANSLATORS: please use U+2026 Horizontal ellipsis (…)
                     # instead of '...', if applicable to your language
-                    video.set_progress_text(_('Analyzing…'), daemon)
+                    progress_box.set_progress_text(_('Analyzing…'), daemon)
                     video.enable_spinner(True, daemon)
-                    video.pulse_progress(daemon)
+                    progress_box.pulse_progress(daemon)
                     print('pulsed')
                 else:
                     video.enable_spinner(False, daemon)
-                    video.set_progress_fraction(fraction, daemon)
+                    progress_box.set_progress_fraction(fraction, daemon)
+                    update_ui(video.progress_pie.set_fraction, fraction, daemon)
 
             def set_attempt_details(
                 attempt,
@@ -519,11 +524,29 @@ class ConstrictWindow(Adw.ApplicationWindow):
                 target_height,
                 target_fps
             ):
-                video.set_attempt_details(
+                progress_box.set_attempt_details(
                     attempt,
                     target_vid_bitrate,
                     target_height,
                     target_fps,
+                    daemon
+                )
+
+            def add_attempt_fail(
+                attempt,
+                target_vid_bitrate,
+                target_height,
+                target_fps,
+                after_size_bytes,
+                target_size_bytes
+            ):
+                video.add_attempt_fail(
+                    attempt,
+                    target_vid_bitrate,
+                    target_height,
+                    target_fps,
+                    after_size_bytes,
+                    target_size_bytes,
                     daemon
                 )
 
@@ -557,7 +580,8 @@ class ConstrictWindow(Adw.ApplicationWindow):
                 update_progress,
                 log_path,
                 lambda: not self.compressing,
-                set_attempt_details
+                set_attempt_details,
+                add_attempt_fail
             )
 
             if compress_error:

@@ -31,6 +31,8 @@ from constrict.shared import get_tmp_dir, update_ui
 from constrict.constrict_utils import get_encode_settings, get_resolution, get_framerate, get_duration
 from constrict.enums import SourceState, Thumbnailer
 from constrict.progress_pie import ProgressPie
+from constrict.attempt_fail_box import AttemptFailBox
+from constrict.source_popover_box import SourcePopoverBox
 import threading
 import subprocess
 import os
@@ -41,7 +43,6 @@ class SourcesRow(Adw.ActionRow):
     __gtype_name__ = 'SourcesRow'
 
     thumbnail = Gtk.Template.Child()
-    progress_bar = Gtk.Template.Child()
     menu_button = Gtk.Template.Child()
     drag_source = Gtk.Template.Child()
     error_icon = Gtk.Template.Child()
@@ -55,9 +56,7 @@ class SourcesRow(Adw.ActionRow):
     complete_label = Gtk.Template.Child()
     complete_popover = Gtk.Template.Child()
     drag_handle_revealer = Gtk.Template.Child()
-    attempt_label = Gtk.Template.Child()
-    target_details_label = Gtk.Template.Child()
-    progress_details_label = Gtk.Template.Child()
+    popover = Gtk.Template.Child()
 
     # TODO: check for source video file being updated/removed post-queue?
     # TODO: make set_preview async on update, not just in constructor
@@ -120,6 +119,43 @@ class SourcesRow(Adw.ActionRow):
             preview_thread.start()
 
         self.drag_widget = None
+
+        self.popover_box = None
+
+        self.add_attempt_fail(0, 512000, 1440, 30, 50000000, 10000000, False)
+
+    def initiate_popover_box(self, top_widget, daemon):
+        self.popover_box = SourcePopoverBox(top_widget)
+        update_ui(self.popover.set_child, self.popover_box, daemon)
+
+    def set_popover_top_widget(self, top_widget, daemon):
+        if not self.popover_box:
+            return
+
+        self.popover_box.set_top_widget(top_widget, daemon)
+
+    def add_attempt_fail(
+        self,
+        attempt_no,
+        vid_bitrate,
+        vid_height,
+        vid_fps,
+        compressed_size_bytes,
+        target_size_bytes,
+        daemon
+    ):
+        if not self.popover_box:
+            return
+
+        fail_box = AttemptFailBox(
+            attempt_no,
+            vid_bitrate,
+            vid_height,
+            vid_fps,
+            compressed_size_bytes,
+            target_size_bytes
+        )
+        self.popover_box.add_fail_widget(fail_box, daemon)
 
     def set_draggable(self, can_drag):
         propagation_phase = Gtk.PropagationPhase.CAPTURE if (
@@ -377,9 +413,6 @@ class SourcesRow(Adw.ActionRow):
         is_broken = state == SourceState.BROKEN
         is_incompatible = state == SourceState.INCOMPATIBLE
 
-        if is_compressing:
-            self.set_progress_fraction(0.0, daemon)
-
         if (is_broken or is_incompatible) and self.warning_action:
             self.warning_action(True, daemon)
 
@@ -395,55 +428,12 @@ class SourcesRow(Adw.ActionRow):
 
         self.state = state
 
-    def set_progress_text(self, label, daemon):
-        update_ui(self.progress_details_label.set_text, label, daemon)
-
-    def get_progress_text(self):
-        return self.progress_bar.get_text()
-
-    def pulse_progress(self, daemon):
-        update_ui(self.progress_bar.pulse, None, False)
-
     def enable_spinner(self, enable_spinner, daemon):
         update_ui(self.progress_pie.set_visible, not enable_spinner, daemon)
         update_ui(self.progress_spinner.set_visible, enable_spinner, daemon)
 
     def show_drag_handle(self, shown):
         self.drag_handle_revealer.set_reveal_child(shown)
-
-    def set_attempt_details(
-        self,
-        attempt_no,
-        vid_bitrate,
-        vid_height,
-        vid_fps,
-        daemon
-    ):
-        # TRANSLATORS: {} represents the attempt number.
-        attempt_no_label = _('Attempt {}').format(str(attempt_no))
-        update_ui(self.attempt_label.set_label, attempt_no_label, daemon)
-
-        # TRANSLATORS: the first {} represents a bitrate value (e.g. '50 Kbps')
-        # The second {} represents details about the frame height and FPS
-        # (e.g. '1080p@60')
-        target_details_label = _('Compressing to {} ({})').format(
-            f'{vid_bitrate // 1000} Kbps',
-            f'{vid_height}p@{vid_fps}'
-        )
-        update_ui(
-            self.target_details_label.set_label,
-            target_details_label,
-            daemon
-        )
-
-    def set_progress_fraction(self, fraction, daemon):
-        update_ui(self.progress_bar.set_fraction, fraction, daemon)
-        update_ui(self.progress_pie.set_fraction, fraction, daemon)
-
-        # TODO: add estimated time
-
-        progress_text = f'{int(round(fraction * 100, 0))} %'
-        update_ui(self.progress_details_label.set_label, progress_text, daemon)
 
     def find_compressed_file(self, row, action_name, parameter):
         row.complete_popover.popdown()
