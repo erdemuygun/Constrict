@@ -631,6 +631,7 @@ def compress(
             on_attempt_fail(
                 attempt,
                 target_video_bitrate,
+                is_hq_audio,
                 target_height,
                 target_fps,
                 after_size_bytes,
@@ -653,9 +654,12 @@ def compress(
 
         target_video_bitrate, target_audio_bitrate, target_height, target_fps = encode_settings
 
+        is_hq_audio = target_audio_bitrate > 48000
+
         on_new_attempt(
             attempt,
             target_video_bitrate,
+            is_hq_audio,
             target_height,
             target_fps
         )

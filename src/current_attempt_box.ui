@@ -24,11 +24,11 @@
     </child>
     <child>
         <object class="GtkLabel" id="target_details_label">
-        <property name="label">Compressing to 512 Kbps (1440p@30)</property>
+        <property name="label">Compressing to 512 Kbps (1440p@30)</property> <!-- TODO: Remove -->
         <property name="width_request">300</property>
         <property name="margin_bottom">6</property>
         <property name="hexpand">True</property>
-        <property name="ellipsize">middle</property>
+        <property name="ellipsize">start</property>
         <property name="max_width_chars">40</property>
         <property name="xalign">0</property>
         </object>

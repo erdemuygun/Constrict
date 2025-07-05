@@ -45,6 +45,7 @@ class CurrentAttemptBox(Gtk.Box):
         self,
         attempt_no,
         vid_bitrate,
+        is_hq_audio,
         vid_height,
         vid_fps,
         daemon
@@ -53,12 +54,21 @@ class CurrentAttemptBox(Gtk.Box):
         attempt_no_label = _('Attempt {}').format(str(attempt_no))
         update_ui(self.attempt_label.set_label, attempt_no_label, daemon)
 
-        # TRANSLATORS: the first {} represents a bitrate value (e.g. '50 Kbps')
+        # TRANSLATORS: this is an abbreviation of 'High Quality'
+        hq_label = _('HQ')
+
+        # TRANSLATORS: this is an abbreviation of 'Low Quality'
+        lq_label = _('LQ')
+
+        # TRANSLATORS: the first {} represents a bitrate value (e.g. '50')
         # The second {} represents details about the frame height and FPS
         # (e.g. '1080p@60')
-        target_details_label = _('Compressing to {} ({})').format(
+        # The third {} represents an indication of the audio quality (i.e.,
+        # 'HQ' or 'LQ').
+        target_details_label = _('Compressing to {} ({}, {} audio)').format(
             f'{vid_bitrate // 1000} Kbps',
-            f'{vid_height}p@{vid_fps}'
+            f'{vid_height}p@{vid_fps}',
+            hq_label if is_hq_audio else lq_label
         )
         update_ui(
             self.target_details_label.set_label,

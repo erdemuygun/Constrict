@@ -37,6 +37,7 @@ class AttemptFailBox(Gtk.Box):
         self,
         attempt_no,
         vid_bitrate,
+        is_hq_audio,
         vid_height,
         vid_fps,
         compressed_size_bytes,
@@ -48,7 +49,20 @@ class AttemptFailBox(Gtk.Box):
         # TRANSLATORS: {} represents the attempt number.
         self.attempt_label.set_label(_("Attempt {}").format(str(attempt_no)))
 
-        target_str = f"{str(vid_bitrate // 1000)} Kbps ({vid_height}p@{vid_fps})"
+        # TRANSLATORS: this is an abbreviation of 'High Quality'
+        hq_label = _('HQ')
+
+        # TRANSLATORS: this is an abbreviation of 'Low Quality'
+        lq_label = _('LQ')
+
+        # TRANSLATORS: the first {} represents a bitrate value.
+        # The second {} represents a resolution + framerate (e.g. '1080p@30').
+        # The third {} represents audio quality (i.e. 'HQ' or 'LQ')
+        target_str = _("{} ({}, {} audio)").format(
+            f'{str(vid_bitrate // 1000)} Kbps',
+            f'{vid_height}p@{vid_fps}',
+            hq_label if is_hq_audio else lq_label
+        )
         self.target_label.set_label(target_str)
 
         compressed_size_mb = round(compressed_size_bytes / 1024 / 1024, 1)

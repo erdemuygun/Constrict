@@ -122,8 +122,6 @@ class SourcesRow(Adw.ActionRow):
 
         self.popover_box = None
 
-        self.add_attempt_fail(0, 512000, 1440, 30, 50000000, 10000000, False)
-
     def initiate_popover_box(self, top_widget, daemon):
         self.popover_box = SourcePopoverBox(top_widget)
         update_ui(self.popover.set_child, self.popover_box, daemon)
@@ -138,6 +136,7 @@ class SourcesRow(Adw.ActionRow):
         self,
         attempt_no,
         vid_bitrate,
+        is_hq_audio,
         vid_height,
         vid_fps,
         compressed_size_bytes,
@@ -150,6 +149,7 @@ class SourcesRow(Adw.ActionRow):
         fail_box = AttemptFailBox(
             attempt_no,
             vid_bitrate,
+            is_hq_audio,
             vid_height,
             vid_fps,
             compressed_size_bytes,
