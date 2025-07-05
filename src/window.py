@@ -30,6 +30,9 @@ import subprocess
 from pathlib import Path
 import os
 
+# FIXME: desktop file doesn't always work instantly
+# TODO: future feature -- add pause button?
+
 
 @Gtk.Template(resource_path='/com/github/wartybix/Constrict/window.ui')
 class ConstrictWindow(Adw.ApplicationWindow):
@@ -58,7 +61,7 @@ class ConstrictWindow(Adw.ApplicationWindow):
     warning_banner = Gtk.Template.Child()
     window_title = Gtk.Template.Child()
 
-    # TODO: inhibit suspend on compress: https://docs.gtk.org/gtk4/method.Application.inhibit.html
+    # FIXME: flatpak libx264 stopped working.
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -489,6 +492,12 @@ class ConstrictWindow(Adw.ApplicationWindow):
 
         source_list = self.sources_list_box.get_all()
 
+        inhibit_cookie = self.get_application().inhibit(
+            self,
+            Gtk.ApplicationInhibitFlags.SUSPEND | Gtk.ApplicationInhibitFlags.LOGOUT,
+            _('Videos are being compressed')
+        )
+
         for i in range(len(source_list)):
             self.set_compressing_title(i, dest_display_name)
 
@@ -617,6 +626,9 @@ class ConstrictWindow(Adw.ApplicationWindow):
         self.set_controls_lock(False, daemon)
         self.show_cancel_button(False, daemon)
         self.refresh_can_export(daemon)
+
+        if inhibit_cookie != 0:
+            self.get_application().uninhibit(inhibit_cookie)
 
         self.set_queued_title(daemon)
 
