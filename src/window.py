@@ -514,7 +514,6 @@ class ConstrictWindow(Adw.ApplicationWindow):
             video.initiate_popover_box(progress_box, daemon)
 
             def update_progress(fraction):
-                print(f'progress updated - {round(fraction * 100)}%')
                 if fraction == 0.0 and codec == VideoCodec.VP9:
                     # TRANSLATORS: please use U+2026 Horizontal ellipsis (…)
                     # instead of '...', if applicable to your language

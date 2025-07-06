@@ -347,7 +347,12 @@ class SourcesRow(Adw.ActionRow):
                     .format(size_mb, target_size),
                 daemon
             )
-        elif video_bitrate < 1000: # TODO: increase this threshold?
+        # Why is this threshold much higher than the one in constrict_utils.py?
+        # It's because compressing to such low bitrates will often require
+        # multiple attempts that'll eventually bring the bitrate to below
+        # 5 Kbps anyway. So, since it'll most likely fail anyway, this
+        # increased threshold is a courtesy to prevent wasting the user's time.
+        elif video_bitrate < 11000:
             # TRANSLATORS: {} is a file size value in MB.
             # Please use U+202F Narrow no-break space (' ') between value and
             # unit.

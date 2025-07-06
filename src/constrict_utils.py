@@ -160,11 +160,14 @@ def get_progress(
             frame = re.search('[0-9]+', line_string)
             frame_int = int(frame.group())
             output_fn((frame_count * pass_num + frame_int) / (frame_count * 2))
-        # print(line_string)
+        print(line_string)
 
         if cancel_event() == True:
             proc.kill()
             return
+
+    print('get_progress: loop_exited')
+    # FIXME: random progression stops. multithreading issue?
 
     proc.wait()
     returncode = proc.poll()
@@ -470,7 +473,10 @@ def get_encode_settings(
     target_size_bytes = target_size_KiB * 1024
     target_size_bits = target_size_bytes * 8
 
-    target_bitrate = round(target_size_bits / duration)
+    target_bitrate = round(target_size_bits / duration) * factor
+
+    # To account for metadata and such to prevent overshooting
+    target_bitrate = round(target_bitrate * 0.99)
 
     '''
     crush mode tries to save some image clarity by significantly reducing audio
@@ -500,11 +506,6 @@ def get_encode_settings(
     crush_mode = (target_bitrate / 1000) < 150 + 96
     target_audio_bitrate = 6000 if crush_mode else 96000
     target_video_bitrate = target_bitrate - target_audio_bitrate
-
-    target_video_bitrate *= factor
-
-    # To account for metadata and such to prevent overshooting
-    target_video_bitrate = round(target_video_bitrate * 0.99)
 
     preset_height = None
     max_fps = None
@@ -624,9 +625,10 @@ def compress(
         return (None, None, "Constrict: Could not create exported file. There are insufficient permissions to create a file at the requested export path.")
 
 
-    factor = 0
+    factor = 1
     attempt = 0
-    while (factor > 1.0 + (tolerance / 100)) or (factor < 1):
+    percent_of_target = 200
+    while (percent_of_target < 100 - tolerance) or (percent_of_target > 100):
         if attempt > 0:
             on_attempt_fail(
                 attempt,
@@ -647,7 +649,7 @@ def compress(
             height,
             source_fps,
             duration_seconds,
-            factor or 1
+            factor
         )
 
         print(encode_settings)
@@ -665,8 +667,9 @@ def compress(
         )
         output_fn(0)
 
-        if target_video_bitrate < 1000:
-            return (None, None, "Constrict: Video bitrate got too low (<1 Kbps). The target size may be too low for this file.")
+        # Below 5 Kbps, barely anything is perceptible in the video anymore.
+        if target_video_bitrate < 5000:
+            return (None, None, "Constrict: Video bitrate got too low (<5 Kbps). The target size may be too low for this file.")
 
         print(f'Target height {target_height}')
 
@@ -715,12 +718,17 @@ def compress(
         after_size_bytes = os.stat(file_output).st_size
         percent_of_target = (100 / target_size_bytes) * after_size_bytes
 
-        factor = 100 / percent_of_target
+        factor *= 100 / percent_of_target
+
+        print(f'after_size_bytes: {after_size_bytes}')
+        print(f'percent_of_target: {percent_of_target}')
+        print(f'factor: {factor}')
 
         if (percent_of_target > 100):
             # Prevent a lot of attempts resulting in above-target sizes
-            factor -= 0.05
-            #  print(f'Reducing factor by 5%')
+            factor *= 0.95
+
+        print(f'factor (reduced): {factor}')
 
         # output_fn('')
         # output_fn(table([
