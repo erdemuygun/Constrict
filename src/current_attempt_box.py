@@ -32,6 +32,9 @@ class CurrentAttemptBox(Gtk.Box):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
+        # TRANSLATORS: {} represents the attempt number.
+        self.attempt_label.set_label(_('Attempt {}').format('1'))
+
     def set_progress_text(self, label, daemon):
         update_ui(self.progress_details_label.set_text, label, daemon)
 

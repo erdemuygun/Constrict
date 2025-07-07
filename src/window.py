@@ -648,6 +648,8 @@ class ConstrictWindow(Adw.ApplicationWindow):
         self.refresh_can_export(False)
         self.set_queued_title(False)
 
+    # FIXME: video title is weird sometimes
+
     def stage_videos(self, video_list):
         existing_paths = list(map(
             lambda x: x.video_path,
