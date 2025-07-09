@@ -163,7 +163,7 @@ class ConstrictWindow(Adw.ApplicationWindow):
         # TRANSLATORS: 'FPS' meaning 'frames per second'.
         # {} represents the FPS value, for example 30 or 60.
         # Please use U+202F Narrow no-break space (' ') between value and unit.
-        fps_label = _('{} FPS')
+        fps_label = _('{} FPS')
 
         self.clear_row.set_title(fps_label.format('_30'))
         self.smooth_row.set_title(fps_label.format('_60'))

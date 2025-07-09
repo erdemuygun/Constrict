@@ -95,8 +95,6 @@
                                         <property name="margin-end">6</property>
                                         <property name="margin-top">6</property>
                                         <property name="margin-bottom">6</property>
-                                        <!-- TRANSLATORS: FPS meaning 'frames per second' -->
-                                        <property name="label" translatable="yes">Videos compressed to low bitrates may be capped to 24 FPS, regardless of the option set.</property>
                                         <property name="wrap">True</property>
                                         <property name="max-width-chars">50</property>
                                         <property name="valign">center</property>
