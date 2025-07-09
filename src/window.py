@@ -509,8 +509,6 @@ class ConstrictWindow(Adw.ApplicationWindow):
 
             self.currently_processed = video.display_name
 
-            # TODO: have VP9 reset to 0% on pass 2, not 50%.
-
             progress_box = CurrentAttemptBox()
             video.initiate_popover_box(progress_box, daemon)
 

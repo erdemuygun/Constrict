@@ -167,14 +167,12 @@ def get_progress(
             frame_match = re.search('[0-9]+', line_string)
             frame = int(frame_match.group())
         elif re.search('^fps=.*$', line_string):
-            current_frame = (frame_count * pass_num + frame)
-            progress_fraction = current_frame / (frame_count * 2)
+            total_frames = frame_count * (1 if pass_num is None else 2)
+            current_frame = frame_count * (pass_num or 0) + frame
+            progress_fraction = current_frame / total_frames
             pulse_counter += 1
 
-            pass1_condition = pass_num == 0 and pulse_counter < 10
-            pass2_condition = pass_num == 1 and pulse_counter < 20
-
-            if pass1_condition or pass2_condition:
+            if pulse_counter < 10 or (pass_num == 1 and pulse_counter < 20):
                 # The first few frames of a pass are kind of unpredictable.
                 # The average FPS is anomalously low compared before it starts
                 # to 'warm up' to a relatively consistent value. Therefore,
@@ -197,7 +195,6 @@ def get_progress(
                 avg_counter += 1
                 fps_sum += fps
 
-            total_frames = frame_count * 2
             frames_left = total_frames - current_frame
 
             seconds_left = int(frames_left // fps) if fps else None
@@ -316,7 +313,7 @@ def transcode(
         pass1_cmd,
         output_fn,
         frame_count,
-        0,
+        None if codec == VideoCodec.VP9 else 0,
         None,
         cancel_event
     )
@@ -377,7 +374,7 @@ def transcode(
         pass2_cmd,
         output_fn,
         frame_count,
-        1,
+        None if codec == VideoCodec.VP9 else 1,
         avg_fps,
         cancel_event
     )
