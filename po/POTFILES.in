@@ -15,3 +15,7 @@ src/preferences_dialog.py
 src/preferences_dialog.ui
 src/error_dialog.py
 src/error_dialog.ui
+src/attempt_fail_box.py
+src/attempt_fail_box.ui
+src/current_attempt_box.py
+src/current_attempt_box.ui

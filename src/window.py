@@ -32,6 +32,7 @@ import os
 
 # FIXME: desktop file doesn't always work instantly
 # TODO: future feature -- add pause button?
+# TODO: add more comments for translators.
 
 
 @Gtk.Template(resource_path='/com/github/wartybix/Constrict/window.ui')
