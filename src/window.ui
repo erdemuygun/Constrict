@@ -86,7 +86,6 @@
                                 <property name="icon-name">help-about-symbolic</property>
                                 <property name="tooltip-text" translatable="yes">More Information</property>
                                 <property name="popover">
-                                  <!-- TODO: investigate this and screenreaders -->
                                   <object class="GtkPopover">
                                     <child>
                                       <object class="GtkLabel">

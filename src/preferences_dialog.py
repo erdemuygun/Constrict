@@ -50,7 +50,5 @@ class PreferencesDialog(Adw.PreferencesDialog):
     def update_custom_suffix(self, widget):
         self.settings.set_string('custom-export-suffix', widget.get_text())
 
-        # TODO: instant toast
-
         toast = Adw.Toast.new(_('Changes applied'))
         self.add_toast(toast)

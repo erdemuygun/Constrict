@@ -255,7 +255,6 @@ def transcode(
     preset = get_encoding_speed(frame_height, codec, extra_quality)
 
     # TODO: dynamically look for installed encoders?
-    # TODO: see if VP9 works in flatpak?
 
     cv_params = {
         VideoCodec.H264: 'libx264',

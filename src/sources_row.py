@@ -58,7 +58,6 @@ class SourcesRow(Adw.ActionRow):
     drag_handle_revealer = Gtk.Template.Child()
     popover = Gtk.Template.Child()
 
-    # TODO: check for source video file being updated/removed post-queue?
     # TODO: make set_preview async on update, not just in constructor
 
     def __init__(

@@ -30,7 +30,6 @@ class AttemptFailBox(Gtk.Box):
     failure_icon = Gtk.Template.Child()
     failure_details_label = Gtk.Template.Child()
 
-    # TODO: add audio details? to current attempt details too
     # TODO: make popover scrollable?
 
     def __init__(
