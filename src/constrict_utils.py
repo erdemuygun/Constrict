@@ -296,6 +296,7 @@ def transcode(
     pass1_cmd.extend([
         '-c:v', f'{cv_params[codec]}',
         '-b:v', str(video_bitrate) + '',
+        '-pix_fmt', 'yuv420p',
         '-pass', '1',
         '-an',
         '-f', 'null',
@@ -355,6 +356,7 @@ def transcode(
     pass2_cmd.extend([
         '-c:v', f'{cv_params[codec]}',
         '-b:v', str(video_bitrate) + '',
+        '-pix_fmt', 'yuv420p',
         '-pass', '2',
         # '-x265-params', 'pass=1',
         '-c:a', 'libopus',
@@ -617,7 +619,6 @@ check for reading permissions of input, writing permissions of output
 - (do this preemptively on the interface end)
 """
 
-# TODO: investigate input bit depth of 10 not compressing to x264.
 # TODO: fix default lambda functions
 
 # Returns None if compression went smoothly.
