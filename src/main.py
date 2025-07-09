@@ -30,7 +30,7 @@ from constrict.preferences_dialog import PreferencesDialog
 
 # FIXME: icon doesn't show in all contexts on the flatpak version.
 # TODO: improve code documentation.
-# TODO: add more TRANSLATORS messages to strings with {}
+# FIXME: segmentation faults
 
 class ConstrictApplication(Adw.Application):
     """The main application singleton class."""

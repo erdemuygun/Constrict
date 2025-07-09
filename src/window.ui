@@ -62,6 +62,7 @@
                             <!-- <property name="selection-mode">None</property> -->
                             <child>
                               <object class="AdwSpinRow" id="target_size_row">
+                                <!-- TRANSLATORS: MB meaning 'megabytes' -->
                                 <property name="title" translatable="yes">Target _Size (MB)</property>
                                 <property name="use-underline">True</property>
                                 <property name="numeric">True</property>
@@ -88,12 +89,13 @@
                                 <property name="popover">
                                   <object class="GtkPopover">
                                     <child>
-                                      <object class="GtkLabel">
+                                      <object class="GtkLabel" id="fps_limit_help_label">
                                         <property name="halign">center</property>
                                         <property name="margin-start">6</property>
                                         <property name="margin-end">6</property>
                                         <property name="margin-top">6</property>
                                         <property name="margin-bottom">6</property>
+                                        <!-- TRANSLATORS: FPS meaning 'frames per second' -->
                                         <property name="label" translatable="yes">Videos compressed to low bitrates may be capped to 24 FPS, regardless of the option set.</property>
                                         <property name="wrap">True</property>
                                         <property name="max-width-chars">50</property>
@@ -201,13 +203,12 @@
                                 <property name="popover">
                                   <object class="GtkPopover">
                                     <child>
-                                      <object class="GtkLabel">
+                                      <object class="GtkLabel" id="adv_options_help_label">
                                         <property name="halign">center</property>
                                         <property name="margin-start">6</property>
                                         <property name="margin-end">6</property>
                                         <property name="margin-top">6</property>
                                         <property name="margin-bottom">6</property>
-                                        <property name="label" translatable="yes">Decreasing the tolerance maximizes image quality by reducing how much compressed file sizes can be under target. However, this can increase the number of attempts needed to meet the target, increasing compression time. A tolerance of 10 % or more is recommended.</property>
                                         <property name="wrap">True</property>
                                         <property name="max-width-chars">50</property>
                                         <property name="valign">center</property>
@@ -261,6 +262,7 @@
                           <object class="AdwToolbarView" id="queue_page">
                             <child type="top">
                               <object class="AdwBanner" id="warning_banner">
+                                <!-- TRANSLATORS: Please use U+2014 em dash ('—') instead of '-', if applicable to your language. -->
                                 <property name="title" translatable="yes">Issues with video sources — fix before compressing</property>
                               </object>
                             </child>

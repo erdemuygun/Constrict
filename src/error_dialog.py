@@ -31,11 +31,12 @@ class ErrorDialog(Adw.Dialog):
     def __init__(self, video_name, error_details, **kwargs):
         super().__init__(**kwargs)
 
-        # TRANSLATORS: {} represents the filename of the video with the error.
-        # Please use “” instead of "", if applicable to your language.
-        self.preference_page.set_description(_(
-            'There was a problem compressing “{}”'
-        ).format(video_name))
+        self.preference_page.set_description(
+            # TRANSLATORS: {} represents the filename of the video with the
+            # error. Please use “” instead of "", if applicable to your
+            # language.
+            _('There was a problem compressing “{}”').format(video_name)
+        )
         buffer = self.text_view.get_buffer()
         buffer.set_text(error_details)
 

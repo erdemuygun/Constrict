@@ -54,13 +54,13 @@ class AttemptFailBox(Gtk.Box):
         # TRANSLATORS: this is an abbreviation of 'Low Quality'
         lq_label = _('LQ')
 
-        # TRANSLATORS: the first {} represents a bitrate value.
-        # The second {} represents a resolution + framerate (e.g. '1080p@30').
-        # The third {} represents audio quality (i.e. 'HQ' or 'LQ')
-        target_str = _("{} ({}, {} audio)").format(
-            f'{str(vid_bitrate // 1000)} Kbps',
-            f'{vid_height}p@{vid_fps}',
-            hq_label if is_hq_audio else lq_label
+        # TRANSLATORS: {vid_br} represents a bitrate value.
+        # {res_fps} represents a resolution + framerate (e.g. '1080p@30').
+        # {audio_quality} represents audio quality (i.e. 'HQ' or 'LQ')
+        target_str = _("{vid_br} ({res_fps}, {audio_quality} audio)").format(
+            vid_br = f'{str(vid_bitrate // 1000)} Kbps',
+            res_fps = f'{vid_height}p@{vid_fps}',
+            audio_quality = hq_label if is_hq_audio else lq_label
         )
         self.target_label.set_label(target_str)
 

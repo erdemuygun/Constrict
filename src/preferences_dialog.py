@@ -35,9 +35,8 @@ class PreferencesDialog(Adw.PreferencesDialog):
 
         self.suffix_preferences_group.set_description(
             # TRANSLATORS: {} represents the value of the default suffix.
-            _(
-                'Used in file names for exported videos, between the base name and extension. If the custom suffix is left empty, the default suffix of “{}” will be used.'
-            ).format(application.default_suffix)
+            _('Used in file names for exported videos, between the base name and extension. If the custom suffix is left empty, the default suffix of “{}” will be used.')
+                .format(application.default_suffix)
         )
 
         self.settings = application.get_settings()

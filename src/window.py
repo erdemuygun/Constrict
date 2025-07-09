@@ -32,7 +32,6 @@ import os
 
 # FIXME: desktop file doesn't always work instantly
 # TODO: future feature -- add pause button?
-# TODO: add more comments for translators.
 
 
 @Gtk.Template(resource_path='/com/github/wartybix/Constrict/window.ui')
@@ -61,6 +60,8 @@ class ConstrictWindow(Adw.ApplicationWindow):
     toast_overlay = Gtk.Template.Child()
     warning_banner = Gtk.Template.Child()
     window_title = Gtk.Template.Child()
+    adv_options_help_label = Gtk.Template.Child()
+    fps_limit_help_label = Gtk.Template.Child()
 
     # FIXME: flatpak libx264 stopped working.
 
@@ -167,6 +168,21 @@ class ConstrictWindow(Adw.ApplicationWindow):
         self.clear_row.set_title(fps_label.format('_30'))
         self.smooth_row.set_title(fps_label.format('_60'))
 
+        self.fps_limit_help_label.set_label(
+            # TRANSLATORS: FPS meaning 'frames per second'. {} represents an
+            # integer. Please use U+202F narrow no-break space (' ') between
+            # the {} and translated equivalent of 'FPS'.
+            _('Videos compressed to low bitrates may be capped to {} FPS, regardless of the option set.')
+                .format('24')
+        )
+
+        self.adv_options_help_label.set_label(
+            # TRANSLATORS: {} represents an integer. Please use U+202F Narrow
+            # no-break space (' ') between {} and '%'.
+            _('Decreasing the tolerance maximizes image quality by reducing how much compressed file sizes can be under target. However, this can increase the number of attempts needed to meet the target, increasing compression time. A tolerance of {} % or more is recommended.')
+                .format('10')
+        )
+
 
     def on_drop(self, drop_target, value: Gdk.FileList, x, y, user_data=None):
         files: List[Gio.File] = value.get_files()
@@ -239,15 +255,18 @@ class ConstrictWindow(Adw.ApplicationWindow):
         if len(sources) == 1:
             file_name = sources[0].display_name
             # TRANSLATORS: {} represents the filename of the video currently
-            # being processed. Please use “” instead of '', if applicable to
+            # being processed. Please use “” instead of "", if applicable to
             # your language.
             self.set_title(_('Processing “{}”').format(file_name))
         else:
             self.set_title(
-                # TRANSLATORS: The first {} represents the index of the video
-                # currently being processed. The second {} represents the total
+                # TRANSLATORS: {index} represents the index of the video
+                # currently being processed. {total} represents the total
                 # number of videos being processed.
-                _('{}/{} Videos Processed').format(current_index, len(sources))
+                _('{index}/{total} Videos Processed').format(
+                    index = current_index,
+                    total = len(sources)
+                )
             )
 
         self.window_title.set_title(self.get_title())
@@ -376,9 +395,8 @@ class ConstrictWindow(Adw.ApplicationWindow):
             # TRANSLATORS: {} represents the filename of the video currently
             # being compressed. Please use “” instead of "", if applicable to
             # your language.
-            _(
-                'Progress made compressing “{}” will be permanently lost'
-            ).format(self.currently_processed)
+            _('Progress made compressing “{}” will be permanently lost')
+                .format(self.currently_processed)
         )
 
         dialog.quit_on_stop = quit_on_stop
@@ -598,12 +616,12 @@ class ConstrictWindow(Adw.ApplicationWindow):
             if compress_error:
                 video.set_error(compress_error, daemon)
 
-                # TRANSLATORS: {} represents the filename of the video with the
-                # error.
-                # Please use “” instead of "", if applicable to your language.
-                toast = Adw.Toast.new(_(
-                    'Error compressing “{}”'.format(video.display_name)
-                ))
+                toast = Adw.Toast.new(
+                    # TRANSLATORS: {} represents the filename of the video with
+                    # the error. Please use “” instead of "", if applicable to
+                    # your language.
+                    _('Error compressing “{}”').format(video.display_name)
+                )
                 toast.set_button_label(_('View _Details'))
                 toast.video = video
 

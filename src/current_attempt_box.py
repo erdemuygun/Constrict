@@ -64,15 +64,13 @@ class CurrentAttemptBox(Gtk.Box):
         # TRANSLATORS: this is an abbreviation of 'Low Quality'
         lq_label = _('LQ')
 
-        # TRANSLATORS: the first {} represents a bitrate value (e.g. '50')
-        # The second {} represents details about the frame height and FPS
-        # (e.g. '1080p@60')
-        # The third {} represents an indication of the audio quality (i.e.,
-        # 'HQ' or 'LQ').
-        target_details_label = _('Compressing to {} ({}, {} audio)').format(
-            f'{vid_bitrate // 1000} Kbps',
-            f'{vid_height}p@{vid_fps}',
-            hq_label if is_hq_audio else lq_label
+        # TRANSLATORS: {vid_br} represents a bitrate value.
+        # {res_fps} represents a resolution + framerate (e.g. '1080p@30').
+        # {audio_quality} represents audio quality (i.e. 'HQ' or 'LQ')
+        target_details_label = _('Compressing to {vid_br} ({res_fps}, {audio_quality} audio)').format(
+            vid_br = f'{vid_bitrate // 1000} Kbps',
+            res_fps = f'{vid_height}p@{vid_fps}',
+            audio_quality = hq_label if is_hq_audio else lq_label
         )
         update_ui(
             self.target_details_label.set_label,
@@ -99,17 +97,16 @@ class CurrentAttemptBox(Gtk.Box):
                 unit_label = ngettext('hour', 'hours', time_left)
 
 
-            # TRANSLATORS: the first {} represents the progress percentage
-            # value.
-            # The second {} represents an integer.
-            # The third {} represents a unit of time (e.g. 'second/seconds').
-            # Please use U+202F Narrow no-break space (' ') between first {}
+            # TRANSLATORS: {percent} represents the progress percentage value.
+            # {time} represents an integer.
+            # {unit} represents a unit of time (e.g. 'second/seconds').
+            # Please use U+202F Narrow no-break space (' ') between {percent}
             # and '%'.
             # Please use U+2014 em dash ('—'), if applicable to your language.
-            progress_text = _('{} % — About {} {} left').format(
-                progress_percent,
-                time_left,
-                unit_label
+            progress_text = _('{percent} % — About {time} {unit} left').format(
+                percent = progress_percent,
+                time = time_left,
+                unit = unit_label
             )
         else:
             progress_text = f'{progress_percent} %'

@@ -338,12 +338,12 @@ class SourcesRow(Adw.ActionRow):
             return
         elif self.get_size() < target_size * 1024 * 1024:
             size_mb = round(self.get_size() / 1024 / 1024, 1)
-            # TRANSLATORS: both {} are file size values in MB.
-            # Please use U+202F Narrow no-break space (' ') between value and
-            # unit.
             self.set_incompatible(
-                _('Video file size ({} MB) already meets the target size ({} MB).')
-                    .format(size_mb, target_size),
+                # TRANSLATORS: both {} represent integers.
+                # Please use U+202F Narrow no-break space (' ') between value
+                # and unit.
+                _('Video file size ({file_size} MB) already meets the target size ({target} MB).')
+                    .format(file_size = size_mb, target = target_size),
                 daemon
             )
         # Why is this threshold much higher than the one in constrict_utils.py?
@@ -352,10 +352,10 @@ class SourcesRow(Adw.ActionRow):
         # 5 Kbps anyway. So, since it'll most likely fail anyway, this
         # increased threshold is a courtesy to prevent wasting the user's time.
         elif video_bitrate < 11000:
-            # TRANSLATORS: {} is a file size value in MB.
-            # Please use U+202F Narrow no-break space (' ') between value and
-            # unit.
             self.set_incompatible(
+                # TRANSLATORS: {} is a file size value in MB.
+                # Please use U+202F Narrow no-break space (' ') between value and
+                # unit.
                 _('Target size ({} MB) is too low for this file.')
                     .format(target_size),
                 daemon
