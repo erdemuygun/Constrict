@@ -671,6 +671,7 @@ def compress(
     except PermissionError:
         return (None, None, "Constrict: Could not create exported file. There are insufficient permissions to create a file at the requested export path.")
 
+    # TODO: delete compressed file on cancel?
 
     factor = 1
     attempt = 0
