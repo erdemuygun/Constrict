@@ -31,6 +31,7 @@ from constrict.preferences_dialog import PreferencesDialog
 # FIXME: icon doesn't show in all contexts on the flatpak version.
 # TODO: improve code documentation.
 # FIXME: segmentation faults
+# TODO: change ID to io.github.wartybix.Constrict
 
 class ConstrictApplication(Adw.Application):
     """The main application singleton class."""
