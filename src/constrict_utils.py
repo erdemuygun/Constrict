@@ -138,6 +138,7 @@ def get_progress(
     output_fn,
     frame_count,
     pass_num,
+    last_pass_avg_fps,
     cancel_event
 ):
     #pv_cmd = subprocess.Popen(['pv', file_input], stdout=subprocess.PIPE)
@@ -154,19 +155,66 @@ def get_progress(
         stderr=subprocess.PIPE
     )
 
+    frame = 0
+    fps_sum = 0
+    pulse_counter = 0
+    avg_counter = 0
+
     for line in proc.stdout:
         line_string = line.decode('utf-8')
+
         if re.search('^frame=.*$', line_string):
-            frame = re.search('[0-9]+', line_string)
-            frame_int = int(frame.group())
-            output_fn((frame_count * pass_num + frame_int) / (frame_count * 2))
-        print(line_string)
+            frame_match = re.search('[0-9]+', line_string)
+            frame = int(frame_match.group())
+        elif re.search('^fps=.*$', line_string):
+            current_frame = (frame_count * pass_num + frame)
+            progress_fraction = current_frame / (frame_count * 2)
+            pulse_counter += 1
+
+            pass1_condition = pass_num == 0 and pulse_counter < 10
+            pass2_condition = pass_num == 1 and pulse_counter < 20
+
+            if pass1_condition or pass2_condition:
+                # The first few frames of a pass are kind of unpredictable.
+                # The average FPS is anomalously low compared before it starts
+                # to 'warm up' to a relatively consistent value. Therefore,
+                # we don't display the time remaining on the first few frames
+                # of the first pass, and we just use the last pass' average FPS
+                # to calculate time remaining on the first few frames of the
+                # second pass.
+
+                # We are slightly more lenient on the first pass, since it's
+                # more important the user can see the estimated time earlier
+                # on. We are more careful with pass 2, because it suddenly
+                # makes the estimated time look jumpy and inconsistent once
+                # progress reaches 50%, if using anomalous FPS values.
+                fps = last_pass_avg_fps
+            else:
+                fps_match = re.search('[0-9]+[.]?[0-9]*', line_string)
+                fps = float(fps_match.group())
+                # print(f'*** FPS VALUE: {fps} ***')
+
+                avg_counter += 1
+                fps_sum += fps
+
+            total_frames = frame_count * 2
+            frames_left = total_frames - current_frame
+
+            seconds_left = int(frames_left // fps) if fps else None
+            if seconds_left == 0:
+                seconds_left = 1
+
+            output_fn(progress_fraction, seconds_left)
+
+        # print(line_string)
 
         if cancel_event() == True:
             proc.kill()
-            return
+            return (None, None)
 
-    print('get_progress: loop_exited')
+    avg = fps_sum / avg_counter if avg_counter else None
+    # print(f'*** Pass {pass_num + 1} average: {avg} ***')
+
     # FIXME: random progression stops. multithreading issue?
 
     proc.wait()
@@ -176,9 +224,9 @@ def get_progress(
         errors = proc.communicate()[1]
         decoded = errors.decode('utf-8')
 
-        return decoded
+        return (avg, decoded)
 
-    return None
+    return (avg, None)
 
 
     # output_fn(subprocess.check_output(ffmpeg_cmd, text=True))
@@ -263,12 +311,13 @@ def transcode(
 
     print(" ".join(pass1_cmd))
     print(' Transcoding... (pass 1/2)')
-    progress_error = get_progress(
+    avg_fps, progress_error = get_progress(
         file_input,
         pass1_cmd,
         output_fn,
         frame_count,
         0,
+        None,
         cancel_event
     )
 
@@ -323,12 +372,13 @@ def transcode(
 
     print(" ".join(pass2_cmd))
     print(' Transcoding... (pass 2/2)')
-    progress_error = get_progress(
+    avg_fps, progress_error = get_progress(
         file_input,
         pass2_cmd,
         output_fn,
         frame_count,
         1,
+        avg_fps,
         cancel_event
     )
 
@@ -592,7 +642,7 @@ def compress(
     on_attempt_fail=lambda x: None
 ):
     start_time = datetime.datetime.now().replace(microsecond=0)
-    output_fn(0)
+    output_fn(0, None)
 
     target_size_bytes = target_size_MiB * 1024 * 1024
     before_size_bytes = os.stat(file_input).st_size
@@ -665,7 +715,7 @@ def compress(
             target_height,
             target_fps
         )
-        output_fn(0)
+        output_fn(0, None)
 
         # Below 5 Kbps, barely anything is perceptible in the video anymore.
         if target_video_bitrate < 5000:

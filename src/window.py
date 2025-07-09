@@ -513,7 +513,7 @@ class ConstrictWindow(Adw.ApplicationWindow):
             progress_box = CurrentAttemptBox()
             video.initiate_popover_box(progress_box, daemon)
 
-            def update_progress(fraction):
+            def update_progress(fraction, seconds_left):
                 if fraction == 0.0 and codec == VideoCodec.VP9:
                     # TRANSLATORS: please use U+2026 Horizontal ellipsis (…)
                     # instead of '...', if applicable to your language
@@ -523,7 +523,7 @@ class ConstrictWindow(Adw.ApplicationWindow):
                     print('pulsed')
                 else:
                     video.enable_spinner(False, daemon)
-                    progress_box.set_progress_fraction(fraction, daemon)
+                    progress_box.set_progress(fraction, seconds_left, daemon)
                     update_ui(video.progress_pie.set_fraction, fraction, daemon)
 
             def set_attempt_details(

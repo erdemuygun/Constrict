@@ -19,6 +19,7 @@
 
 from gi.repository import Adw, Gtk, GLib
 from constrict.shared import update_ui
+from gettext import ngettext
 
 @Gtk.Template(resource_path='/com/github/wartybix/Constrict/current_attempt_box.ui')
 class CurrentAttemptBox(Gtk.Box):
@@ -79,10 +80,38 @@ class CurrentAttemptBox(Gtk.Box):
             daemon
         )
 
-    def set_progress_fraction(self, fraction, daemon):
+    def set_progress(self, fraction, seconds_left, daemon):
         update_ui(self.progress_bar.set_fraction, fraction, daemon)
 
-        # TODO: add estimated time
+        progress_percent = int(round(fraction * 100, 0))
+        progress_text = ''
 
-        progress_text = f'{int(round(fraction * 100, 0))} %'
+        if seconds_left is not None:
+            time_left = seconds_left
+            unit_label = ngettext('second', 'seconds', time_left)
+
+            if time_left >= 60:
+                time_left = time_left // 60
+                unit_label = ngettext('minute', 'minutes', time_left)
+
+            if time_left >= 60:
+                time_left = time_left // 60
+                unit_label = ngettext('hour', 'hours', time_left)
+
+
+            # TRANSLATORS: the first {} represents the progress percentage
+            # value.
+            # The second {} represents an integer.
+            # The third {} represents a unit of time (e.g. 'second/seconds').
+            # Please use U+202F Narrow no-break space (' ') between first {}
+            # and '%'.
+            # Please use U+2014 em dash ('—'), if applicable to your language.
+            progress_text = _('{} % — About {} {} left').format(
+                progress_percent,
+                time_left,
+                unit_label
+            )
+        else:
+            progress_text = f'{progress_percent} %'
+
         update_ui(self.progress_details_label.set_label, progress_text, daemon)
