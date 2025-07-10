@@ -761,7 +761,10 @@ def compress(
         if cancel_event():
             return (None, None, None)
 
-        after_size_bytes = os.stat(file_output).st_size
+        try:
+            after_size_bytes = os.stat(file_output).st_size
+        except FileNotFoundError:
+            return (None, None, "Constrict: Cannot read output file. Was it moved or deleted mid-compression?")
         percent_of_target = (100 / target_size_bytes) * after_size_bytes
 
         factor *= 100 / percent_of_target
