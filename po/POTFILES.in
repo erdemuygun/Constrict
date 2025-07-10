@@ -1,8 +1,8 @@
 # List of source files containing translatable strings.
 # Please keep this file sorted alphabetically.
-data/com.github.wartybix.Constrict.desktop.in
-data/com.github.wartybix.Constrict.metainfo.xml.in
-data/com.github.wartybix.Constrict.gschema.xml
+data/io.github.wartybix.Constrict.desktop.in
+data/io.github.wartybix.Constrict.metainfo.xml.in
+data/io.github.wartybix.Constrict.gschema.xml
 src/main.py
 src/window.py
 src/window.ui

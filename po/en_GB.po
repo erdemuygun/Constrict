@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Constrict 1.0.1\n"
 "Report-Msgid-Bugs-To: 34974060+Wartybix@users.noreply.github.com\n"
-"POT-Creation-Date: 2025-07-09 21:03+0100\n"
+"POT-Creation-Date: 2025-07-10 16:11+0100\n"
 "PO-Revision-Date: 2025-07-09 21:08+0100\n"
 "Last-Translator: Wartybix <34974060+Wartybix@users.noreply.github.com>\n"
 "Language-Team: en_GB\n"
@@ -19,30 +19,30 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Generator: Gtranslator 48.0\n"
 
-#: data/com.github.wartybix.Constrict.desktop.in:2
-#: data/com.github.wartybix.Constrict.metainfo.xml.in:7 src/main.py:143
+#: data/io.github.wartybix.Constrict.desktop.in:2
+#: data/io.github.wartybix.Constrict.metainfo.xml.in:7 src/main.py:144
 #: src/window.py:284 src/window.ui:6
 msgid "Constrict"
 msgstr "Constrict"
 
-#: data/com.github.wartybix.Constrict.desktop.in:3
+#: data/io.github.wartybix.Constrict.desktop.in:3
 msgid "Video Compressor"
 msgstr "Video Compressor"
 
-#: data/com.github.wartybix.Constrict.desktop.in:4
-#: data/com.github.wartybix.Constrict.metainfo.xml.in:8
+#: data/io.github.wartybix.Constrict.desktop.in:4
+#: data/io.github.wartybix.Constrict.metainfo.xml.in:8
 msgid "Compress videos to target file sizes"
 msgstr "Compress videos to target file sizes"
 
-#: data/com.github.wartybix.Constrict.desktop.in:10
+#: data/io.github.wartybix.Constrict.desktop.in:10
 msgid "Compress;Video;Movie;Film;Clip;"
 msgstr "Compress;Video;Movie;Film;Clip;"
 
-#: data/com.github.wartybix.Constrict.desktop.in:20
+#: data/io.github.wartybix.Constrict.desktop.in:20
 msgid "New Window"
 msgstr "New Window"
 
-#: data/com.github.wartybix.Constrict.metainfo.xml.in:10
+#: data/io.github.wartybix.Constrict.metainfo.xml.in:10
 msgid ""
 "Constrict compresses your videos to your chosen file size — useful for "
 "uploading to services with specific file size limits. No more relying on "
@@ -54,15 +54,15 @@ msgstr ""
 "online services for video compression, or the manual trial-and-error of re-"
 "encoding at various bitrates yourself."
 
-#: data/com.github.wartybix.Constrict.metainfo.xml.in:11
+#: data/io.github.wartybix.Constrict.metainfo.xml.in:11
 msgid "Features include:"
 msgstr "Features include:"
 
-#: data/com.github.wartybix.Constrict.metainfo.xml.in:13
+#: data/io.github.wartybix.Constrict.metainfo.xml.in:13
 msgid "An intuitive, easy to use interface."
 msgstr "An intuitive, easy to use interface."
 
-#: data/com.github.wartybix.Constrict.metainfo.xml.in:14
+#: data/io.github.wartybix.Constrict.metainfo.xml.in:14
 msgid ""
 "Automatic calculation of average bitrate (ABR), resolution, framerate, and "
 "audio quality each video is re-encoded with to meet the target file size."
@@ -70,17 +70,17 @@ msgstr ""
 "Automatic calculation of average bitrate (ABR), resolution, framerate, and "
 "audio quality each video is re-encoded with to meet the target file size."
 
-#: data/com.github.wartybix.Constrict.metainfo.xml.in:15
+#: data/io.github.wartybix.Constrict.metainfo.xml.in:15
 msgid "Bulk compression of multiple videos to one output directory."
 msgstr "Bulk compression of multiple videos to one output directory."
 
-#: data/com.github.wartybix.Constrict.metainfo.xml.in:16
+#: data/io.github.wartybix.Constrict.metainfo.xml.in:16
 msgid ""
 "Customisation of framerate limits, to ensure a clearer or smoother image."
 msgstr ""
 "Customisation of framerate limits, to ensure a clearer or smoother image."
 
-#: data/com.github.wartybix.Constrict.metainfo.xml.in:17
+#: data/io.github.wartybix.Constrict.metainfo.xml.in:17
 msgid ""
 "A choice of codecs to encode output files with, including H.264, HEVC, AV1, "
 "and VP9."
@@ -88,7 +88,7 @@ msgstr ""
 "A choice of codecs to encode output files with, including H.264, HEVC, AV1, "
 "and VP9."
 
-#: data/com.github.wartybix.Constrict.metainfo.xml.in:19
+#: data/io.github.wartybix.Constrict.metainfo.xml.in:19
 msgid ""
 "The app attempts to retain as much audiovisual quality as possible for the "
 "file size given. However, extremely steep reductions in file size can cause "
@@ -103,54 +103,54 @@ msgstr ""
 "compression speeds are only as fast as your hardware allows."
 
 #. TRANSLATORS: developer name, please do not translate.
-#: data/com.github.wartybix.Constrict.metainfo.xml.in:24
+#: data/io.github.wartybix.Constrict.metainfo.xml.in:24
 msgid "Wartybix"
 msgstr "Wartybix"
 
-#: data/com.github.wartybix.Constrict.metainfo.xml.in:75
-#: data/com.github.wartybix.Constrict.metainfo.xml.in:79
+#: data/io.github.wartybix.Constrict.metainfo.xml.in:75
+#: data/io.github.wartybix.Constrict.metainfo.xml.in:79
 msgid "A caption"
 msgstr "A caption"
 
-#: data/com.github.wartybix.Constrict.gschema.xml:31 src/window.ui:84
+#: data/io.github.wartybix.Constrict.gschema.xml:31 src/window.ui:84
 msgid "Framerate Limit"
 msgstr "Framerate Limit"
 
-#: data/com.github.wartybix.Constrict.gschema.xml:32
+#: data/io.github.wartybix.Constrict.gschema.xml:32
 msgid ""
 "Limits framerates of compressed videos automatically, or to 30 FPS or 60 FPS."
 msgstr ""
 "Limits framerates of compressed videos automatically, or to 30 FPS or 60 FPS."
 
-#: data/com.github.wartybix.Constrict.gschema.xml:38
+#: data/io.github.wartybix.Constrict.gschema.xml:38
 msgid "Video Codec"
 msgstr "Video Codec"
 
-#: data/com.github.wartybix.Constrict.gschema.xml:39
+#: data/io.github.wartybix.Constrict.gschema.xml:39
 msgid "The codec used to encode with during compression"
 msgstr "The codec used to encode with during compression"
 
 #. TRANSLATORS: used in parentheses for the default suffix of exported
 #. files.
-#: src/main.py:81
+#: src/main.py:82
 msgid "compressed"
 msgstr "compressed"
 
 #. TRANSLATORS: Braces represent the name of the repository (e.g. 8mb)
 #. Please use ‘’ characters instead of '', if applicable to your language.
-#: src/main.py:155
+#: src/main.py:156
 msgid "‘{}’ repository by"
 msgstr "‘{}’ repository by"
 
-#: src/main.py:162
+#: src/main.py:163
 msgid "Circular progress indicator (C version) by"
 msgstr "Circular progress indicator (C version) by"
 
-#: src/main.py:166
+#: src/main.py:167
 msgid "GApplication local option handling by"
 msgstr "GApplication local option handling by"
 
-#: src/main.py:170
+#: src/main.py:171
 msgid "translator-credits"
 msgstr "Wartybix https://github.com/Wartybix/"
 

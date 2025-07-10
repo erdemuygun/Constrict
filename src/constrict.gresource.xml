@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <gresources>
-  <gresource prefix="/com/github/wartybix/Constrict">
+  <gresource prefix="/io/github/wartybix/Constrict">
     <file preprocess="xml-stripblanks">window.ui</file>
     <file preprocess="xml-stripblanks">sources_row.ui</file>
     <file preprocess="xml-stripblanks">sources_list_box.ui</file>

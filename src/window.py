@@ -34,7 +34,7 @@ import os
 # TODO: future feature -- add pause button?
 
 
-@Gtk.Template(resource_path='/com/github/wartybix/Constrict/window.ui')
+@Gtk.Template(resource_path='/io/github/wartybix/Constrict/window.ui')
 class ConstrictWindow(Adw.ApplicationWindow):
     __gtype_name__ = 'ConstrictWindow'
 

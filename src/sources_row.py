@@ -38,7 +38,7 @@ import subprocess
 import os
 
 
-@Gtk.Template(resource_path='/com/github/wartybix/Constrict/sources_row.ui')
+@Gtk.Template(resource_path='/io/github/wartybix/Constrict/sources_row.ui')
 class SourcesRow(Adw.ActionRow):
     __gtype_name__ = 'SourcesRow'
 

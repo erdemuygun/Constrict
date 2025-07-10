@@ -21,7 +21,7 @@ from gi.repository import Adw, Gtk, GLib
 from constrict.shared import update_ui
 
 
-@Gtk.Template(resource_path='/com/github/wartybix/Constrict/preferences_dialog.ui')
+@Gtk.Template(resource_path='/io/github/wartybix/Constrict/preferences_dialog.ui')
 class PreferencesDialog(Adw.PreferencesDialog):
     __gtype_name__ = "PreferencesDialog"
 

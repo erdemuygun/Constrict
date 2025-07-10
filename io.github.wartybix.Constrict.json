@@ -1,5 +1,5 @@
 {
-    "id" : "com.github.wartybix.Constrict",
+    "id" : "io.github.wartybix.Constrict",
     "runtime" : "org.gnome.Platform",
     "runtime-version" : "48",
     "sdk" : "org.gnome.Sdk",

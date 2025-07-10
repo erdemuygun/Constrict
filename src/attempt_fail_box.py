@@ -21,7 +21,7 @@ from gi.repository import Adw, Gtk, GLib
 from constrict.shared import update_ui
 
 
-@Gtk.Template(resource_path='/com/github/wartybix/Constrict/attempt_fail_box.ui')
+@Gtk.Template(resource_path='/io/github/wartybix/Constrict/attempt_fail_box.ui')
 class AttemptFailBox(Gtk.Box):
     __gtype_name__ = "AttemptFailBox"
 

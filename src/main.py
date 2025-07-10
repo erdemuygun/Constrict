@@ -37,7 +37,7 @@ class ConstrictApplication(Adw.Application):
     """The main application singleton class."""
 
     def __init__(self):
-        super().__init__(application_id='com.github.wartybix.Constrict',
+        super().__init__(application_id='io.github.wartybix.Constrict',
                          flags=Gio.ApplicationFlags.HANDLES_OPEN)
 
         self.add_main_option(
@@ -75,7 +75,7 @@ class ConstrictApplication(Adw.Application):
         self.set_accels_for_action('win.export', ['<Ctrl>e'])
         self.set_accels_for_action('win.close', ['<Ctrl>w'])
 
-        self.settings = Gio.Settings(schema_id='com.github.wartybix.Constrict')
+        self.settings = Gio.Settings(schema_id='io.github.wartybix.Constrict')
 
         # TRANSLATORS: used in parentheses for the default suffix of exported
         # files.
@@ -142,7 +142,7 @@ class ConstrictApplication(Adw.Application):
     def on_about_action(self, *args):
         """Callback for the app.about action."""
         about = Adw.AboutDialog(application_name=_('Constrict'),
-                                application_icon='com.github.wartybix.Constrict',
+                                application_icon='io.github.wartybix.Constrict',
                                 developer_name='Wartybix',
                                 version='0.1.0',
                                 developers=['Wartybix https://github.com/Wartybix/'],

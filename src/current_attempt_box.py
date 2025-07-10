@@ -21,7 +21,7 @@ from gi.repository import Adw, Gtk, GLib
 from constrict.shared import update_ui
 from gettext import ngettext
 
-@Gtk.Template(resource_path='/com/github/wartybix/Constrict/current_attempt_box.ui')
+@Gtk.Template(resource_path='/io/github/wartybix/Constrict/current_attempt_box.ui')
 class CurrentAttemptBox(Gtk.Box):
     __gtype_name__ = "CurrentAttemptBox"
 

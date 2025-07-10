@@ -19,7 +19,7 @@
 
 from gi.repository import Adw, Gtk, Gdk
 
-@Gtk.Template(resource_path='/com/github/wartybix/Constrict/error_dialog.ui')
+@Gtk.Template(resource_path='/io/github/wartybix/Constrict/error_dialog.ui')
 class ErrorDialog(Adw.Dialog):
     __gtype_name__ = "ErrorDialog"
 
