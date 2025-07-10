@@ -619,8 +619,6 @@ check for reading permissions of input, writing permissions of output
 - (do this preemptively on the interface end)
 """
 
-# TODO: fix default lambda functions
-
 # Returns None if compression went smoothly.
 # If there's an error while compressing, it'll return compression details.
 # TODO: change return values to passed functions -- makes more sense
@@ -628,15 +626,15 @@ def compress(
     file_input,
     file_output,
     target_size_MiB,
-    framerate_option='auto',
-    extra_quality=False,
-    codec=VideoCodec.H264,
-    tolerance=10,
-    output_fn=lambda x: None,
-    log_path=None,
-    cancel_event=lambda x: None,
-    on_new_attempt=lambda x: None,
-    on_attempt_fail=lambda x: None
+    framerate_option,
+    extra_quality,
+    codec,
+    tolerance,
+    output_fn,
+    log_path,
+    cancel_event,
+    on_new_attempt,
+    on_attempt_fail
 ):
     start_time = datetime.datetime.now().replace(microsecond=0)
     output_fn(0, None)
