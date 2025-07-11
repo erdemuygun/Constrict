@@ -5,6 +5,7 @@
   <template class="SourcesRow" parent="AdwActionRow">
     <property name="title-lines">2</property>
     <property name="subtitle-lines">1</property>
+    <property name="use-markup">false</property>
     <child type="prefix">
       <object class="GtkImage" id="thumbnail">
         <property name="icon-name">image-loading</property>

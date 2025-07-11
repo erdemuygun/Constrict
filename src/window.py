@@ -367,7 +367,6 @@ class ConstrictWindow(Adw.ApplicationWindow):
             initial_folder = Gio.File.new_for_path(initial_folder_path)
             native.set_initial_folder(initial_folder)
 
-        # TODO: change folder select UI? idk
         native.select_folder(self, None, self.on_export_response)
 
     def on_export_response(self, dialog, result):
@@ -622,6 +621,7 @@ class ConstrictWindow(Adw.ApplicationWindow):
                     # your language.
                     _('Error compressing “{}”').format(video.display_name)
                 )
+                toast.set_use_markup(False)
                 toast.set_button_label(_('View _Details'))
                 toast.video = video
 
@@ -664,8 +664,6 @@ class ConstrictWindow(Adw.ApplicationWindow):
         self.sources_list_box.remove(row)
         self.refresh_can_export(False)
         self.set_queued_title(False)
-
-    # FIXME: video title is weird sometimes
 
     def stage_videos(self, video_list):
         existing_paths = list(map(

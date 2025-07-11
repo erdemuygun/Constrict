@@ -17,7 +17,7 @@
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from gi.repository import Adw, Gtk, Gdk
+from gi.repository import Adw, Gtk, Gdk, GLib
 
 @Gtk.Template(resource_path='/io/github/wartybix/Constrict/error_dialog.ui')
 class ErrorDialog(Adw.Dialog):
@@ -31,11 +31,13 @@ class ErrorDialog(Adw.Dialog):
     def __init__(self, video_name, error_details, **kwargs):
         super().__init__(**kwargs)
 
+        safe_video_name = GLib.markup_escape_text(video_name)
+
         self.preference_page.set_description(
             # TRANSLATORS: {} represents the filename of the video with the
             # error. Please use “” instead of "", if applicable to your
             # language.
-            _('There was a problem compressing “{}”').format(video_name)
+            _('There was a problem compressing “{}”').format(safe_video_name)
         )
         buffer = self.text_view.get_buffer()
         buffer.set_text(error_details)
