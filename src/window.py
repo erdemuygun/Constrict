@@ -30,7 +30,6 @@ import subprocess
 from pathlib import Path
 import os
 
-# FIXME: desktop file doesn't always work instantly
 # TODO: future feature -- add pause button?
 
 
@@ -62,8 +61,6 @@ class ConstrictWindow(Adw.ApplicationWindow):
     window_title = Gtk.Template.Child()
     adv_options_help_label = Gtk.Template.Child()
     fps_limit_help_label = Gtk.Template.Child()
-
-    # FIXME: flatpak libx264 stopped working.
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)

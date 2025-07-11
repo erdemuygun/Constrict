@@ -57,6 +57,7 @@ class SourcesRow(Adw.ActionRow):
     complete_popover = Gtk.Template.Child()
     drag_handle_revealer = Gtk.Template.Child()
     popover = Gtk.Template.Child()
+    popover_scrolled_window = Gtk.Template.Child()
 
     # TODO: make set_preview async on update, not just in constructor
 
@@ -123,7 +124,11 @@ class SourcesRow(Adw.ActionRow):
 
     def initiate_popover_box(self, top_widget, daemon):
         self.popover_box = SourcePopoverBox(top_widget)
-        update_ui(self.popover.set_child, self.popover_box, daemon)
+        update_ui(
+            self.popover_scrolled_window.set_child,
+            self.popover_box,
+            daemon
+        )
 
     def set_popover_top_widget(self, top_widget, daemon):
         if not self.popover_box:

@@ -30,8 +30,6 @@ class AttemptFailBox(Gtk.Box):
     failure_icon = Gtk.Template.Child()
     failure_details_label = Gtk.Template.Child()
 
-    # TODO: make popover scrollable?
-
     def __init__(
         self,
         attempt_no,
