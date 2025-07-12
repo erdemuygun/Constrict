@@ -27,17 +27,16 @@ gi.require_version('Adw', '1')
 from gi.repository import Gtk, Gio, Adw, GLib
 from .window import ConstrictWindow
 from constrict.preferences_dialog import PreferencesDialog
+from constrict import APPLICATION_ID, VERSION
 
-# FIXME: icon doesn't show in all contexts on the flatpak version.
 # TODO: improve code documentation.
 # FIXME: segmentation faults
-# TODO: change ID to io.github.wartybix.Constrict
 
 class ConstrictApplication(Adw.Application):
     """The main application singleton class."""
 
     def __init__(self):
-        super().__init__(application_id='io.github.wartybix.Constrict',
+        super().__init__(application_id=APPLICATION_ID,
                          flags=Gio.ApplicationFlags.HANDLES_OPEN)
 
         self.add_main_option(
@@ -75,7 +74,7 @@ class ConstrictApplication(Adw.Application):
         self.set_accels_for_action('win.export', ['<Ctrl>e'])
         self.set_accels_for_action('win.close', ['<Ctrl>w'])
 
-        self.settings = Gio.Settings(schema_id='io.github.wartybix.Constrict')
+        self.settings = Gio.Settings(schema_id=self.get_application_id())
 
         # TRANSLATORS: used in parentheses for the default suffix of exported
         # files.
@@ -113,6 +112,8 @@ class ConstrictApplication(Adw.Application):
             active_window.save_window_state()
 
         win = ConstrictWindow(application=self)
+        if self.get_application_id() == "io.github.wartybix.Constrict.Devel":
+            win.get_style_context().add_class("devel")
 
         if gfiles:
             win.stage_videos(gfiles)
@@ -142,9 +143,9 @@ class ConstrictApplication(Adw.Application):
     def on_about_action(self, *args):
         """Callback for the app.about action."""
         about = Adw.AboutDialog(application_name=_('Constrict'),
-                                application_icon='io.github.wartybix.Constrict',
+                                application_icon=self.get_application_id(),
                                 developer_name='Wartybix',
-                                version='0.1.0',
+                                version=VERSION,
                                 developers=['Wartybix https://github.com/Wartybix/'],
                                 website='https://github.com/Wartybix/Constrict',
                                 issue_url='https://github.com/Wartybix/Constrict/issues',

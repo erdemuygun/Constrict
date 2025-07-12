@@ -1,4 +1,4 @@
-application_id = 'io.github.wartybix.Constrict'
+application_id = APPLICATION_ID
 
 scalable_dir = 'hicolor' / 'scalable' / 'apps'
 install_data(

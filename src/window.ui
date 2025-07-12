@@ -6,9 +6,6 @@
     <property name="title" translatable="yes">Constrict</property>
     <property name="default-width">1000</property>
     <property name="default-height">700</property>
-    <style>
-      <class name="devel"/>
-    </style>
     <child>
       <object class="AdwBreakpoint">
         <condition>max-width: 800sp</condition>

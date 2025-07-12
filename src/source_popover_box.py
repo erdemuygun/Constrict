@@ -19,9 +19,10 @@
 
 from gi.repository import Adw, Gtk, GLib
 from constrict.shared import update_ui
+from constrict import PREFIX
 
 
-@Gtk.Template(resource_path='/io/github/wartybix/Constrict/source_popover_box.ui')
+@Gtk.Template(resource_path=f'{PREFIX}/source_popover_box.ui')
 class SourcePopoverBox(Gtk.Box):
     __gtype_name__ = "SourcePopoverBox"
 

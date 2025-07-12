@@ -25,6 +25,7 @@ from constrict.sources_row import SourcesRow
 from constrict.sources_list_box import SourcesListBox
 from constrict.error_dialog import ErrorDialog
 from constrict.current_attempt_box import CurrentAttemptBox
+from constrict import PREFIX
 import threading
 import subprocess
 from pathlib import Path
@@ -33,7 +34,7 @@ import os
 # TODO: future feature -- add pause button?
 
 
-@Gtk.Template(resource_path='/io/github/wartybix/Constrict/window.ui')
+@Gtk.Template(resource_path=f'{PREFIX}/window.ui')
 class ConstrictWindow(Adw.ApplicationWindow):
     __gtype_name__ = 'ConstrictWindow'
 

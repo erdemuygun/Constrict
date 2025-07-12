@@ -18,8 +18,9 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 from gi.repository import Adw, Gtk, Gdk, GLib
+from constrict import PREFIX
 
-@Gtk.Template(resource_path='/io/github/wartybix/Constrict/error_dialog.ui')
+@Gtk.Template(resource_path=f'{PREFIX}/error_dialog.ui')
 class ErrorDialog(Adw.Dialog):
     __gtype_name__ = "ErrorDialog"
 

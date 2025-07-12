@@ -2,8 +2,16 @@ pkgdatadir = get_option('prefix') / get_option('datadir') / meson.project_name()
 moduledir = pkgdatadir / 'constrict'
 gnome = import('gnome')
 
-gnome.compile_resources('constrict',
-  'constrict.gresource.xml',
+gresource_conf = configuration_data()
+gresource_conf.set('PREFIX', PREFIX)
+
+gnome.compile_resources(
+  'constrict',
+  configure_file(
+    input: 'constrict.gresource.xml.in',
+    output: 'constrict.gresource.xml',
+    configuration: gresource_conf
+  ),
   gresource_bundle: true,
   install: true,
   install_dir: pkgdatadir,
@@ -13,9 +21,11 @@ python = import('python')
 
 conf = configuration_data()
 conf.set('PYTHON', python.find_installation('python3').full_path())
-conf.set('VERSION', meson.project_version())
+conf.set('VERSION', meson.project_version() + VCS_TAG)
 conf.set('localedir', get_option('prefix') / get_option('localedir'))
 conf.set('pkgdatadir', pkgdatadir)
+conf.set('APPLICATION_ID', APPLICATION_ID)
+conf.set('PREFIX', PREFIX)
 
 configure_file(
   input: 'constrict.in',
@@ -27,7 +37,12 @@ configure_file(
 )
 
 constrict_sources = [
-  '__init__.py',
+  # '__init__.py',
+  configure_file(
+    input: '__init__.py.in',
+    output: '__init__.py',
+    configuration: conf
+  ),
   'main.py',
   'window.py',
   'constrict_utils.py',

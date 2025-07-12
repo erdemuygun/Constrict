@@ -7,7 +7,30 @@ project('constrict',
 i18n = import('i18n')
 gnome = import('gnome')
 
+# Thank you to GNOME Music and Showtime... Their Meson configurations were
+# useful to look at and 'borrow' from to set up my own Meson devel/release
+# profiles.
 
+if get_option('profile') == 'development'
+  APPLICATION_ID = 'io.github.wartybix.Constrict.Devel'
+  PREFIX = '/io/github/wartybix/Constrict/Devel'
+else
+  APPLICATION_ID = 'io.github.wartybix.Constrict'
+  PREFIX = '/io/github/wartybix/Constrict'
+endif
+
+VCS_TAG = ''
+if get_option('profile') != 'default'
+  git = find_program('git', required : false)
+  if git.found()
+    VCS_TAG = run_command('git', 'rev-parse', '--short', 'HEAD', check: true).stdout().strip()
+  endif
+  if VCS_TAG == ''
+    VCS_TAG = '-devel'
+  else
+    VCS_TAG = '-@0@'.format(VCS_TAG)
+  endif
+endif
 
 
 subdir('data')

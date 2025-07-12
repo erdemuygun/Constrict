@@ -1,9 +1,10 @@
 {
-    "id" : "io.github.wartybix.Constrict",
+    "id" : "io.github.wartybix.Constrict.Devel",
     "runtime" : "org.gnome.Platform",
     "runtime-version" : "48",
     "sdk" : "org.gnome.Sdk",
     "command" : "constrict",
+    "tags": ["devel", "development", "nightly"],
     "finish-args" : [
         "--share=ipc",
         "--socket=fallback-x11",
@@ -35,17 +36,6 @@
     ],
     "modules" : [
         {
-            "name" : "constrict",
-            "builddir" : true,
-            "buildsystem" : "meson",
-            "sources" : [
-                {
-                    "type" : "dir",
-                    "path" : "."
-                }
-            ]
-        },
-        {
             "name" : "totem-pl-parser",
             "builddir" : true,
             "buildsystem" : "meson",
@@ -69,6 +59,20 @@
                     "type" : "git",
                     "url" : "https://gitlab.gnome.org/GNOME/totem-video-thumbnailer.git",
                     "commit" : "d295d9db51955f824bba83e15cabbdfa5c6d1bf7"
+                }
+            ]
+        },
+        {
+            "name" : "constrict",
+            "builddir" : true,
+            "buildsystem" : "meson",
+            "config-opts" : [
+                "-Dprofile=development"
+            ],
+            "sources" : [
+                {
+                    "type" : "dir",
+                    "path" : "."
                 }
             ]
         }

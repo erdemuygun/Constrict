@@ -19,9 +19,10 @@
 
 from gi.repository import Adw, Gtk, GLib
 from constrict.shared import update_ui
+from constrict import PREFIX
 
 
-@Gtk.Template(resource_path='/io/github/wartybix/Constrict/sources_list_box.ui')
+@Gtk.Template(resource_path=f'{PREFIX}/sources_list_box.ui')
 class SourcesListBox(Gtk.ListBox):
     __gtype_name__ = "SourcesListBox"
 

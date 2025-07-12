@@ -33,12 +33,13 @@ from constrict.enums import SourceState, Thumbnailer
 from constrict.progress_pie import ProgressPie
 from constrict.attempt_fail_box import AttemptFailBox
 from constrict.source_popover_box import SourcePopoverBox
+from constrict import PREFIX
 import threading
 import subprocess
 import os
 
 
-@Gtk.Template(resource_path='/io/github/wartybix/Constrict/sources_row.ui')
+@Gtk.Template(resource_path=f'{PREFIX}/sources_row.ui')
 class SourcesRow(Adw.ActionRow):
     __gtype_name__ = 'SourcesRow'
 
