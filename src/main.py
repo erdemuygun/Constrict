@@ -50,7 +50,6 @@ class ConstrictApplication(Adw.Application):
 
         self.create_action('new-window', lambda *_: self.do_activate(), ['<primary>n'])
         self.create_action('quit', lambda *_: self.quit(), ['<primary>q'])
-        # self.create_action('close-window', self.close_window, ['<primary>w'])
         self.create_action('about', self.on_about_action)
         self.create_action('preferences', self.on_preferences_action, ['<primary>comma'])
 

@@ -92,8 +92,6 @@ def get_res_preset(bitrate, source_width, source_height, framerate):
         bitrate_res_map_30 if framerate <= 30 else bitrate_res_map_60
     )
 
-    # print(bitrate_res_map)
-
     for bitrate_lower_bound, res_preset in bitrate_res_map.items():
         preset_width, preset_height = res_preset[0], res_preset[1]
         preset_pixels = preset_width * preset_height
@@ -190,7 +188,6 @@ def get_progress(
                 else:
                     fps_match = re.search('[0-9]+[.]?[0-9]*', line_string)
                     fps = float(fps_match.group())
-                    # print(f'*** FPS VALUE: {fps} ***')
 
                     avg_counter += 1
                     fps_sum += fps
@@ -253,8 +250,6 @@ def transcode(
     preset_name = '-cpu-used' if codec == VideoCodec.VP9 else '-preset'
     preset = get_encoding_speed(frame_height, codec, extra_quality)
 
-    # TODO: dynamically look for installed encoders?
-
     cv_params = {
         VideoCodec.H264: 'libx264',
         VideoCodec.HEVC: 'libx265',
@@ -266,13 +261,8 @@ def transcode(
         'ffmpeg',
         '-y',
         '-progress', '-',
-        # '-hide_banner',
-        # '-loglevel', 'error',
         '-i', f'{file_input}',
         f'{preset_name}', f'{"4" if codec == VideoCodec.VP9 else preset}',
-        # '-deadline', 'good',
-        # '-cpu-used', '4',
-        # '-threads', '24',
         '-vf', f'scale={width}:{height}',
     ]
 
@@ -326,13 +316,8 @@ def transcode(
         'ffmpeg',
         '-y',
         '-progress', '-',
-        # '-hide_banner',
-        # '-loglevel', 'error',
         '-i', f'{file_input}',
         f'{preset_name}', f'{preset}',
-        # '-threads', '24',
-        # '-deadline', 'good',
-        # '-cpu-used', cpuUsed,
         '-vf', f'scale={width}:{height}',
     ]
 
@@ -357,7 +342,6 @@ def transcode(
         '-b:v', str(video_bitrate) + '',
         '-pix_fmt', 'yuv420p',
         '-pass', '2',
-        # '-x265-params', 'pass=1',
         '-c:a', 'libopus',
         '-b:a', f'{audio_bitrate}',
         '-ac', f'{audio_channels}',
@@ -600,22 +584,8 @@ def get_encode_settings(
 
 
 """ TODO:
-add input validation for arguments
 add overwrite confirmation and argument
-add 'source overwrite' mode: -o value same as input file path
-check for when file size doesnt change
-Add check when video bitrate calculation goes over original bitrate
-change how tolerance works
-get rid of all this unused and commented out code
 improve text formatting
-check framerate text indicator
-add 10 bit support?
-Clean up AV1 text output
-change output_fn argument to be raw data, not strings (human readable strings
-    should be created on the interface side, not in these functions).
-use a sliding window for repeated compression attempts?
-check for reading permissions of input, writing permissions of output
-- (do this preemptively on the interface end)
 """
 
 # Returns None if compression went smoothly.
@@ -643,7 +613,6 @@ def compress(
     before_size_bytes = os.stat(file_input).st_size
 
     if before_size_bytes <= target_size_bytes:
-        # output_fn("File already meets the target size.")
         return (None, None, "Constrict: File already meets the target size.")
 
     try:
@@ -728,13 +697,6 @@ def compress(
 
         displayed_res = target_width if portrait else target_height
 
-        # output_fn('')
-        # output_fn(heading((
-        #     f'(Attempt {attempt}) '
-        #     f'compressing to {target_video_bitrate // 1000}Kbps / '
-        #     f'{displayed_res}p@{target_fps}...'
-        # )))
-
         dest_frame_count = source_frame_count // (source_fps / target_fps)
 
         transcode_error = transcode(
@@ -776,12 +738,6 @@ def compress(
             factor *= 0.95
 
         print(f'factor (reduced): {factor}')
-
-        # output_fn('')
-        # output_fn(table([
-        #     ['New Size', f"{'{:.2f}'.format(after_size_bytes/1024/1024)}MB"],
-        #     ['Percentage of Target', f"{'{:.0f}'.format(percent_of_target)}%"]
-        # ]))
 
     time_taken = datetime.datetime.now().replace(microsecond=0) - start_time
     print(f"\nCompleted in {time_taken}.")
