@@ -85,31 +85,60 @@ class CurrentAttemptBox(Gtk.Box):
         progress_percent = int(round(fraction * 100, 0))
         progress_text = ''
 
-        # TODO: add hours + minutes
+        # Acknowledgements: thank you to Nautilus for the ideas on where to set
+        # different thresholds for which time unit(s) to display. Particularly
+        # the 4 hour mark where minutes should no longer be displayed.
+        # https://gitlab.gnome.org/GNOME/nautilus/-/blob/af7e419eaa7e167ecbc059d51e06e72e11a2f1c8/src/nautilus-file-operations.c
 
         if seconds_left is not None:
-            time_left = seconds_left
-            unit_label = ngettext('second', 'seconds', time_left)
+            time_shown = ''
 
-            if time_left >= 60:
-                time_left = time_left // 60
-                unit_label = ngettext('minute', 'minutes', time_left)
+            if seconds_left < 60:
+                # TRANSLATORS: {} represents an integer.
+                # Used as part of a larger string, like:
+                # '5% -- About 30 seconds left'
+                time_shown = ngettext('{} second', '{} seconds', seconds_left).format(seconds_left)
+                # time_shown.format(seconds_left)
+            elif seconds_left < (60 * 60):
+                minutes = seconds_left // 60
 
-            if time_left >= 60:
-                time_left = time_left // 60
-                unit_label = ngettext('hour', 'hours', time_left)
+                # TRANSLATORS: {} represents an integer.
+                # Used as part of a larger string, like:
+                # '10% -- About 30 minutes left'
+                time_shown = ngettext('{} minute', '{} minutes', minutes).format(minutes)
+            elif seconds_left < (60 * 60 * 4):
+                hours = seconds_left // (60 * 60)
+                minutes = (seconds_left // 60) % 60
+
+                # TRANSLATORS: {} represents an integer. Used as part of a
+                # larger string, like:
+                # '10% -- About 2 hours, 30 minutes left'
+                hours_shown = ngettext('{} hour', '{} hours', hours).format(hours)
+
+                # TRANSLATORS: {} represents an integer. Used as part of a
+                # larger string, like:
+                # '10% -- About 2 hours, 30 minutes left'
+                minutes_shown = ngettext('{} minutes', '{} minutes', minutes).format(minutes)
+
+                time_shown = f'{hours_shown}, {minutes_shown}'
+            else:
+                hours = seconds_left // (60 * 60)
+
+                # TRANSLATORS: {} represents an integer. Used as part of a
+                # larger string, like:
+                # '10% -- About 2 hours, 30 minutes left'
+                time_shown = ngettext('{} hour', '{} hours', hours).format(hours)
 
 
             # TRANSLATORS: {percent} represents the progress percentage value.
-            # {time} represents an integer.
-            # {unit} represents a unit of time (e.g. 'second/seconds').
+            # {time_shown} represents a string showing the estimated time to
+            # completion (like '50 minutes').
             # Please use U+202F Narrow no-break space (' ') between {percent}
             # and '%'.
             # Please use U+2014 em dash ('—'), if applicable to your language.
-            progress_text = _('{percent} % — About {time} {unit} left').format(
+            progress_text = _('{percent} % — About {time_shown} left').format(
                 percent = progress_percent,
-                time = time_left,
-                unit = unit_label
+                time_shown = time_shown
             )
         else:
             progress_text = f'{progress_percent} %'
