@@ -610,6 +610,15 @@ class ConstrictWindow(Adw.ApplicationWindow):
                 add_attempt_fail
             )
 
+            def trash_video():
+                # Move video to wastebasket. This is a compromise in case the
+                # user wants to keep their semi-processed file for any reason.
+                # But also doesn't clutter their export folder automatically
+                # with junk files.
+
+                output_file = Gio.File.new_for_path(output_path_unique)
+                output_file.trash_async(GLib.PRIORITY_LOW, None, None, None)
+
             if compress_error:
                 video.set_error(compress_error, daemon)
 
@@ -627,10 +636,15 @@ class ConstrictWindow(Adw.ApplicationWindow):
 
                 update_ui(self.toast_overlay.add_toast, toast, daemon)
 
+                trash_video()
+
                 continue
 
             if not self.compressing:
                 video.set_state(SourceState.PENDING, daemon)
+
+                trash_video()
+
                 break
 
 
