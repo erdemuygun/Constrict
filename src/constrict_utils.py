@@ -26,6 +26,7 @@ import argparse
 import datetime
 import re
 from pathlib import Path
+from tempfile import TemporaryFile
 try:
     from constrict.enums import FpsMode, VideoCodec
 except ModuleNotFoundError:
@@ -145,95 +146,86 @@ def get_progress(
     last_pass_avg_fps,
     cancel_event
 ):
-    #pv_cmd = subprocess.Popen(['pv', file_input], stdout=subprocess.PIPE)
-    # ffmpeg_cmd = subprocess.check_output(ffmpeg_cmd, stdin=pv_cmd.stdout)
-    # pv_cmd.wait()
-    # subprocess.run()
+    with TemporaryFile() as err_file:
+        proc = subprocess.Popen(
+            ffmpeg_cmd,
+            stdin=None,
+            stdout=subprocess.PIPE,
+            stderr=err_file
+        )
 
-    # subprocess.run(ffmpeg_cmd)
+        frame = 0
+        fps_sum = 0
+        pulse_counter = 0
+        avg_counter = 0
 
-    proc = subprocess.Popen(
-        ffmpeg_cmd,
-        stdin=subprocess.PIPE,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE
-    )
+        for line in proc.stdout:
+            line_string = line.decode('utf-8')
 
-    frame = 0
-    fps_sum = 0
-    pulse_counter = 0
-    avg_counter = 0
+            if re.search('^frame=.*$', line_string):
+                frame_match = re.search('[0-9]+', line_string)
+                frame = int(frame_match.group())
+            elif re.search('^fps=.*$', line_string):
+                total_frames = frame_count * (1 if pass_num is None else 2)
+                current_frame = frame_count * (pass_num or 0) + frame
+                progress_fraction = current_frame / total_frames
+                pulse_counter += 1
 
-    for line in proc.stdout:
-        line_string = line.decode('utf-8')
+                if pulse_counter < 10 or (pass_num == 1 and pulse_counter < 20):
+                    # The first few frames of a pass are kind of unpredictable.
+                    # The average FPS is anomalously low compared before it
+                    # starts to 'warm up' to a relatively consistent value.
+                    # Therefore, we don't display the time remaining on the
+                    # first few frames of the first pass, and we just use the
+                    # last pass' average FPS to calculate time remaining on the
+                    # first few frames of the second pass.
 
-        if re.search('^frame=.*$', line_string):
-            frame_match = re.search('[0-9]+', line_string)
-            frame = int(frame_match.group())
-        elif re.search('^fps=.*$', line_string):
-            total_frames = frame_count * (1 if pass_num is None else 2)
-            current_frame = frame_count * (pass_num or 0) + frame
-            progress_fraction = current_frame / total_frames
-            pulse_counter += 1
+                    # We are slightly more lenient on the first pass, since
+                    # it's more important the user can see the estimated time
+                    # earlier on. We are more careful with pass 2, because it
+                    # suddenly makes the estimated time look jumpy and
+                    # inconsistent once progress reaches 50%, if using
+                    # anomalous FPS values.
+                    fps = last_pass_avg_fps
+                else:
+                    fps_match = re.search('[0-9]+[.]?[0-9]*', line_string)
+                    fps = float(fps_match.group())
+                    # print(f'*** FPS VALUE: {fps} ***')
 
-            if pulse_counter < 10 or (pass_num == 1 and pulse_counter < 20):
-                # The first few frames of a pass are kind of unpredictable.
-                # The average FPS is anomalously low compared before it starts
-                # to 'warm up' to a relatively consistent value. Therefore,
-                # we don't display the time remaining on the first few frames
-                # of the first pass, and we just use the last pass' average FPS
-                # to calculate time remaining on the first few frames of the
-                # second pass.
+                    avg_counter += 1
+                    fps_sum += fps
 
-                # We are slightly more lenient on the first pass, since it's
-                # more important the user can see the estimated time earlier
-                # on. We are more careful with pass 2, because it suddenly
-                # makes the estimated time look jumpy and inconsistent once
-                # progress reaches 50%, if using anomalous FPS values.
-                fps = last_pass_avg_fps
-            else:
-                fps_match = re.search('[0-9]+[.]?[0-9]*', line_string)
-                fps = float(fps_match.group())
-                # print(f'*** FPS VALUE: {fps} ***')
+                frames_left = total_frames - current_frame
 
-                avg_counter += 1
-                fps_sum += fps
+                seconds_left = None
 
-            frames_left = total_frames - current_frame
+                if fps:
+                    seconds_left = int(frames_left // fps)
+                    if seconds_left < 0:
+                        seconds_left = 0
 
-            seconds_left = None
+                output_fn(progress_fraction, seconds_left)
 
-            if fps:
-                seconds_left = int(frames_left // fps)
-                if seconds_left < 0:
-                    seconds_left = 0
+            if cancel_event() == True:
+                proc.kill()
+                return (None, None)
 
-            output_fn(progress_fraction, seconds_left)
+        avg = fps_sum / avg_counter if avg_counter else None
 
-        # print(line_string)
+        proc.wait()
+        returncode = proc.poll()
 
-        if cancel_event() == True:
-            proc.kill()
-            return (None, None)
+        if returncode != 0:
+            err_file.flush()
+            err_file.seek(0, 0)
 
-    avg = fps_sum / avg_counter if avg_counter else None
-    # print(f'*** Pass {pass_num + 1} average: {avg} ***')
+            errors = err_file.read()
+            decoded = errors.decode('utf-8')
 
-    # FIXME: random progression stops. multithreading issue?
+            return (avg, decoded)
 
-    proc.wait()
-    returncode = proc.poll()
+        return (avg, None)
 
-    if returncode != 0:
-        errors = proc.communicate()[1]
-        decoded = errors.decode('utf-8')
-
-        return (avg, decoded)
-
-    return (avg, None)
-
-
-    # output_fn(subprocess.check_output(ffmpeg_cmd, text=True))
 
 # Returns null if there's no problem with transcoding.
 # If there's an error while transcoding, it'll return with the details of the
