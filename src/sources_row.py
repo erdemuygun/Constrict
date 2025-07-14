@@ -61,8 +61,6 @@ class SourcesRow(Adw.ActionRow):
     popover = Gtk.Template.Child()
     popover_scrolled_window = Gtk.Template.Child()
 
-    # TODO: make set_preview async on update, not just in constructor
-
     def __init__(
         self,
         video_path: str,
@@ -315,8 +313,6 @@ class SourcesRow(Adw.ActionRow):
         # Check tmp directory is available to write.
         tmp_dir = get_tmp_dir()
 
-        print(f'temp dir: {tmp_dir}')
-
         if not tmp_dir:
             update_ui(
                 self.thumbnail.set_from_icon_name,
@@ -326,8 +322,6 @@ class SourcesRow(Adw.ActionRow):
             return
 
         thumb_file = str(tmp_dir / f'{file_hash}.jpg')
-
-        print(thumb_file)
 
         if thumbnailer == Thumbnailer.TOTEM:
             subprocess.run([
@@ -517,7 +511,6 @@ class SourcesRow(Adw.ActionRow):
         prev_row = list_box.get_row_at_index(prev_index)
 
         if not prev_row:
-            print('previous row doesn\'t exist!')
             return
 
         list_box.move(row, prev_row)
@@ -533,11 +526,6 @@ class SourcesRow(Adw.ActionRow):
         next_row = list_box.get_row_at_index(next_index)
 
         if not next_row or next_row == list_box.add_videos_button:
-            if not next_row:
-                print('next_row doesn\'t exist!')
-            elif next_row == list_box.add_videos_button:
-                print('next row is add videos button!')
-
             return
 
         list_box.move(row, next_row)

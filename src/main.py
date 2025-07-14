@@ -31,7 +31,8 @@ from constrict import APPLICATION_ID, VERSION
 from typing import List, Sequence, Callable, Any
 
 # TODO: improve code documentation.
-# FIXME: segmentation faults
+# FIXME: occasional segmentation fault on compression completion? No idea what
+# the cause is yet. It's seemingly random.
 
 class ConstrictApplication(Adw.Application):
     """The main application singleton class."""
@@ -180,16 +181,11 @@ class ConstrictApplication(Adw.Application):
         about.set_translator_credits(_('translator-credits'))
         about.present(self.props.active_window)
 
-    #TODO: preference ideas
-    # target size unit (e.g., MB, MiB, GB, etc.)
-
     def on_preferences_action(self, widget: Gtk.Widget, _) -> None:
         """Callback for the app.preferences action."""
 
         dialog = PreferencesDialog(self)
         dialog.present(self.props.active_window)
-
-        print('app.preferences action activated')
 
     def create_action(
         self,

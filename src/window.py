@@ -434,7 +434,6 @@ class ConstrictWindow(Adw.ApplicationWindow):
         choice = dialog.choose_finish(result)
 
         if choice == 'stop':
-            print('Compression stopped')
             self.compressing = False
             if dialog.quit_on_stop:
                 self.close()
@@ -560,7 +559,6 @@ class ConstrictWindow(Adw.ApplicationWindow):
                     progress_box.set_progress_text(_('Analyzing…'), daemon)
                     video.enable_spinner(True, daemon)
                     progress_box.pulse_progress(daemon)
-                    print('pulsed')
                 else:
                     video.enable_spinner(False, daemon)
                     progress_box.set_progress(fraction, seconds_left, daemon)
@@ -709,7 +707,6 @@ class ConstrictWindow(Adw.ApplicationWindow):
             lambda x: x.video_path,
             self.sources_list_box.get_all()
         ))
-        print(f'existing: {existing_paths}')
 
         staged_rows = []
 
@@ -724,19 +721,16 @@ class ConstrictWindow(Adw.ApplicationWindow):
                 Gio.FileQueryInfoFlags.NONE
             )
             content_type = info.get_content_type()
-            print(f'content type: {content_type}')
 
             if not content_type:
                 continue
 
             is_video = content_type.startswith('video/')
-            print(f'IS VIDEO: {is_video}')
 
             if not is_video:
                 continue
 
             display_name = info.get_display_name() if info else video.get_basename()
-            print(f'{video.get_basename()} - {video_path}')
 
             staged_row = SourcesRow(
                 video.get_path(),
@@ -809,8 +803,6 @@ class ConstrictWindow(Adw.ApplicationWindow):
         self.settings.set_int('tolerance', self.get_tolerance())
 
     def do_close_request(self, force: bool = False) -> bool:
-        print('close request made')
-
         if self.compressing:
             self.show_cancel_dialog(True)
             return True

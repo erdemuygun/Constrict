@@ -23,7 +23,6 @@ import sys
 import subprocess
 import os
 import argparse
-import datetime
 import re
 from pathlib import Path
 from tempfile import TemporaryFile
@@ -259,8 +258,6 @@ def transcode(
     portrait = height > width
     frame_height = width if portrait else height
 
-    print(f' frame height: {frame_height}')
-
     preset_name = '-cpu-used' if codec == VideoCodec.VP9 else '-preset'
     preset = get_encoding_speed(frame_height, codec, extra_quality)
 
@@ -309,8 +306,6 @@ def transcode(
     if cancel_event():
         return None
 
-    print(" ".join(pass1_cmd))
-    print(' Transcoding... (pass 1/2)')
     avg_fps, progress_error = get_progress(
         file_input,
         pass1_cmd,
@@ -365,8 +360,6 @@ def transcode(
     if cancel_event():
         return None
 
-    print(" ".join(pass2_cmd))
-    print(' Transcoding... (pass 2/2)')
     avg_fps, progress_error = get_progress(
         file_input,
         pass2_cmd,
@@ -553,14 +546,8 @@ def get_encode_settings(
     )
 
 
-""" TODO:
-add overwrite confirmation and argument
-improve text formatting
-"""
-
 # Returns None if compression went smoothly.
 # If there's an error while compressing, it'll return compression details.
-# TODO: change return values to passed functions -- makes more sense
 # TODO: make error msgs translatable
 def compress(
     file_input: str,
@@ -576,7 +563,6 @@ def compress(
     on_new_attempt: Callable[[int, int, bool, int, float], None],
     on_attempt_fail: Callable[[int, int, bool, int, float, int, int], None]
 ) -> Tuple[Optional[str], Optional[int], Optional[str]]:
-    start_time = datetime.datetime.now().replace(microsecond=0)
     output_fn(0, None)
 
     target_size_bytes = target_size_MiB * 1024 * 1024
@@ -656,8 +642,6 @@ def compress(
         if target_video_bitrate < 5000:
             return (None, None, "Constrict: Video bitrate got too low (<5 Kbps). The target size may be too low for this file.")
 
-        print(f'Target height {target_height}')
-
         scaling_factor = height / target_height
         target_width = int(((width / scaling_factor + 1) // 2) * 2)
 
@@ -701,18 +685,9 @@ def compress(
 
         factor *= 100 / percent_of_target
 
-        print(f'after_size_bytes: {after_size_bytes}')
-        print(f'percent_of_target: {percent_of_target}')
-        print(f'factor: {factor}')
-
         if (percent_of_target > 100):
             # Prevent a lot of attempts resulting in above-target sizes
             factor *= 0.95
-
-        print(f'factor (reduced): {factor}')
-
-    time_taken = datetime.datetime.now().replace(microsecond=0) - start_time
-    print(f"\nCompleted in {time_taken}.")
 
     return (file_output, after_size_bytes, None)
 
