@@ -548,7 +548,6 @@ def get_encode_settings(
 
 # Returns None if compression went smoothly.
 # If there's an error while compressing, it'll return compression details.
-# TODO: make error msgs translatable
 def compress(
     file_input: str,
     file_output: str,
@@ -565,12 +564,24 @@ def compress(
 ) -> Tuple[Optional[str], Optional[int], Optional[str]]:
     output_fn(0, None)
 
+    file_input_path = Path(file_input)
+    if not file_input_path.is_file():
+        return (
+            None,
+            None,
+            "Constrict: Could not read input file. Was it moved or deleted before compression?"
+        )
+
     target_size_bytes = target_size_MiB * 1024 * 1024
     before_size_bytes = os.stat(file_input).st_size
     after_size_bytes = 0
 
     if before_size_bytes <= target_size_bytes:
-        return (None, None, "Constrict: File already meets the target size.")
+        return (
+            None,
+            None,
+            "Constrict: File already meets the target size."
+        )
 
     try:
         duration_seconds = get_duration(file_input)
@@ -579,16 +590,28 @@ def compress(
         source_frame_count = get_frame_count(file_input)
         portrait = (width < height) ^ (get_rotation(file_input) == -90)
     except subprocess.CalledProcessError:
-        return (None, None, "Constrict: Could not retrieve video properties. Source video may be missing or corrupted.")
+        return (
+            None,
+            None,
+            "Constrict: Could not retrieve video properties. Source video may be missing or corrupted."
+        )
 
     try:
         Path(file_output).touch(exist_ok=False)
     except FileExistsError:
-        # This should never reasonably happen if a unique file name has been
-        # passed to this function as file_output.
-        return (None, None, "Constrict: Could not create exported file. A file with the reserved name already exists.")
+        # This should never happen if a unique file name has been passed to
+        # this function as file_output.
+        return (
+            None,
+            None,
+            "Constrict: Could not create exported file. A file with the reserved name already exists."
+        )
     except PermissionError:
-        return (None, None, "Constrict: Could not create exported file. There are insufficient permissions to create a file at the requested export path.")
+        return (
+            None,
+            None,
+            "Constrict: Could not create exported file. There are insufficient permissions to create a file at the requested export path."
+        )
 
     # initialise values
     factor = 1.0
@@ -640,7 +663,11 @@ def compress(
 
         # Below 5 Kbps, barely anything is perceptible in the video anymore.
         if target_video_bitrate < 5000:
-            return (None, None, "Constrict: Video bitrate got too low (<5 Kbps). The target size may be too low for this file.")
+            return (
+                None,
+                None,
+                "Constrict: Video bitrate got too low (<5 Kbps). The target size may be too low for this file."
+            )
 
         scaling_factor = height / target_height
         target_width = int(((width / scaling_factor + 1) // 2) * 2)
@@ -680,7 +707,11 @@ def compress(
         try:
             after_size_bytes = os.stat(file_output).st_size
         except FileNotFoundError:
-            return (None, None, "Constrict: Cannot read output file. Was it moved or deleted mid-compression?")
+            return (
+                None,
+                None,
+                "Constrict: Cannot read output file. Was it moved or deleted mid-compression?"
+            )
         percent_of_target = (100 / target_size_bytes) * after_size_bytes
 
         factor *= 100 / percent_of_target
