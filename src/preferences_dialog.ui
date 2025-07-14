@@ -7,8 +7,33 @@
     <child>
       <object class="AdwPreferencesPage">
         <child>
-          <object class="AdwPreferencesGroup" id="suffix_preferences_group">
+          <object class="AdwPreferencesGroup">
             <property name="title" translatable="true">Exported Video Suffix</property>
+            <property name="header-suffix">
+              <object class="GtkMenuButton">
+                <property name="tooltip-text" translatable="true">More Information</property>
+                <property name="icon-name">help-about-symbolic</property>
+                <property name="popover">
+                  <object class="GtkPopover">
+                    <property name="child">
+                      <object class="GtkLabel" id="suffix_info_label">
+                        <property name="halign">center</property>
+                        <property name="margin-start">6</property>
+                        <property name="margin-end">6</property>
+                        <property name="margin-top">6</property>
+                        <property name="margin-bottom">6</property>
+                        <property name="wrap">True</property>
+                        <property name="max-width-chars">50</property>
+                        <property name="valign">center</property>
+                      </object>
+                    </property>
+                  </object>
+                </property>
+                <style>
+                  <class name="flat"/>
+                </style>
+              </object>
+            </property>
             <child>
               <object class="AdwEntryRow" id="suffix_entry_row">
                 <property name="title" translatable="yes">Custom Suffix</property>

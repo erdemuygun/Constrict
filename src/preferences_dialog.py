@@ -28,15 +28,13 @@ class PreferencesDialog(Adw.PreferencesDialog):
     """ The application's preferences dialog """
     __gtype_name__ = "PreferencesDialog"
 
-    # TODO: adjust dialog size?
-
-    suffix_preferences_group = Gtk.Template.Child()
+    suffix_info_label = Gtk.Template.Child()
     suffix_entry_row = Gtk.Template.Child()
 
     def __init__(self, application: Adw.Application, **kwargs: Any) -> None:
         super().__init__(**kwargs)
 
-        self.suffix_preferences_group.set_description(
+        self.suffix_info_label.set_label(
             # TRANSLATORS: {} represents the value of the default suffix.
             _('Used in file names for exported videos, between the base name and extension. If the custom suffix is left empty, the default suffix of “{}” will be used.')
                 .format(application.default_suffix)
