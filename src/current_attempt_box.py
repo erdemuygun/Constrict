@@ -25,6 +25,9 @@ from typing import Any
 
 @Gtk.Template(resource_path=f'{PREFIX}/current_attempt_box.ui')
 class CurrentAttemptBox(Gtk.Box):
+    """ A box showing the details of a currently running compression, shown in
+    a compression details popover.
+    """
     __gtype_name__ = "CurrentAttemptBox"
 
     progress_bar = Gtk.Template.Child()
@@ -39,12 +42,11 @@ class CurrentAttemptBox(Gtk.Box):
         self.attempt_label.set_label(_('Attempt {}').format('1'))
 
     def set_progress_text(self, label: str, daemon: bool) -> None:
+        """ Sets the text above the progress bar to the string passed """
         update_ui(self.progress_details_label.set_text, label, daemon)
 
-    def get_progress_text(self) -> str:
-        return self.progress_bar.get_text()
-
     def pulse_progress(self, daemon: bool) -> None:
+        """ Pulse the progress bar in activity mode """
         update_ui(self.progress_bar.pulse, None, False)
 
     def set_attempt_details(
@@ -56,6 +58,10 @@ class CurrentAttemptBox(Gtk.Box):
         vid_fps: float,
         daemon: bool
     ) -> None:
+        """ Set the text above the progress bar based on details of a
+        compression attempt.
+        """
+
         # TRANSLATORS: {} represents the attempt number.
         attempt_no_label = _('Attempt {}').format(str(attempt_no))
         update_ui(self.attempt_label.set_label, attempt_no_label, daemon)
@@ -86,6 +92,7 @@ class CurrentAttemptBox(Gtk.Box):
         seconds_left: int,
         daemon: bool
     ) -> None:
+        """ Set details of current progress and estimated time left """
         update_ui(self.progress_bar.set_fraction, fraction, daemon)
 
         progress_percent = int(round(fraction * 100, 0))

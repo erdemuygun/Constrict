@@ -25,6 +25,8 @@ from typing import Any
 
 @Gtk.Template(resource_path=f'{PREFIX}/source_popover_box.ui')
 class SourcePopoverBox(Gtk.Box):
+    """ A box used in a GtkPopover to show details of a video's compression
+    details """
     __gtype_name__ = "SourcePopoverBox"
 
     def __init__(self, top_widget: Gtk.Widget, **kwargs: Any) -> None:
@@ -34,12 +36,14 @@ class SourcePopoverBox(Gtk.Box):
         self.prepend(self.top_widget)
 
     def set_top_widget(self, widget: Gtk.Widget, daemon: bool) -> None:
+        """ Sets the widget to be shown at the top of the popover """
         update_ui(self.remove, self.top_widget, daemon)
         update_ui(self.prepend, widget, daemon)
 
         self.top_widget = widget
 
     def add_fail_widget(self, fail_widget: Gtk.Widget, daemon):
+        """ Add a widget from when a compression fails to the popover """
         if daemon:
             GLib.idle_add(
                 self.insert_child_after,

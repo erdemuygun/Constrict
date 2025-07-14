@@ -23,6 +23,7 @@ from typing import Any
 
 @Gtk.Template(resource_path=f'{PREFIX}/error_dialog.ui')
 class ErrorDialog(Adw.Dialog):
+    """ An dialog showing the details of a video's compression error """
     __gtype_name__ = "ErrorDialog"
 
     preference_page = Gtk.Template.Child()
@@ -57,6 +58,7 @@ class ErrorDialog(Adw.Dialog):
         action_name: str,
         parameter: GLib.Variant
     ) -> None:
+        """ Copy the text in the 'details' text box to the clipboard """
         text_buffer = widget.text_view.get_buffer()
 
         start, end = text_buffer.get_bounds()

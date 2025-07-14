@@ -192,6 +192,9 @@ class ConstrictWindow(Adw.ApplicationWindow):
         y: int,
         user_data: Any = None
     ) -> None:
+        """ Stage video files that have been dragged and dropped onto the
+        window
+        """
         files: List[Gio.File] = value.get_files()
 
         self.stage_videos(files)
@@ -207,6 +210,8 @@ class ConstrictWindow(Adw.ApplicationWindow):
         return Gdk.DragAction.COPY
 
     def set_controls_lock(self, is_locked: bool, daemon: bool) -> None:
+        """ Set whether to make most of the window's controls like compression
+        settings and source video management interactable or not """
         update_ui(self.target_size_row.set_sensitive, not is_locked, daemon)
         update_ui(self.auto_row.set_sensitive, not is_locked, daemon)
         update_ui(self.clear_row.set_sensitive, not is_locked, daemon)
@@ -226,15 +231,21 @@ class ConstrictWindow(Adw.ApplicationWindow):
 
         self.sources_list_box.set_locked(is_locked, daemon)
 
-    # Return whether the passed widget is an unchecked GtkCheckButton
     def is_unchecked_checkbox(self, widget: Gtk.Widget) -> bool:
+        """ Return whether the passed widget is an unchecked GtkCheckButton """
         return type(widget) is Gtk.CheckButton and not widget.get_active()
 
     def set_warning_state(self, is_error: bool, daemon: bool) -> None:
+        """ Set whether to put the window in a warning state, disabling export
+        and showing a banner communicating this.
+        """
         update_ui(self.export_action.set_enabled, not is_error, daemon)
         update_ui(self.warning_banner.set_revealed, is_error, daemon)
 
     def refresh_can_export(self, daemon: bool) -> None:
+        """ Set whether the export action is enabled or not based on the states
+        of the video sources
+        """
         sources = self.sources_list_box.get_all()
 
         if not sources:
@@ -262,6 +273,9 @@ class ConstrictWindow(Adw.ApplicationWindow):
             update_ui(self.export_action.set_enabled, False, daemon)
 
     def set_compressing_title(self, current_index: int, export_dir: str):
+        """ Set the text in the window's title bar when compression is taking
+        place
+        """
         sources = self.sources_list_box.get_all()
 
         if len(sources) == 1:
@@ -290,6 +304,9 @@ class ConstrictWindow(Adw.ApplicationWindow):
         )
 
     def set_queued_title(self, daemon: bool) -> None:
+        """ Set the text in the window's title bar when no compression is
+        taking place.
+        """
         sources = self.sources_list_box.get_all()
 
         if len(sources) == 0:
@@ -309,6 +326,11 @@ class ConstrictWindow(Adw.ApplicationWindow):
         update_ui(self.window_title.set_subtitle, '', daemon)
 
     def refresh_previews(self, widget: Gtk.Widget, *args: Any) -> None:
+        """ Refresh the previews of all source rows in the sources list box.
+        Disable the export action if there are any errors with the sources
+        (for example, broken or incompatible videos).
+        """
+
         # Return if called from a check button being 'unchecked'
         if self.is_unchecked_checkbox(widget):
             return
@@ -322,9 +344,12 @@ class ConstrictWindow(Adw.ApplicationWindow):
         self.withdraw_complete_notification()
 
     def get_target_size(self) -> int:
+        """ Get the target size set in the window's compression settings """
         return int(self.target_size_input.get_value())
 
     def get_fps_mode(self) -> int:
+        """ Get the framerate limit set in the windows's compression settings
+        """
         if self.auto_check_button.get_active():
             return FpsMode.AUTO
         if self.clear_check_button.get_active():
@@ -335,6 +360,7 @@ class ConstrictWindow(Adw.ApplicationWindow):
         raise Exception('Tried to get fps mode, but none was set.')
 
     def set_fps_mode(self, mode: int) -> None:
+        """ Set the framerate limit in the window's compression settings """
         match mode:
             case FpsMode.AUTO:
                 self.auto_check_button.set_active(True)
@@ -346,31 +372,46 @@ class ConstrictWindow(Adw.ApplicationWindow):
                 self.auto_check_button.set_active(True)
 
     def get_video_codec(self) -> int:
+        """ Get the video codec set in the windows's compression settings """
         return self.codec_dropdown.get_selected()
 
     def set_video_codec(self, codec_index: int) -> None:
+        """ Set the video codec in the windows's compression settings """
         self.codec_dropdown.set_selected(codec_index)
 
     def get_extra_quality(self) -> bool:
+        """ Get the 'extra quality' mode set in the window's compression
+        settings
+        """
         return self.extra_quality_toggle.get_active()
 
     def get_tolerance(self) -> int:
+        """ Get the tolerance value set in the window's compression settings
+        """
         return int(self.tolerance_input.get_value())
 
     def toggle_sidebar(self, action: Gio.Action, _) -> None:
+        """ Toggle whether the compression settings sidebar is shown """
         sidebar_shown = self.split_view.get_show_sidebar()
         self.split_view.set_show_sidebar(not sidebar_shown)
 
     def delist_all(self, action: Gio.Action, _) -> None:
+        """ Remove all source rows from the window's source list box. Disable
+        the export function and refresh the window title
+        """
         self.sources_list_box.remove_all()
         self.refresh_can_export(False)
         self.set_queued_title(False)
 
     def show_cancel_button(self, is_compressing: bool, daemon: bool) -> None:
+        """ Change whether to show the 'cancel' button or the 'export' button
+        in the window
+        """
         update_ui(self.cancel_bar.set_visible, is_compressing, daemon)
         update_ui(self.export_bar.set_visible, not is_compressing, daemon)
 
     def export_file_dialog(self, action: Gio.Action, parameter: GLib.Variant) -> None:
+        """ Show a file chooser for the folder to export videos to """
         native = Gtk.FileDialog()
 
         initial_folder_path = self.settings.get_string('export-initial-folder')
@@ -386,6 +427,8 @@ class ConstrictWindow(Adw.ApplicationWindow):
         dialog: Gtk.FileDialog,
         result: Gio.AsyncResult
     ) -> None:
+        """ Start compressing videos in a new thread, exporting to the folder
+        path passed """
         folder = dialog.select_folder_finish(result)
 
         if not folder:
@@ -402,9 +445,11 @@ class ConstrictWindow(Adw.ApplicationWindow):
         thread.start()
 
     def on_cancel(self, action: Gio.Action, parameter: GLib.Variant) -> None:
+        """ Show the window's cancel dialog """
         self.show_cancel_dialog(False)
 
     def show_cancel_dialog(self, quit_on_stop: bool) -> None:
+        """ Display a cancel dialog to stop the current compression """
         dialog = Adw.AlertDialog.new(
             _('Stop Compression?'),
             # TRANSLATORS: {} represents the filename of the video currently
@@ -431,6 +476,7 @@ class ConstrictWindow(Adw.ApplicationWindow):
         dialog: Adw.AlertDialog,
         result: Gio.AsyncResult
     ) -> None:
+        """ Act on a cancel dialog's response """
         choice = dialog.choose_finish(result)
 
         if choice == 'stop':
@@ -439,17 +485,25 @@ class ConstrictWindow(Adw.ApplicationWindow):
                 self.close()
 
     def error_dialog(self, file_name: str, error_details: str) -> None:
+        """ Show an error dialog for a video's compression error """
         dialog = ErrorDialog(file_name, error_details)
 
         dialog.present(self)
 
     def show_error_from_toast(self, toast: Adw.Toast) -> None:
+        """ Show an error dialog from clicking a toast's "Show Error Details"
+         button
+         """
         self.error_dialog(toast.video.display_name, toast.video.error_details)
 
     def get_complete_notification_id(self) -> str:
+        """ Get a unique notification ID for communicating compression is
+        complete, for this window
+        """
         return f'compress-complete-{self.get_id()}'
 
     def withdraw_complete_notification(self) -> None:
+        """ Withdraw a 'compression complete' notification for this window """
         notification_id = self.get_complete_notification_id()
         self.get_application().withdraw_notification(notification_id)
 
@@ -458,6 +512,10 @@ class ConstrictWindow(Adw.ApplicationWindow):
         sources_list: List[SourcesRow],
         export_dir: str
     ) -> None:
+        """ Send a notification communicating that compression is complete to
+        the user's desktop environment. Include a button to open the export
+        directory of the compressed videos.
+        """
         notification = Gio.Notification.new(_('Compression Complete'))
         notification.set_category('transfer.complete')
 
@@ -494,10 +552,10 @@ class ConstrictWindow(Adw.ApplicationWindow):
 
     def get_unique_path(self, file_path: str) -> str:
         """
-        Returns a unique file path for the file path given. Ensures that no file is
-        overwritten, as if the input file path already exists, the file path output
-        will be in the form of '{file_root}-{n}{file_ext}' where n incremented with
-        every existing file in the directory.
+        Returns a unique file path for the file path given. Ensures that no
+        file is overwritten, as if the input file path already exists, the file
+        path output will be in the form of '{file_root}-{n}{file_ext}' where n
+        incremented with every existing file in the directory.
 
         Do not use if you *want* to overwrite something.
         """
@@ -513,6 +571,9 @@ class ConstrictWindow(Adw.ApplicationWindow):
         return final_path
 
     def bulk_compress(self, destination_dir: str, daemon: bool) -> None:
+        """ Compress all videos in the sources list box, exporting to the
+        passed destination directory
+        """
         self.set_controls_lock(True, daemon)
         self.show_cancel_button(True, daemon)
         self.compressing = True
@@ -698,11 +759,17 @@ class ConstrictWindow(Adw.ApplicationWindow):
         self.compressing = False
 
     def remove_row(self, row: SourcesRow) -> None:
+        """ Remove a row from the window's sources list box. Refresh the
+        window's title, and whether the export action is enabled
+        """
         self.sources_list_box.remove(row)
         self.refresh_can_export(False)
         self.set_queued_title(False)
 
     def stage_videos(self, video_list: List[Gio.File]) -> None:
+        """ Add passed video files to the window's sources list box as
+        sources rows.
+        """
         existing_paths = list(map(
             lambda x: x.video_path,
             self.sources_list_box.get_all()
@@ -753,7 +820,14 @@ class ConstrictWindow(Adw.ApplicationWindow):
             self.export_button.grab_focus()
             self.set_queued_title(False)
 
-    def open_file_dialog(self, action: Gio.Action, parameter: GLib.Variant) -> None:
+    def open_file_dialog(
+        self,
+        action: Gio.Action,
+        parameter: GLib.Variant
+    ) -> None:
+        """ Show a file dialog to add videos to the window's video sources list
+        """
+
         # Create new file selection dialog, using "open" mode
         native = Gtk.FileDialog()
         video_filter = Gtk.FileFilter()
@@ -777,6 +851,7 @@ class ConstrictWindow(Adw.ApplicationWindow):
         dialog: Gtk.FileDialog,
         result: Gio.AsyncResult
     ) -> None:
+        """ Stage the videos passed to the window's video sources list """
         files = dialog.open_multiple_finish(result)
 
         if not files:
@@ -791,6 +866,10 @@ class ConstrictWindow(Adw.ApplicationWindow):
         self.stage_videos(files)
 
     def save_window_state(self) -> None:
+        """ Write the window's various states and compression settings to the
+        application's settings. This is so that new windows can be loaded
+        with these same settings.
+        """
         self.settings.set_boolean('window-maximized', self.is_maximized())
 
         width, height = self.get_default_size()
@@ -803,6 +882,9 @@ class ConstrictWindow(Adw.ApplicationWindow):
         self.settings.set_int('tolerance', self.get_tolerance())
 
     def do_close_request(self, force: bool = False) -> bool:
+        """ Gracefully close the window, showing a cancel dialog if a close
+        request was made while compression was taking place
+        """
         if self.compressing:
             self.show_cancel_dialog(True)
             return True

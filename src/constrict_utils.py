@@ -33,12 +33,12 @@ except ModuleNotFoundError:
     from enums import FpsMode, VideoCodec
 
 
-# Module responsible for compression logic. This script can be packaged
-# on its own to provide a CLI compressor *only*. The GTK wrapper depends on
-# this script for its 'business logic' too.
+# Module responsible for compression logic. Other scripts communicate with it
+# to provide a UI for video compression.
 
 
 def get_duration(file_input: str) -> float:
+    """ Gets the duration of a video passed in seconds. """
     return float(
         subprocess.check_output([
             "ffprobe",
@@ -62,8 +62,6 @@ def get_res_preset(
     to a new, reduced bitrate for optimal perceived video quality. This
     function should not return a resolution preset larger than the source
     resolution (i.e. an upscaled or stretched resolution).
-
-    -If -1 is returned, then the video's source resolution is recommended.
     """
 
     source_pixels = source_width * source_height  # Get pixel count
@@ -115,6 +113,10 @@ def get_encoding_speed(
     codec: int,
     extra_quality: bool
 ) -> str:
+    """ Returns an ffmpeg encoding speed based on the video's frame height,
+    the user's requested video codec, and whether the user wants extra
+    transcode quality.
+    """
     hd = frame_height > 480
 
     match codec:
@@ -142,8 +144,6 @@ def get_encoding_speed(
         case _:
             sys.exit('Error: unknown codec passed to get_encoding_speed')
 
-# Returns null if there's no problem while getting progress of an ffmpeg
-# operation. If there's an error, the error details will be returned.
 def get_progress(
     file_input: str,
     ffmpeg_cmd: List[str],
@@ -153,6 +153,31 @@ def get_progress(
     last_pass_avg_fps: Optional[float],
     cancel_event: Callable
 ) -> Tuple[Optional[float], Optional[str]]:
+    """ Continuously output transcoding progress from an ffmpeg command to a
+    passed function.
+
+    Needs the total number of frames of the video to calculate an accurate
+    percentage of completion based on the current frame being processed by
+    ffmpeg. We also need a pass number to represent 2-pass encoding as one
+    continuous progress state (so, 100% of pass 1 means 50% is passed to the
+    output function). If no pass number is passed, then the progress of the
+    transcode will just be output as the progress overall -- useful for VP9,
+    where pass 1 just has a progress bar in activity mode because ffmpeg
+    doesn't report VP9 pass 1 progress, so the progress bar can go from 0-100%
+    in pass 2 only.
+
+    If pass 2 of an ffmpeg transcode is being passed to this function, it's
+    worth also passing pass 1's average FPS (frames per second) value, to
+    estimate remaining time immediately when pass 2 starts without hugely
+    anomalous values at the start.
+
+    Finally, function that gets a 'cancelled' state should be passed, so the
+    subprocess can be killed and we can return to the rest of the progress as
+    soon as possible.
+
+    Returns None if there's no problem while getting progress of an ffmpeg
+    operation. If there's an error, the error details will be returned.
+    """
     with TemporaryFile() as err_file:
         proc = subprocess.Popen(
             ffmpeg_cmd,
@@ -237,9 +262,6 @@ def get_progress(
         return (avg, None)
 
 
-# Returns null if there's no problem with transcoding.
-# If there's an error while transcoding, it'll return with the details of the
-# error.
 def transcode(
     file_input: str,
     file_output: str,
@@ -255,6 +277,13 @@ def transcode(
     log_path: str,
     cancel_event: Callable[[], bool]
 ) -> Optional[str]:
+    """
+    Transcode a video to a passed destination with the passed settings.
+
+    Returns None if there's no problem with transcoding.
+    If there's an error while transcoding, it'll return with the details of the
+    error.
+    """
     portrait = height > width
     frame_height = width if portrait else height
 
@@ -377,6 +406,7 @@ def transcode(
 
 
 def get_framerate(file_input: str) -> float:
+    """ Gets the framerate of a video at the passed file path. """
     cmd = [
         'ffprobe',
         '-v', '0',
@@ -397,6 +427,7 @@ def get_framerate(file_input: str) -> float:
 
 
 def get_resolution(file_input: str) -> Tuple[int, int]:
+    """ Gets the resolution of a video at the passed file path. """
     cmd = [
         'ffprobe',
         '-v', 'error',
@@ -416,6 +447,7 @@ def get_resolution(file_input: str) -> Tuple[int, int]:
 
 
 def get_rotation(file_input: str) -> int:
+    """ Gets the rotation value of a video at the passed file path. """
     cmd = [
         'ffprobe',
         '-v', 'error',
@@ -435,6 +467,7 @@ def get_rotation(file_input: str) -> int:
     return rotation
 
 def get_frame_count(file_input: str) -> int:
+    """ Gets the total number of frames in a video at the passed file path """
     cmd = [
         'ffprobe',
         '-v', 'error',
@@ -463,6 +496,9 @@ def get_encode_settings(
     duration: float,
     factor: float = 1.0
 ) -> Tuple[int, int, int, float]:
+    """ Return recommended encode settings for a given video and user
+    preferences, in order to meet the target file size """
+
     target_size_KiB = target_size_MiB * 1024
     target_size_bytes = target_size_KiB * 1024
     target_size_bits = target_size_bytes * 8
@@ -546,8 +582,6 @@ def get_encode_settings(
     )
 
 
-# Returns None if compression went smoothly.
-# If there's an error while compressing, it'll return compression details.
 def compress(
     file_input: str,
     file_output: str,
@@ -562,6 +596,20 @@ def compress(
     on_new_attempt: Callable[[int, int, bool, int, float], None],
     on_attempt_fail: Callable[[int, int, bool, int, float, int, int], None]
 ) -> Tuple[Optional[str], Optional[int], Optional[str]]:
+    """
+    Iteratively transcode a given video to the passed destination file path,
+    using the passed user preferences, until the output file reasonably
+    meets the target size.
+
+    - If the compression succeeds, it'll return a float representing the output
+    file size.
+    - If there's an error while compressing, it'll return a string of error
+    details.
+    - If compression ends for any other reason (like being cancelled), it'll
+    return None.
+    """
+
+    # TODO: actually make above changes to return value.
     output_fn(0, None)
 
     file_input_path = Path(file_input)

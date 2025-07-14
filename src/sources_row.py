@@ -42,6 +42,7 @@ from typing import Optional, Any, Callable, Tuple
 
 @Gtk.Template(resource_path=f'{PREFIX}/sources_row.ui')
 class SourcesRow(Adw.ActionRow):
+    """ An action row representing a video to be compressed """
     __gtype_name__ = 'SourcesRow'
 
     thumbnail = Gtk.Template.Child()
@@ -127,6 +128,7 @@ class SourcesRow(Adw.ActionRow):
         top_widget: Gtk.Widget,
         daemon: bool
     ) -> None:
+        """ Add a popover box to the sources row """
         self.popover_box = SourcePopoverBox(top_widget)
         update_ui(
             self.popover_scrolled_window.set_child,
@@ -139,6 +141,7 @@ class SourcesRow(Adw.ActionRow):
         top_widget: Gtk.Widget,
         daemon: bool
     ) -> None:
+        """ Set the top widget of the source row's popover box """
         if not self.popover_box:
             return
 
@@ -155,6 +158,7 @@ class SourcesRow(Adw.ActionRow):
         target_size_bytes: int,
         daemon: bool
     ) -> None:
+        """ Add attempt failure details to the source row's popover box. """
         if not self.popover_box:
             return
 
@@ -170,6 +174,7 @@ class SourcesRow(Adw.ActionRow):
         self.popover_box.add_fail_widget(fail_box, daemon)
 
     def set_draggable(self, can_drag: bool) -> None:
+        """ Set whether this row can be dragged or not """
         propagation_phase = Gtk.PropagationPhase.CAPTURE if (
             can_drag
         ) else Gtk.PropagationPhase.NONE
@@ -194,6 +199,8 @@ class SourcesRow(Adw.ActionRow):
         drag_source: Gtk.DragSource,
         drag: Gdk.Drag
     ) -> None:
+        """ Show a drag widget attached to the user's cursor when they begin to
+        drag the row """
         self.drag_widget = Gtk.ListBox.new()
         self.drag_widget.set_size_request(self.get_width(), -1)
 
@@ -218,6 +225,9 @@ class SourcesRow(Adw.ActionRow):
 
     @Gtk.Template.Callback()
     def on_motion(self, drop_target: Gtk.DropTarget, x: int, y: int) -> int:
+        """ Prevent source rows being dragged across list boxes of different
+        windows.
+        """
         row_to_drop = drop_target.get_value()
         source_list_box = row_to_drop.get_parent()
         this_list_box = self.get_parent()
@@ -233,6 +243,9 @@ class SourcesRow(Adw.ActionRow):
         x: int,
         y: int
     ) -> bool:
+        """ Move the currently dragged row into the position where it has been
+        dropped
+        """
         self.drag_widget = None
         self.drag_x = 0
         self.drag_y = 0
@@ -259,6 +272,9 @@ class SourcesRow(Adw.ActionRow):
         action_name: str,
         parameter: GLib.Variant
     ) -> None:
+        """ Call the function responsible for removing this row from the list
+        box
+        """
         sources_row.remove_action(sources_row)
 
     def on_error_query(
@@ -267,27 +283,41 @@ class SourcesRow(Adw.ActionRow):
         action_name: str,
         parameter: GLib.Variant
     ) -> None:
+        """ Run the function responsible for displaying error details """
         row.error_action(row.display_name, row.error_details)
 
     def get_resolution(self) -> Tuple[int, int]:
+        """ Get the resolution of the video represented by the row. This
+        resolution is cached within the object after first fetching it.
+        """
         if not self.width or not self.height:
             self.width, self.height = get_resolution(self.video_path)
 
         return (self.width, self.height)
 
     def get_fps(self) -> float:
+        """ Get the framerate of the video represented by the row. This
+        framerate is cached within the object after first fetching it.
+        """
         if not self.fps:
             self.fps = get_framerate(self.video_path)
 
         return self.fps
 
     def get_duration(self) -> float:
+        """ Get the duration of the video represented by the row. This
+        duration is cached within the object after first fetching it.
+        """
         if not self.duration:
             self.duration = get_duration(self.video_path)
 
         return self.duration
 
     def set_thumbnail(self, file_hash: int, daemon: bool) -> None:
+        """ Set a thumbnail for the row, by running a thumbnailer on the video
+        this row represents, and storing it named with the video's file hash
+        in a temp directory
+        """
         bin_totem = 'totem-video-thumbnailer'
         bin_ffmpeg = 'ffmpegthumbnailer'
 
@@ -343,6 +373,7 @@ class SourcesRow(Adw.ActionRow):
         update_ui(self.thumbnail.set_from_file, thumb_file, daemon)
 
     def get_size(self) -> int:
+        """ Get the file size of the input video this row represents """
         if self.size:
             return self.size
 
@@ -350,10 +381,15 @@ class SourcesRow(Adw.ActionRow):
         return self.size
 
     def set_incompatible(self, incompatible_msg: str, daemon: bool) -> None:
+        """ Show a message indicating there's a problem with the set target
+        size in relation to the video
+        """
         update_ui(self.incompatible_label.set_label, incompatible_msg, daemon)
         self.set_state(SourceState.INCOMPATIBLE, daemon)
 
     def set_error(self, error_details: str, daemon: bool) -> None:
+        """ Put the row into an error state, as a result of an error while
+        compressing """
         self.error_details = error_details
         self.set_state(SourceState.ERROR, daemon)
 
@@ -363,6 +399,7 @@ class SourcesRow(Adw.ActionRow):
         compressed_size_mb: int,
         daemon: bool
     ) -> None:
+        """ Put the row in complete state, after compression has finished """
         update_ui(
             self.complete_label.set_label,
             # TRANSLATORS: the {} represents a file size value in MB. Please
@@ -379,6 +416,8 @@ class SourcesRow(Adw.ActionRow):
         target_size: int,
         daemon: bool
     ) -> None:
+        """ Refresh the row's state (pending/incompatible/broken) based on new
+        information """
         if self.state == SourceState.BROKEN:
             return
         elif self.get_size() < target_size * 1024 * 1024:
@@ -414,6 +453,10 @@ class SourcesRow(Adw.ActionRow):
         fps_mode_getter: Callable[[], int],
         daemon: bool
     ) -> None:
+        """ Set the row's subtitle to a preview of what the original video's
+        resolution/framerate is and an estimation of the compressed video's
+        resolution/framerate.
+        """
         if self.state == SourceState.BROKEN:
             return
 
@@ -457,6 +500,7 @@ class SourcesRow(Adw.ActionRow):
         update_ui(self.set_subtitle, subtitle, daemon)
 
     def set_state(self, state: int, daemon: bool) -> None:
+        """ Set the row's state, and change the UI to reflect it """
         # If new state and old state are the same:
         if state == self.state:
             return
@@ -483,10 +527,14 @@ class SourcesRow(Adw.ActionRow):
         self.state = state
 
     def enable_spinner(self, enable_spinner: bool, daemon: bool) -> None:
+        """ Change whether to show a spinner or a progress pie for the
+        row's progression widget.
+        """
         update_ui(self.progress_pie.set_visible, not enable_spinner, daemon)
         update_ui(self.progress_spinner.set_visible, enable_spinner, daemon)
 
     def show_drag_handle(self, shown: bool) -> None:
+        """ Show or hide the row's drag handle icon """
         self.drag_handle_revealer.set_reveal_child(shown)
 
     def find_compressed_file(
@@ -495,6 +543,9 @@ class SourcesRow(Adw.ActionRow):
         action_name: str,
         parameter: GLib.Variant
     ) -> None:
+        """ Show the compressed video represented by the row in the user's file
+        manager
+        """
         row.complete_popover.popdown()
         compressed_file = Gio.File.new_for_path(row.compressed_path)
         file_launcher = Gtk.FileLauncher.new(compressed_file)
@@ -506,6 +557,7 @@ class SourcesRow(Adw.ActionRow):
         action_name: str,
         parameter: GLib.Variant
     ) -> None:
+        """ Move the row up in its parent list box """
         list_box = row.get_parent()
         prev_index = row.get_index() - 1
         prev_row = list_box.get_row_at_index(prev_index)
@@ -521,6 +573,7 @@ class SourcesRow(Adw.ActionRow):
         action_name: str,
         parameter: GLib.Variant
     ) -> None:
+        """ Move the row down in its parent list box """
         list_box = row.get_parent()
         next_index = row.get_index() + 1
         next_row = list_box.get_row_at_index(next_index)

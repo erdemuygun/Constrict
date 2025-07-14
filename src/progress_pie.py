@@ -30,6 +30,9 @@ from typing import Any
 
 
 class ProgressPie(Gtk.DrawingArea):
+    """ A circular progress indicator shown in a sources row to communincate
+    current compression progress.
+    """
     __gtype_name__ = "ProgressPie"
 
     def __init__(self, **kwargs: Any) -> None:
@@ -45,6 +48,7 @@ class ProgressPie(Gtk.DrawingArea):
         self.queue_draw()
 
     def set_fraction(self, fraction: float) -> None:
+        """ Update the pie to show a new progress fraction """
         self.fraction = fraction
         self.queue_draw()
 
@@ -55,6 +59,8 @@ def draw(
     width: int,
     height: int
 ) -> None:
+    """ Draw a circular progress indicator based on the pie's current fraction.
+    """
     rgba = pie.get_color()
 
     foreground_alpha = rgba.alpha

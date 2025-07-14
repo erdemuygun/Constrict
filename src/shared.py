@@ -22,6 +22,10 @@ from pathlib import Path
 from typing import Optional, Any, Callable
 
 def get_tmp_dir() -> Optional[Path]:
+    """ Return the path of system temp directory, to store temporary files like
+    ffmpeg log files and video thumbnails. If the temp directory cannot be
+    located, None will be returned.
+    """
     tmp_dir = GLib.get_tmp_dir()
     constrict_tmp_dir = Path(tmp_dir) / 'constrict'
 
@@ -34,6 +38,16 @@ def get_tmp_dir() -> Optional[Path]:
     return constrict_tmp_dir if successful else None
 
 def update_ui(function: Callable, arg: Any, daemon: bool) -> None:
+    """ A helper function to determine whether to run a passed function
+    directly, or through GLib.idle_add if running in a separate, daemonic
+    thread (like UI updates while videos are being compressed).
+
+    Without using GLib.idle_add, the UI can freeze when the window is inactive,
+    stopping compression progress being shown from the daemon thread. It can
+    also cause the UI to glitch out or disappear sometimes. But running
+    GLib.idle_add functions from the main thread also seems to cause bugs.
+    This just prevented me from writing too much boilerplate code.
+    """
     if daemon:
         if arg is not None:
             GLib.idle_add(function, arg)

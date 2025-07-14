@@ -24,6 +24,9 @@ from constrict import PREFIX
 
 @Gtk.Template(resource_path=f'{PREFIX}/attempt_fail_box.ui')
 class AttemptFailBox(Gtk.Box):
+    """ A box showing details of a compression attempt failure, shown in the
+    compression details popover
+    """
     __gtype_name__ = "AttemptFailBox"
 
     attempt_label = Gtk.Template.Child()

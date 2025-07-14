@@ -26,6 +26,8 @@ from typing import Any, List
 
 @Gtk.Template(resource_path=f'{PREFIX}/sources_list_box.ui')
 class SourcesListBox(Gtk.ListBox):
+    """ The list box that holds all rows representing videos to be compressed,
+    and a button row to add more videos to it """
     __gtype_name__ = "SourcesListBox"
 
     add_videos_button = Gtk.Template.Child()
@@ -35,25 +37,37 @@ class SourcesListBox(Gtk.ListBox):
         self.locked = False
 
     def remove(self, child: Gtk.Widget) -> None:
+        """ Remove a child from the list box """
         super().remove(child)
         self.update_rows(False)
 
     def remove_all(self) -> None:
+        """ Remove every child the list box, bar the add videos button """
         super().remove_all()
         self.append(self.add_videos_button)
 
     def set_locked(self, locked: bool, daemon: bool):
+        """ Set whether or not the list box and the rows therein are
+        interactable
+        """
         self.locked = locked
 
         self.update_rows(daemon)
 
     def get_length(self) -> int:
+        """ Return the number of rows in the list box, excluding the
+        "add videos" button row
+        """
         return self.add_videos_button.get_index()
 
     def any(self) -> bool:
+        """ Return whether there are any rows (bar the 'add videos' button) in
+        the list box
+        """
         return self.get_length() > 0
 
     def add_sources(self, video_source_rows: List[SourcesRow]) -> None:
+        """ Add a list of SourcesRow rows as children of the list box """
         dest_index = self.get_length()
 
         for row in video_source_rows:
@@ -63,6 +77,7 @@ class SourcesListBox(Gtk.ListBox):
         self.update_rows(False)
 
     def get_all(self) -> List[SourcesRow]:
+        """ Get all rows of the list box, bar the 'add videos' button row """
         length = self.get_length()
         sources = []
 
@@ -73,6 +88,7 @@ class SourcesListBox(Gtk.ListBox):
         return sources
 
     def move(self, source_row: SourcesRow, dest_row: SourcesRow) -> None:
+        """ Move a row to a new destination """
         dest_index = dest_row.get_index()
 
         self.remove(source_row)
@@ -87,6 +103,7 @@ class SourcesListBox(Gtk.ListBox):
         length: int,
         daemon: bool
     ) -> None:
+        """ Update the interactivity of a row """
         row.set_draggable(length > 1 and not self.locked)
         update_ui(row.show_drag_handle, not self.locked, daemon)
 
@@ -104,6 +121,7 @@ class SourcesListBox(Gtk.ListBox):
         )
 
     def update_rows(self, daemon: bool) -> None:
+        """ Update the interactivity of all rows """
         rows = self.get_all()
 
         for i in range(len(rows)):

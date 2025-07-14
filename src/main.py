@@ -30,7 +30,6 @@ from constrict.preferences_dialog import PreferencesDialog
 from constrict import APPLICATION_ID, VERSION
 from typing import List, Sequence, Callable, Any
 
-# TODO: improve code documentation.
 # FIXME: occasional segmentation fault on compression completion? No idea what
 # the cause is yet. It's seemingly random.
 
@@ -82,6 +81,7 @@ class ConstrictApplication(Adw.Application):
         self.default_suffix = f" ({_('compressed')})"
 
     def get_settings(self) -> Gio.Settings:
+        """ Get the application's settings """
         return self.settings
 
     def open_dir(
@@ -89,6 +89,7 @@ class ConstrictApplication(Adw.Application):
         widget: Gtk.Widget,
         dir_path_gvariant: GLib.Variant
     ) -> None:
+        """ Open the passed file path in the user's file manager """
         dir_path = dir_path_gvariant.get_string()
 
         export_dir_file = Gio.File.new_for_path(dir_path)
@@ -100,6 +101,7 @@ class ConstrictApplication(Adw.Application):
         widget: Gtk.Widget,
         window_id_gvariant: GLib.Variant
     ) -> None:
+        """ Bring a window in focus """
         window_id = window_id_gvariant.get_int32()
 
         window = self.get_window_by_id(window_id)
@@ -108,6 +110,8 @@ class ConstrictApplication(Adw.Application):
             window.present()
 
     def do_open(self, gfiles: List[Gio.File], n_files: int, hint: str) -> None:
+        """ Open the application, with the list of files staged for compression
+        """
         self.do_activate(gfiles)
 
     def do_activate(self, gfiles: List[Gio.File] = []) -> None:
@@ -208,11 +212,16 @@ class ConstrictApplication(Adw.Application):
             self.set_accels_for_action(f"app.{name}", shortcuts)
 
     def close_window(self, *args: Any) -> None:
+        """ Close the currently focused window """
         current_window = self.get_active_window()
         current_window.close()
 
-    # override
     def quit(self) -> None:
+        """ Recursively close all the application's windows. Overrides
+        Gio.Application's method of quit, which immediately terminates the
+        application. This allows each window to close gracefully, for example
+        showing a cancel dialog for a window still compressing videos.
+        """
         windows = self.get_windows()
 
         for window in windows:

@@ -25,6 +25,7 @@ from typing import Any
 
 @Gtk.Template(resource_path=f'{PREFIX}/preferences_dialog.ui')
 class PreferencesDialog(Adw.PreferencesDialog):
+    """ The application's preferences dialog """
     __gtype_name__ = "PreferencesDialog"
 
     # TODO: adjust dialog size?
@@ -49,6 +50,7 @@ class PreferencesDialog(Adw.PreferencesDialog):
         self.suffix_entry_row.connect('apply', self.update_custom_suffix)
 
     def update_custom_suffix(self, widget: Gtk.Widget) -> None:
+        """ Set a new exported file suffix to the application's settings """
         self.settings.set_string('custom-export-suffix', widget.get_text())
 
         toast = Adw.Toast.new(_('Changes applied'))
