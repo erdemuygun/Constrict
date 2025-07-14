@@ -2,7 +2,7 @@
 # Please keep this file sorted alphabetically.
 data/io.github.wartybix.Constrict.desktop.in
 data/io.github.wartybix.Constrict.metainfo.xml.in
-data/io.github.wartybix.Constrict.gschema.xml
+data/io.github.wartybix.Constrict.gschema.xml.in
 src/main.py
 src/window.py
 src/window.ui
