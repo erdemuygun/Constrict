@@ -160,7 +160,7 @@ if __name__ == '__main__':
     ) -> None:
         print(f'Attempt fail: compressed size is {after_size_bytes / 1024 // 1024}MB')
 
-    file_output, final_size, error = compress(
+    compression_result = compress(
         args.file_path,
         args.output,
         args.target_size,
@@ -175,6 +175,11 @@ if __name__ == '__main__':
         show_attempt_fail
     )
 
-    if error:
+    if type(compression_result) is str:
         print('*** COMPRESSION ERROR ***')
-        print(error)
+        print(compression_result)
+    elif type(compression_result) is int:
+        end_size_bytes = compression_result
+        end_size_mb = round(end_size_bytes / 1024 / 1024, 1)
+        print(f'Video compressed to {end_size_mb} MB.')
+

@@ -680,7 +680,7 @@ class ConstrictWindow(Adw.ApplicationWindow):
             output_path = f'{root_ext[0]}{suffix}.mp4'
             output_path_unique = self.get_unique_path(output_path)
 
-            dest_video_path, end_size_bytes, compress_error = compress(
+            compression_result = compress(
                 video.video_path,
                 output_path_unique,
                 target_size,
@@ -704,8 +704,8 @@ class ConstrictWindow(Adw.ApplicationWindow):
                 output_file = Gio.File.new_for_path(output_path_unique)
                 output_file.trash_async(GLib.PRIORITY_LOW, None, None, None)
 
-            if compress_error:
-                video.set_error(compress_error, daemon)
+            if type(compression_result) is str:
+                video.set_error(compression_result, daemon)
 
                 toast = Adw.Toast.new(
                     # TRANSLATORS: {} represents the filename of the video with
@@ -733,9 +733,10 @@ class ConstrictWindow(Adw.ApplicationWindow):
                 break
 
 
-            if end_size_bytes:
+            if type(compression_result) is int:
+                end_size_bytes = compression_result
                 end_size_mb = round(end_size_bytes / 1024 / 1024, 1)
-                video.set_complete(dest_video_path, end_size_mb, daemon)
+                video.set_complete(output_path_unique, end_size_mb, daemon)
 
         self.set_controls_lock(False, daemon)
         self.show_cancel_button(False, daemon)
