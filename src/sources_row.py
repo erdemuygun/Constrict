@@ -402,9 +402,13 @@ class SourcesRow(Adw.ActionRow):
         """ Put the row in complete state, after compression has finished """
         update_ui(
             self.complete_label.set_label,
-            # TRANSLATORS: the {} represents a file size value in MB. Please
-            # use U+202F narrow no-break space (' ') between value and unit.
-            _('Video compressed to {} MB.').format(compressed_size_mb),
+            # TRANSLATORS: {size} represents a file size value in MB.
+            # {unit} represents a file size unit, like 'MB'. Please use U+202F
+            # narrow no-break space (' ') between size and unit.
+            _('Video compressed to {size} {unit}.').format(
+                size = compressed_size_mb,
+                unit = 'MB'
+            ),
             daemon
         )
         self.compressed_path = compressed_video_path
@@ -423,11 +427,17 @@ class SourcesRow(Adw.ActionRow):
         elif self.get_size() < target_size * 1024 * 1024:
             size_mb = round(self.get_size() / 1024 / 1024, 1)
             self.set_incompatible(
-                # TRANSLATORS: both {} represent integers.
-                # Please use U+202F Narrow no-break space (' ') between value
-                # and unit.
-                _('Video file size ({file_size} MB) already meets the target size ({target} MB).')
-                    .format(file_size = size_mb, target = target_size),
+                # TRANSLATORS: {original_size} and {target_size} represent
+                # integers. {unit_original} and {unit_target} represent file
+                # size units, like 'MB'. Please use U+202F Narrow no-break
+                # space (' ') between values and units.
+                _('Video file size ({original_size} {unit_original}) already meets the target size ({target_size} {unit_target}).')
+                    .format(
+                        original_size = size_mb,
+                        unit_original = 'MB',
+                        target_size = target_size,
+                        unit_target = 'MB'
+                    ),
                 daemon
             )
         # Why is this threshold much higher than the one in constrict_utils.py?
@@ -437,11 +447,12 @@ class SourcesRow(Adw.ActionRow):
         # increased threshold is a courtesy to prevent wasting the user's time.
         elif video_bitrate < 11000:
             self.set_incompatible(
-                # TRANSLATORS: {} is a file size value in MB.
-                # Please use U+202F Narrow no-break space (' ') between value and
-                # unit.
-                _('Target size ({} MB) is too low for this file.')
-                    .format(target_size),
+                # TRANSLATORS: {size} represents an integer. {unit} represents
+                # a file size unit like 'MB'.
+                # Please use U+202F Narrow no-break space (' ') between value
+                # and unit.
+                _('Target size ({size} {unit}) is too low for this file.')
+                    .format(size = target_size, unit = 'MB'),
                 daemon
             )
         else:

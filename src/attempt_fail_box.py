@@ -56,30 +56,39 @@ class AttemptFailBox(Gtk.Box):
         # TRANSLATORS: this is an abbreviation of 'Low Quality'
         lq_label = _('LQ')
 
-        # TRANSLATORS: {vid_br} represents a bitrate value.
+        # TRANSLATORS: {vid_br} represents an integer.
+        # {vid_br_unit} represents a bitrate unit, like 'Kbps'.
         # {res_fps} represents a resolution + framerate (e.g. '1080p@30').
-        # {audio_quality} represents audio quality (i.e. 'HQ' or 'LQ')
-        target_str = _("{vid_br} ({res_fps}, {audio_quality} audio)").format(
-            vid_br = f'{str(vid_bitrate // 1000)} Kbps',
+        # {audio_quality} represents audio quality (i.e. 'HQ' or 'LQ').
+        # Please use U+202F Narrow no-break space (' ') between video bitrate
+        # and unit.
+        target_str = _("{vid_br} {vid_br_unit} ({res_fps}, {audio_quality} audio)").format(
+            vid_br = f'{str(vid_bitrate // 1000)}',
+            vid_br_unit = 'Kbps',
             res_fps = f'{vid_height}p@{int(round(vid_fps, 0))}',
             audio_quality = hq_label if is_hq_audio else lq_label
         )
         self.target_label.set_label(target_str)
 
         compressed_size_mb = round(compressed_size_bytes / 1024 / 1024, 1)
-        compressed_size_str = f"{str(compressed_size_mb)} MB"
 
         if compressed_size_bytes >= target_size_bytes:
             self.failure_icon.set_from_icon_name('arrow2-up-symbolic')
-            # TRANSLATORS: the {} represents the file size.
-            fail_msg = _('Compressed file size was too large ({})').format(
-                compressed_size_str
+            # TRANSLATORS: {size} represents an integer. {unit} represents a
+            # file size unit like 'MB'. Please use U+202F Narrow no-break space
+            # (' ') between size and unit.
+            fail_msg = _('Compressed file size was too large ({size} {unit})').format(
+                size = f'{compressed_size_mb}',
+                unit = 'MB'
             )
             self.failure_details_label.set_label(fail_msg)
         else:
             self.failure_icon.set_from_icon_name('arrow2-down-symbolic')
-            # TRANSLATORS: the {} represents the file size.
-            fail_msg = _('Compressed file size was too small ({})').format(
-                compressed_size_str
+            # TRANSLATORS: {size} represents an integer. {unit} represents a
+            # file size unit like 'MB'. Please use U+202F Narrow no-break space
+            # (' ') between size and unit.
+            fail_msg = _('Compressed file size was too small ({size} {unit})').format(
+                size = compressed_size_str,
+                unit = 'MB'
             )
             self.failure_details_label.set_label(fail_msg)

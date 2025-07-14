@@ -13,7 +13,7 @@
       <li>An intuitive, easy to use interface.</li>
       <li>Automatic calculation of average bitrate (ABR), resolution, framerate, and audio quality each video is re-encoded with to meet the target file size.</li>
       <li>Bulk compression of multiple videos to one output directory.</li>
-      <li>Customisation of framerate limits, to ensure a clearer or smoother image.</li>
+      <li>Customization of framerate limits, to ensure a clearer or smoother image.</li>
       <li>A choice of codecs to encode output files with, including H.264, HEVC, AV1, and VP9.</li>
     </ul>
     <p>The app attempts to retain as much audiovisual quality as possible for the file size given. However, extremely steep reductions in file size can cause significant loss of quality in the output file, and sometimes compression may not be possible at all. All processing is done locally — and as such, compression speeds are only as fast as your hardware allows.</p>

@@ -58,8 +58,6 @@
                           <object class="AdwPreferencesGroup">
                             <child>
                               <object class="AdwSpinRow" id="target_size_row">
-                                <!-- TRANSLATORS: MB meaning 'megabytes' -->
-                                <property name="title" translatable="yes">Target _Size (MB)</property>
                                 <property name="use-underline">True</property>
                                 <property name="numeric">True</property>
                                 <property name="adjustment">

@@ -183,6 +183,9 @@ class ConstrictWindow(Adw.ApplicationWindow):
                 .format('10')
         )
 
+        # TRANSLATORS: {} represents a file size unit (e.g. 'MB')
+        self.target_size_row.set_title(_('Target _Size ({})').format('MB'))
+
 
     def on_drop(
         self,
