@@ -19,7 +19,9 @@
 
 from gi.repository import Adw, Gtk, GLib
 from constrict.shared import update_ui
+from constrict.sources_row import SourcesRow
 from constrict import PREFIX
+from typing import Any, List
 
 
 @Gtk.Template(resource_path=f'{PREFIX}/sources_list_box.ui')
@@ -28,30 +30,30 @@ class SourcesListBox(Gtk.ListBox):
 
     add_videos_button = Gtk.Template.Child()
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs: Any) -> None:
         super().__init__(**kwargs)
         self.locked = False
 
-    def remove(self, child):
+    def remove(self, child: Gtk.Widget) -> None:
         super().remove(child)
         self.update_rows(False)
 
-    def remove_all(self):
+    def remove_all(self) -> None:
         super().remove_all()
         self.append(self.add_videos_button)
 
-    def set_locked(self, locked, daemon):
+    def set_locked(self, locked: bool, daemon: bool):
         self.locked = locked
 
         self.update_rows(daemon)
 
-    def get_length(self):
+    def get_length(self) -> int:
         return self.add_videos_button.get_index()
 
-    def any(self):
+    def any(self) -> bool:
         return self.get_length() > 0
 
-    def add_sources(self, video_source_rows):
+    def add_sources(self, video_source_rows: List[SourcesRow]) -> None:
         dest_index = self.get_length()
 
         for row in video_source_rows:
@@ -60,7 +62,7 @@ class SourcesListBox(Gtk.ListBox):
 
         self.update_rows(False)
 
-    def get_all(self):
+    def get_all(self) -> List[SourcesRow]:
         length = self.get_length()
         sources = []
 
@@ -70,7 +72,7 @@ class SourcesListBox(Gtk.ListBox):
 
         return sources
 
-    def move(self, source_row, dest_row):
+    def move(self, source_row: SourcesRow, dest_row: SourcesRow) -> None:
         dest_index = dest_row.get_index()
 
         self.remove(source_row)
@@ -78,10 +80,13 @@ class SourcesListBox(Gtk.ListBox):
 
         self.update_rows(False)
 
-    def update_row(self, row, index, length, daemon):
-        index = index or row.get_index()
-        length = length or self.get_length()
-
+    def update_row(
+        self,
+        row: SourcesRow,
+        index: int,
+        length: int,
+        daemon: bool
+    ) -> None:
         row.set_draggable(length > 1 and not self.locked)
         update_ui(row.show_drag_handle, not self.locked, daemon)
 
@@ -98,7 +103,7 @@ class SourcesListBox(Gtk.ListBox):
             not self.locked
         )
 
-    def update_rows(self, daemon):
+    def update_rows(self, daemon: bool) -> None:
         rows = self.get_all()
 
         for i in range(len(rows)):

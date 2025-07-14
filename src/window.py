@@ -30,12 +30,14 @@ import threading
 import subprocess
 from pathlib import Path
 import os
+from typing import Any, List
 
 # TODO: future feature -- add pause button?
 
 
 @Gtk.Template(resource_path=f'{PREFIX}/window.ui')
 class ConstrictWindow(Adw.ApplicationWindow):
+    """A window for the application."""
     __gtype_name__ = 'ConstrictWindow'
 
     split_view = Gtk.Template.Child()
@@ -63,7 +65,7 @@ class ConstrictWindow(Adw.ApplicationWindow):
     adv_options_help_label = Gtk.Template.Child()
     fps_limit_help_label = Gtk.Template.Child()
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs: Any) -> None:
         super().__init__(**kwargs)
 
         self.compressing = False
@@ -182,17 +184,29 @@ class ConstrictWindow(Adw.ApplicationWindow):
         )
 
 
-    def on_drop(self, drop_target, value: Gdk.FileList, x, y, user_data=None):
+    def on_drop(
+        self,
+        drop_target: Gtk.DropTarget,
+        value: Gdk.FileList,
+        x: int,
+        y: int,
+        user_data: Any = None
+    ) -> None:
         files: List[Gio.File] = value.get_files()
 
         self.stage_videos(files)
 
-    def on_enter(self, drop_target, x, y):
+    def on_enter(
+        self,
+        drop_target: Gtk.DropTarget,
+        x: int,
+        y: int
+    ) -> int:
         # Custom code...
         # Tell the callee to continue
         return Gdk.DragAction.COPY
 
-    def set_controls_lock(self, is_locked, daemon):
+    def set_controls_lock(self, is_locked: bool, daemon: bool) -> None:
         update_ui(self.target_size_row.set_sensitive, not is_locked, daemon)
         update_ui(self.auto_row.set_sensitive, not is_locked, daemon)
         update_ui(self.clear_row.set_sensitive, not is_locked, daemon)
@@ -213,14 +227,14 @@ class ConstrictWindow(Adw.ApplicationWindow):
         self.sources_list_box.set_locked(is_locked, daemon)
 
     # Return whether the passed widget is an unchecked GtkCheckButton
-    def is_unchecked_checkbox(self, widget):
+    def is_unchecked_checkbox(self, widget: Gtk.Widget) -> bool:
         return type(widget) is Gtk.CheckButton and not widget.get_active()
 
-    def set_warning_state(self, is_error, daemon):
+    def set_warning_state(self, is_error: bool, daemon: bool) -> None:
         update_ui(self.export_action.set_enabled, not is_error, daemon)
         update_ui(self.warning_banner.set_revealed, is_error, daemon)
 
-    def refresh_can_export(self, daemon):
+    def refresh_can_export(self, daemon: bool) -> None:
         sources = self.sources_list_box.get_all()
 
         if not sources:
@@ -247,7 +261,7 @@ class ConstrictWindow(Adw.ApplicationWindow):
         if complete_count == len(sources):
             update_ui(self.export_action.set_enabled, False, daemon)
 
-    def set_compressing_title(self, current_index, export_dir):
+    def set_compressing_title(self, current_index: int, export_dir: str):
         sources = self.sources_list_box.get_all()
 
         if len(sources) == 1:
@@ -275,7 +289,7 @@ class ConstrictWindow(Adw.ApplicationWindow):
             _('Exporting to “{}”').format(export_dir)
         )
 
-    def set_queued_title(self, daemon):
+    def set_queued_title(self, daemon: bool) -> None:
         sources = self.sources_list_box.get_all()
 
         if len(sources) == 0:
@@ -294,7 +308,7 @@ class ConstrictWindow(Adw.ApplicationWindow):
         update_ui(self.window_title.set_title, self.get_title(), daemon)
         update_ui(self.window_title.set_subtitle, '', daemon)
 
-    def refresh_previews(self, widget, *args):
+    def refresh_previews(self, widget: Gtk.Widget, *args: Any) -> None:
         # Return if called from a check button being 'unchecked'
         if self.is_unchecked_checkbox(widget):
             return
@@ -307,10 +321,10 @@ class ConstrictWindow(Adw.ApplicationWindow):
         self.refresh_can_export(False)
         self.withdraw_complete_notification()
 
-    def get_target_size(self):
+    def get_target_size(self) -> int:
         return int(self.target_size_input.get_value())
 
-    def get_fps_mode(self):
+    def get_fps_mode(self) -> int:
         if self.auto_check_button.get_active():
             return FpsMode.AUTO
         if self.clear_check_button.get_active():
@@ -320,7 +334,7 @@ class ConstrictWindow(Adw.ApplicationWindow):
 
         raise Exception('Tried to get fps mode, but none was set.')
 
-    def set_fps_mode(self, mode):
+    def set_fps_mode(self, mode: int) -> None:
         match mode:
             case FpsMode.AUTO:
                 self.auto_check_button.set_active(True)
@@ -331,32 +345,32 @@ class ConstrictWindow(Adw.ApplicationWindow):
             case _:
                 self.auto_check_button.set_active(True)
 
-    def get_video_codec(self):
+    def get_video_codec(self) -> int:
         return self.codec_dropdown.get_selected()
 
-    def set_video_codec(self, codec_index):
+    def set_video_codec(self, codec_index: int) -> None:
         self.codec_dropdown.set_selected(codec_index)
 
-    def get_extra_quality(self):
+    def get_extra_quality(self) -> bool:
         return self.extra_quality_toggle.get_active()
 
-    def get_tolerance(self):
+    def get_tolerance(self) -> int:
         return int(self.tolerance_input.get_value())
 
-    def toggle_sidebar(self, action, _):
+    def toggle_sidebar(self, action: Gio.Action, _) -> None:
         sidebar_shown = self.split_view.get_show_sidebar()
         self.split_view.set_show_sidebar(not sidebar_shown)
 
-    def delist_all(self, action, _):
+    def delist_all(self, action: Gio.Action, _) -> None:
         self.sources_list_box.remove_all()
         self.refresh_can_export(False)
         self.set_queued_title(False)
 
-    def show_cancel_button(self, is_compressing, daemon):
+    def show_cancel_button(self, is_compressing: bool, daemon: bool) -> None:
         update_ui(self.cancel_bar.set_visible, is_compressing, daemon)
         update_ui(self.export_bar.set_visible, not is_compressing, daemon)
 
-    def export_file_dialog(self, action, parameter):
+    def export_file_dialog(self, action: Gio.Action, parameter: GLib.Variant) -> None:
         native = Gtk.FileDialog()
 
         initial_folder_path = self.settings.get_string('export-initial-folder')
@@ -367,7 +381,11 @@ class ConstrictWindow(Adw.ApplicationWindow):
 
         native.select_folder(self, None, self.on_export_response)
 
-    def on_export_response(self, dialog, result):
+    def on_export_response(
+        self,
+        dialog: Gtk.FileDialog,
+        result: Gio.AsyncResult
+    ) -> None:
         folder = dialog.select_folder_finish(result)
 
         if not folder:
@@ -383,10 +401,10 @@ class ConstrictWindow(Adw.ApplicationWindow):
         thread.daemon = True
         thread.start()
 
-    def on_cancel(self, action, parameter):
+    def on_cancel(self, action: Gio.Action, parameter: GLib.Variant) -> None:
         self.show_cancel_dialog(False)
 
-    def show_cancel_dialog(self, quit_on_stop):
+    def show_cancel_dialog(self, quit_on_stop: bool) -> None:
         dialog = Adw.AlertDialog.new(
             _('Stop Compression?'),
             # TRANSLATORS: {} represents the filename of the video currently
@@ -408,7 +426,11 @@ class ConstrictWindow(Adw.ApplicationWindow):
 
         dialog.choose(self, None, self.on_cancel_response)
 
-    def on_cancel_response(self, dialog, result):
+    def on_cancel_response(
+        self,
+        dialog: Adw.AlertDialog,
+        result: Gio.AsyncResult
+    ) -> None:
         choice = dialog.choose_finish(result)
 
         if choice == 'stop':
@@ -417,22 +439,26 @@ class ConstrictWindow(Adw.ApplicationWindow):
             if dialog.quit_on_stop:
                 self.close()
 
-    def error_dialog(self, file_name, error_details):
+    def error_dialog(self, file_name: str, error_details: str) -> None:
         dialog = ErrorDialog(file_name, error_details)
 
         dialog.present(self)
 
-    def show_error_from_toast(self, toast):
+    def show_error_from_toast(self, toast: Adw.Toast) -> None:
         self.error_dialog(toast.video.display_name, toast.video.error_details)
 
-    def get_complete_notification_id(self):
+    def get_complete_notification_id(self) -> str:
         return f'compress-complete-{self.get_id()}'
 
-    def withdraw_complete_notification(self):
+    def withdraw_complete_notification(self) -> None:
         notification_id = self.get_complete_notification_id()
         self.get_application().withdraw_notification(notification_id)
 
-    def send_complete_notification(self, sources_list, export_dir):
+    def send_complete_notification(
+        self,
+        sources_list: List[SourcesRow],
+        export_dir: str
+    ) -> None:
         notification = Gio.Notification.new(_('Compression Complete'))
         notification.set_category('transfer.complete')
 
@@ -467,7 +493,7 @@ class ConstrictWindow(Adw.ApplicationWindow):
             notification
         )
 
-    def get_unique_path(self, file_path):
+    def get_unique_path(self, file_path: str) -> str:
         """
         Returns a unique file path for the file path given. Ensures that no file is
         overwritten, as if the input file path already exists, the file path output
@@ -487,7 +513,7 @@ class ConstrictWindow(Adw.ApplicationWindow):
 
         return final_path
 
-    def bulk_compress(self, destination_dir, daemon):
+    def bulk_compress(self, destination_dir: str, daemon: bool) -> None:
         self.set_controls_lock(True, daemon)
         self.show_cancel_button(True, daemon)
         self.compressing = True
@@ -648,8 +674,9 @@ class ConstrictWindow(Adw.ApplicationWindow):
                 break
 
 
-            end_size_mb = round(end_size_bytes / 1024 / 1024, 1)
-            video.set_complete(dest_video_path, end_size_mb, daemon)
+            if end_size_bytes:
+                end_size_mb = round(end_size_bytes / 1024 / 1024, 1)
+                video.set_complete(dest_video_path, end_size_mb, daemon)
 
         self.set_controls_lock(False, daemon)
         self.show_cancel_button(False, daemon)
@@ -672,12 +699,12 @@ class ConstrictWindow(Adw.ApplicationWindow):
 
         self.compressing = False
 
-    def remove_row(self, row):
+    def remove_row(self, row: SourcesRow) -> None:
         self.sources_list_box.remove(row)
         self.refresh_can_export(False)
         self.set_queued_title(False)
 
-    def stage_videos(self, video_list):
+    def stage_videos(self, video_list: List[Gio.File]) -> None:
         existing_paths = list(map(
             lambda x: x.video_path,
             self.sources_list_box.get_all()
@@ -732,7 +759,7 @@ class ConstrictWindow(Adw.ApplicationWindow):
             self.export_button.grab_focus()
             self.set_queued_title(False)
 
-    def open_file_dialog(self, action, parameter):
+    def open_file_dialog(self, action: Gio.Action, parameter: GLib.Variant) -> None:
         # Create new file selection dialog, using "open" mode
         native = Gtk.FileDialog()
         video_filter = Gtk.FileFilter()
@@ -751,7 +778,11 @@ class ConstrictWindow(Adw.ApplicationWindow):
 
         native.open_multiple(self, None, self.on_open_response)
 
-    def on_open_response(self, dialog, result):
+    def on_open_response(
+        self,
+        dialog: Gtk.FileDialog,
+        result: Gio.AsyncResult
+    ) -> None:
         files = dialog.open_multiple_finish(result)
 
         if not files:
@@ -765,7 +796,7 @@ class ConstrictWindow(Adw.ApplicationWindow):
 
         self.stage_videos(files)
 
-    def save_window_state(self):
+    def save_window_state(self) -> None:
         self.settings.set_boolean('window-maximized', self.is_maximized())
 
         width, height = self.get_default_size()
@@ -777,7 +808,7 @@ class ConstrictWindow(Adw.ApplicationWindow):
         self.settings.set_boolean('extra-quality', self.get_extra_quality())
         self.settings.set_int('tolerance', self.get_tolerance())
 
-    def do_close_request(self, force=False):
+    def do_close_request(self, force: bool = False) -> bool:
         print('close request made')
 
         if self.compressing:

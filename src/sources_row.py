@@ -37,6 +37,7 @@ from constrict import PREFIX
 import threading
 import subprocess
 import os
+from typing import Optional, Any, Callable, Tuple
 
 
 @Gtk.Template(resource_path=f'{PREFIX}/sources_row.ui')
@@ -64,16 +65,16 @@ class SourcesRow(Adw.ActionRow):
 
     def __init__(
         self,
-        video_path,
-        display_name,
-        file_hash=None,
-        target_size_getter=None,
-        fps_mode_getter=None,
-        error_action=lambda: None,
-        warning_action=None,
-        remove_action=lambda: None,
-        **kwargs
-    ):
+        video_path: str,
+        display_name: str,
+        file_hash: Optional[int] = None,
+        target_size_getter: Optional[Callable[[], int]] = None,
+        fps_mode_getter: Optional[Callable[[], int]] = None,
+        error_action: Callable[[str, str], None] = lambda x, y: None,
+        warning_action: Optional[Callable[[bool, bool], None]] = None,
+        remove_action: Callable[['SourcesRow'], None] = lambda x: None,
+        **kwargs: Any
+    ) -> None:
         super().__init__(**kwargs)
 
         self.video_path = video_path
@@ -123,7 +124,11 @@ class SourcesRow(Adw.ActionRow):
 
         self.popover_box = None
 
-    def initiate_popover_box(self, top_widget, daemon):
+    def initiate_popover_box(
+        self,
+        top_widget: Gtk.Widget,
+        daemon: bool
+    ) -> None:
         self.popover_box = SourcePopoverBox(top_widget)
         update_ui(
             self.popover_scrolled_window.set_child,
@@ -131,7 +136,11 @@ class SourcesRow(Adw.ActionRow):
             daemon
         )
 
-    def set_popover_top_widget(self, top_widget, daemon):
+    def set_popover_top_widget(
+        self,
+        top_widget: Gtk.Widget,
+        daemon: bool
+    ) -> None:
         if not self.popover_box:
             return
 
@@ -139,15 +148,15 @@ class SourcesRow(Adw.ActionRow):
 
     def add_attempt_fail(
         self,
-        attempt_no,
-        vid_bitrate,
-        is_hq_audio,
-        vid_height,
-        vid_fps,
-        compressed_size_bytes,
-        target_size_bytes,
-        daemon
-    ):
+        attempt_no: int,
+        vid_bitrate: int,
+        is_hq_audio: bool,
+        vid_height: int,
+        vid_fps: float,
+        compressed_size_bytes: int,
+        target_size_bytes: int,
+        daemon: bool
+    ) -> None:
         if not self.popover_box:
             return
 
@@ -162,7 +171,7 @@ class SourcesRow(Adw.ActionRow):
         )
         self.popover_box.add_fail_widget(fail_box, daemon)
 
-    def set_draggable(self, can_drag):
+    def set_draggable(self, can_drag: bool) -> None:
         propagation_phase = Gtk.PropagationPhase.CAPTURE if (
             can_drag
         ) else Gtk.PropagationPhase.NONE
@@ -170,14 +179,23 @@ class SourcesRow(Adw.ActionRow):
         self.drag_source.set_propagation_phase(propagation_phase)
 
     @Gtk.Template.Callback()
-    def on_drag_prepare(self, drag_source, x, y):
+    def on_drag_prepare(
+        self,
+        drag_source: Gtk.DragSource,
+        x: int,
+        y: int
+    ) -> Gdk.ContentProvider:
         self.drag_x = x
         self.drag_y = y
 
         return Gdk.ContentProvider.new_for_value(self)
 
     @Gtk.Template.Callback()
-    def on_drag_begin(self, drag_source, drag):
+    def on_drag_begin(
+        self,
+        drag_source: Gtk.DragSource,
+        drag: Gdk.Drag
+    ) -> None:
         self.drag_widget = Gtk.ListBox.new()
         self.drag_widget.set_size_request(self.get_width(), -1)
 
@@ -201,7 +219,7 @@ class SourcesRow(Adw.ActionRow):
         drag.set_hotspot(self.drag_x, self.drag_y)
 
     @Gtk.Template.Callback()
-    def on_motion(self, drop_target, x, y):
+    def on_motion(self, drop_target: Gtk.DropTarget, x: int, y: int) -> int:
         row_to_drop = drop_target.get_value()
         source_list_box = row_to_drop.get_parent()
         this_list_box = self.get_parent()
@@ -210,7 +228,13 @@ class SourcesRow(Adw.ActionRow):
         return Gdk.DragAction.MOVE if this_list_box == source_list_box else 0
 
     @Gtk.Template.Callback()
-    def on_drop(self, drop_target, source_row, x, y):
+    def on_drop(
+        self,
+        drop_target: Gtk.DropTarget,
+        source_row: 'SourcesRow',
+        x: int,
+        y: int
+    ) -> bool:
         self.drag_widget = None
         self.drag_x = 0
         self.drag_y = 0
@@ -229,32 +253,43 @@ class SourcesRow(Adw.ActionRow):
             return False
 
         this_list_box.move(source_row, self)
+        return True
 
-    def on_remove(self, sources_row, action_name, parameter):
+    def on_remove(
+        self,
+        sources_row: 'SourcesRow',
+        action_name: str,
+        parameter: GLib.Variant
+    ) -> None:
         sources_row.remove_action(sources_row)
 
-    def on_error_query(self, widget, action_name, parameter):
-        widget.error_action(widget.display_name, widget.error_details)
+    def on_error_query(
+        self,
+        row: 'SourcesRow',
+        action_name: str,
+        parameter: GLib.Variant
+    ) -> None:
+        row.error_action(row.display_name, row.error_details)
 
-    def get_resolution(self):
+    def get_resolution(self) -> Tuple[int, int]:
         if not self.width or not self.height:
             self.width, self.height = get_resolution(self.video_path)
 
         return (self.width, self.height)
 
-    def get_fps(self):
+    def get_fps(self) -> float:
         if not self.fps:
             self.fps = get_framerate(self.video_path)
 
         return self.fps
 
-    def get_duration(self):
+    def get_duration(self) -> float:
         if not self.duration:
             self.duration = get_duration(self.video_path)
 
         return self.duration
 
-    def set_thumbnail(self, file_hash, daemon):
+    def set_thumbnail(self, file_hash: int, daemon: bool) -> None:
         bin_totem = 'totem-video-thumbnailer'
         bin_ffmpeg = 'ffmpegthumbnailer'
 
@@ -313,22 +348,27 @@ class SourcesRow(Adw.ActionRow):
 
         update_ui(self.thumbnail.set_from_file, thumb_file, daemon)
 
-    def get_size(self):
+    def get_size(self) -> int:
         if self.size:
             return self.size
 
         self.size = os.stat(self.video_path).st_size
         return self.size
 
-    def set_incompatible(self, incompatible_msg, daemon):
+    def set_incompatible(self, incompatible_msg: str, daemon: bool) -> None:
         update_ui(self.incompatible_label.set_label, incompatible_msg, daemon)
         self.set_state(SourceState.INCOMPATIBLE, daemon)
 
-    def set_error(self, error_details, daemon):
+    def set_error(self, error_details: str, daemon: bool) -> None:
         self.error_details = error_details
         self.set_state(SourceState.ERROR, daemon)
 
-    def set_complete(self, compressed_video_path, compressed_size_mb, daemon):
+    def set_complete(
+        self,
+        compressed_video_path: str,
+        compressed_size_mb: int,
+        daemon: bool
+    ) -> None:
         update_ui(
             self.complete_label.set_label,
             # TRANSLATORS: the {} represents a file size value in MB. Please
@@ -339,7 +379,12 @@ class SourcesRow(Adw.ActionRow):
         self.compressed_path = compressed_video_path
         self.set_state(SourceState.COMPLETE, daemon)
 
-    def refresh_state(self, video_bitrate, target_size, daemon):
+    def refresh_state(
+        self,
+        video_bitrate: int,
+        target_size: int,
+        daemon: bool
+    ) -> None:
         if self.state == SourceState.BROKEN:
             return
         elif self.get_size() < target_size * 1024 * 1024:
@@ -369,7 +414,12 @@ class SourcesRow(Adw.ActionRow):
         else:
             self.set_state(SourceState.PENDING, daemon)
 
-    def set_preview(self, target_size_getter, fps_mode_getter, daemon):
+    def set_preview(
+        self,
+        target_size_getter: Callable[[], int],
+        fps_mode_getter: Callable[[], int],
+        daemon: bool
+    ) -> None:
         if self.state == SourceState.BROKEN:
             return
 
@@ -403,8 +453,8 @@ class SourcesRow(Adw.ActionRow):
 
         src_pixels = self.height if self.height < self.width else self.width
 
-        src_label = f'{src_pixels}p@{self.fps}'
-        dest_label = f'{target_pixels}p@{target_fps}'
+        src_label = f'{src_pixels}p@{int(round(self.fps, 0))}'
+        dest_label = f'{target_pixels}p@{int(round(target_fps, 0))}'
 
         subtitle = f'{dest_label} ← {src_label}' if (
             self.get_direction() == Gtk.TextDirection.RTL
@@ -412,7 +462,7 @@ class SourcesRow(Adw.ActionRow):
 
         update_ui(self.set_subtitle, subtitle, daemon)
 
-    def set_state(self, state, daemon):
+    def set_state(self, state: int, daemon: bool) -> None:
         # If new state and old state are the same:
         if state == self.state:
             return
@@ -438,20 +488,30 @@ class SourcesRow(Adw.ActionRow):
 
         self.state = state
 
-    def enable_spinner(self, enable_spinner, daemon):
+    def enable_spinner(self, enable_spinner: bool, daemon: bool) -> None:
         update_ui(self.progress_pie.set_visible, not enable_spinner, daemon)
         update_ui(self.progress_spinner.set_visible, enable_spinner, daemon)
 
-    def show_drag_handle(self, shown):
+    def show_drag_handle(self, shown: bool) -> None:
         self.drag_handle_revealer.set_reveal_child(shown)
 
-    def find_compressed_file(self, row, action_name, parameter):
+    def find_compressed_file(
+        self,
+        row: 'SourcesRow',
+        action_name: str,
+        parameter: GLib.Variant
+    ) -> None:
         row.complete_popover.popdown()
         compressed_file = Gio.File.new_for_path(row.compressed_path)
         file_launcher = Gtk.FileLauncher.new(compressed_file)
         file_launcher.open_containing_folder()
 
-    def move_up(self, row, action_name, parameter):
+    def move_up(
+        self,
+        row: 'SourcesRow',
+        action_name: str,
+        parameter: GLib.Variant
+    ) -> None:
         list_box = row.get_parent()
         prev_index = row.get_index() - 1
         prev_row = list_box.get_row_at_index(prev_index)
@@ -462,7 +522,12 @@ class SourcesRow(Adw.ActionRow):
 
         list_box.move(row, prev_row)
 
-    def move_down(self, row, action_name, parameter):
+    def move_down(
+        self,
+        row: 'SourcesRow',
+        action_name: str,
+        parameter: GLib.Variant
+    ) -> None:
         list_box = row.get_parent()
         next_index = row.get_index() + 1
         next_row = list_box.get_row_at_index(next_index)

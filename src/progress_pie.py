@@ -26,8 +26,35 @@
 from gi.repository import Adw, Gtk, Gdk
 import cairo
 from math import pi
+from typing import Any
 
-def draw(pie, ctx: cairo.Context, width, height):
+
+class ProgressPie(Gtk.DrawingArea):
+    __gtype_name__ = "ProgressPie"
+
+    def __init__(self, **kwargs: Any) -> None:
+        super().__init__(**kwargs)
+
+        self.fraction = 0.0
+
+        self.set_valign(Gtk.Align.CENTER)
+        self.set_halign(Gtk.Align.CENTER)
+
+        self.set_draw_func(draw)
+
+        self.queue_draw()
+
+    def set_fraction(self, fraction: float) -> None:
+        self.fraction = fraction
+        self.queue_draw()
+
+
+def draw(
+    pie: ProgressPie,
+    ctx: cairo.Context,
+    width: int,
+    height: int
+) -> None:
     rgba = pie.get_color()
 
     foreground_alpha = rgba.alpha
@@ -63,23 +90,3 @@ def draw(pie, ctx: cairo.Context, width, height):
             ctx.line_to(width / 2, 0)
 
         ctx.fill()
-
-
-class ProgressPie(Gtk.DrawingArea):
-    __gtype_name__ = "ProgressPie"
-
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-
-        self.fraction = 0
-
-        self.set_valign(Gtk.Align.CENTER)
-        self.set_halign(Gtk.Align.CENTER)
-
-        self.set_draw_func(draw)
-
-        self.queue_draw()
-
-    def set_fraction(self, fraction):
-        self.fraction = fraction
-        self.queue_draw()

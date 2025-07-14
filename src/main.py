@@ -28,6 +28,7 @@ from gi.repository import Gtk, Gio, Adw, GLib
 from .window import ConstrictWindow
 from constrict.preferences_dialog import PreferencesDialog
 from constrict import APPLICATION_ID, VERSION
+from typing import List, Sequence, Callable, Any
 
 # TODO: improve code documentation.
 # FIXME: segmentation faults
@@ -35,7 +36,7 @@ from constrict import APPLICATION_ID, VERSION
 class ConstrictApplication(Adw.Application):
     """The main application singleton class."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__(application_id=APPLICATION_ID,
                          flags=Gio.ApplicationFlags.HANDLES_OPEN)
 
@@ -79,17 +80,25 @@ class ConstrictApplication(Adw.Application):
         # files.
         self.default_suffix = f" ({_('compressed')})"
 
-    def get_settings(self):
+    def get_settings(self) -> Gio.Settings:
         return self.settings
 
-    def open_dir(self, widget, dir_path_gvariant):
+    def open_dir(
+        self,
+        widget: Gtk.Widget,
+        dir_path_gvariant: GLib.Variant
+    ) -> None:
         dir_path = dir_path_gvariant.get_string()
 
         export_dir_file = Gio.File.new_for_path(dir_path)
         file_launcher = Gtk.FileLauncher.new(export_dir_file)
         file_launcher.launch()
 
-    def focus_window(self, widget, window_id_gvariant):
+    def focus_window(
+        self,
+        widget: Gtk.Widget,
+        window_id_gvariant: GLib.Variant
+    ) -> None:
         window_id = window_id_gvariant.get_int32()
 
         window = self.get_window_by_id(window_id)
@@ -97,10 +106,10 @@ class ConstrictApplication(Adw.Application):
         if window:
             window.present()
 
-    def do_open(self, gfiles, n_files, hint):
+    def do_open(self, gfiles: List[Gio.File], n_files: int, hint: str) -> None:
         self.do_activate(gfiles)
 
-    def do_activate(self, gfiles=[]):
+    def do_activate(self, gfiles: List[Gio.File] = []) -> None:
         """Called when the application is activated.
 
         We raise the application's main window, creating it if
@@ -139,7 +148,7 @@ class ConstrictApplication(Adw.Application):
 
         return -1
 
-    def on_about_action(self, *args):
+    def on_about_action(self, *args: Any) -> None:
         """Callback for the app.about action."""
         about = Adw.AboutDialog(application_name=_('Constrict'),
                                 application_icon=self.get_application_id(),
@@ -174,7 +183,7 @@ class ConstrictApplication(Adw.Application):
     #TODO: preference ideas
     # target size unit (e.g., MB, MiB, GB, etc.)
 
-    def on_preferences_action(self, widget, _):
+    def on_preferences_action(self, widget: Gtk.Widget, _) -> None:
         """Callback for the app.preferences action."""
 
         dialog = PreferencesDialog(self)
@@ -182,7 +191,12 @@ class ConstrictApplication(Adw.Application):
 
         print('app.preferences action activated')
 
-    def create_action(self, name, callback, shortcuts=None):
+    def create_action(
+        self,
+        name: str,
+        callback: Callable,
+        shortcuts: Sequence[str] | None = None
+    ) -> None:
         """Add an application action.
 
         Args:
@@ -197,19 +211,19 @@ class ConstrictApplication(Adw.Application):
         if shortcuts:
             self.set_accels_for_action(f"app.{name}", shortcuts)
 
-    def close_window(self, *args):
+    def close_window(self, *args: Any) -> None:
         current_window = self.get_active_window()
         current_window.close()
 
     # override
-    def quit(self):
+    def quit(self) -> None:
         windows = self.get_windows()
 
         for window in windows:
             window.close()
 
 
-def main(version):
+def main(version: int) -> int:
     """The application's entry point."""
     app = ConstrictApplication()
     return app.run(sys.argv)

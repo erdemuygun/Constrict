@@ -21,6 +21,7 @@ from gi.repository import Adw, Gtk, GLib
 from constrict.shared import update_ui
 from constrict import PREFIX
 from gettext import ngettext
+from typing import Any
 
 @Gtk.Template(resource_path=f'{PREFIX}/current_attempt_box.ui')
 class CurrentAttemptBox(Gtk.Box):
@@ -31,30 +32,30 @@ class CurrentAttemptBox(Gtk.Box):
     target_details_label = Gtk.Template.Child()
     progress_details_label = Gtk.Template.Child()
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs: Any) -> None:
         super().__init__(**kwargs)
 
         # TRANSLATORS: {} represents the attempt number.
         self.attempt_label.set_label(_('Attempt {}').format('1'))
 
-    def set_progress_text(self, label, daemon):
+    def set_progress_text(self, label: str, daemon: bool) -> None:
         update_ui(self.progress_details_label.set_text, label, daemon)
 
-    def get_progress_text(self):
+    def get_progress_text(self) -> str:
         return self.progress_bar.get_text()
 
-    def pulse_progress(self, daemon):
+    def pulse_progress(self, daemon: bool) -> None:
         update_ui(self.progress_bar.pulse, None, False)
 
     def set_attempt_details(
         self,
-        attempt_no,
-        vid_bitrate,
-        is_hq_audio,
-        vid_height,
-        vid_fps,
-        daemon
-    ):
+        attempt_no: int,
+        vid_bitrate: int,
+        is_hq_audio: bool,
+        vid_height: int,
+        vid_fps: float,
+        daemon: bool
+    ) -> None:
         # TRANSLATORS: {} represents the attempt number.
         attempt_no_label = _('Attempt {}').format(str(attempt_no))
         update_ui(self.attempt_label.set_label, attempt_no_label, daemon)
@@ -70,7 +71,7 @@ class CurrentAttemptBox(Gtk.Box):
         # {audio_quality} represents audio quality (i.e. 'HQ' or 'LQ')
         target_details_label = _('Compressing to {vid_br} ({res_fps}, {audio_quality} audio)').format(
             vid_br = f'{vid_bitrate // 1000} Kbps',
-            res_fps = f'{vid_height}p@{vid_fps}',
+            res_fps = f'{vid_height}p@{int(round(vid_fps, 0))}',
             audio_quality = hq_label if is_hq_audio else lq_label
         )
         update_ui(
@@ -79,7 +80,12 @@ class CurrentAttemptBox(Gtk.Box):
             daemon
         )
 
-    def set_progress(self, fraction, seconds_left, daemon):
+    def set_progress(
+        self,
+        fraction: float,
+        seconds_left: int,
+        daemon: bool
+    ) -> None:
         update_ui(self.progress_bar.set_fraction, fraction, daemon)
 
         progress_percent = int(round(fraction * 100, 0))

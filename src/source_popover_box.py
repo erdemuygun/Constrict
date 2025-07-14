@@ -20,25 +20,26 @@
 from gi.repository import Adw, Gtk, GLib
 from constrict.shared import update_ui
 from constrict import PREFIX
+from typing import Any
 
 
 @Gtk.Template(resource_path=f'{PREFIX}/source_popover_box.ui')
 class SourcePopoverBox(Gtk.Box):
     __gtype_name__ = "SourcePopoverBox"
 
-    def __init__(self, top_widget, **kwargs):
+    def __init__(self, top_widget: Gtk.Widget, **kwargs: Any) -> None:
         super().__init__(**kwargs)
 
         self.top_widget = top_widget
         self.prepend(self.top_widget)
 
-    def set_top_widget(self, widget, daemon):
-        update_ui(self.remove, self.top_widget)
-        update_ui(self.prepend, widget)
+    def set_top_widget(self, widget: Gtk.Widget, daemon: bool) -> None:
+        update_ui(self.remove, self.top_widget, daemon)
+        update_ui(self.prepend, widget, daemon)
 
         self.top_widget = widget
 
-    def add_fail_widget(self, fail_widget, daemon):
+    def add_fail_widget(self, fail_widget: Gtk.Widget, daemon):
         if daemon:
             GLib.idle_add(
                 self.insert_child_after,

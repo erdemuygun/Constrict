@@ -19,6 +19,7 @@
 
 from gi.repository import Adw, Gtk, Gdk, GLib
 from constrict import PREFIX
+from typing import Any
 
 @Gtk.Template(resource_path=f'{PREFIX}/error_dialog.ui')
 class ErrorDialog(Adw.Dialog):
@@ -29,7 +30,12 @@ class ErrorDialog(Adw.Dialog):
     copy_button = Gtk.Template.Child()
     toast_overlay = Gtk.Template.Child()
 
-    def __init__(self, video_name, error_details, **kwargs):
+    def __init__(
+        self,
+        video_name: str,
+        error_details: str,
+        **kwargs: Any
+    ) -> None:
         super().__init__(**kwargs)
 
         safe_video_name = GLib.markup_escape_text(video_name)
@@ -45,7 +51,12 @@ class ErrorDialog(Adw.Dialog):
 
         self.install_action('dialog.copy-details', None, self.copy_details)
 
-    def copy_details(self, widget, action_name, parameter):
+    def copy_details(
+        self,
+        widget: Gtk.Widget,
+        action_name: str,
+        parameter: GLib.Variant
+    ) -> None:
         text_buffer = widget.text_view.get_buffer()
 
         start, end = text_buffer.get_bounds()

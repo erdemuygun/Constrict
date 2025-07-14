@@ -27,6 +27,7 @@ import datetime
 import re
 from pathlib import Path
 from tempfile import TemporaryFile
+from typing import List, Optional, Tuple, Callable
 try:
     from constrict.enums import FpsMode, VideoCodec
 except ModuleNotFoundError:
@@ -38,7 +39,7 @@ except ModuleNotFoundError:
 # this script for its 'business logic' too.
 
 
-def get_duration(file_input):
+def get_duration(file_input: str) -> float:
     return float(
         subprocess.check_output([
             "ffprobe",
@@ -50,7 +51,12 @@ def get_duration(file_input):
     )
 
 
-def get_res_preset(bitrate, source_width, source_height, framerate):
+def get_res_preset(
+    bitrate: int,
+    source_width: int,
+    source_height: int,
+    framerate: float
+) -> int:
     """
     Returns a suitable resolution preset (i.e. 1080p, 720p, etc.) from a given
     bitrate and source resolution. Allows source videos to be shrunk according
@@ -105,7 +111,11 @@ def get_res_preset(bitrate, source_width, source_height, framerate):
     return source_width if portrait else source_height
 
 
-def get_encoding_speed(frame_height, codec, extra_quality):
+def get_encoding_speed(
+    frame_height: int,
+    codec: int,
+    extra_quality: bool
+) -> str:
     hd = frame_height > 480
 
     match codec:
@@ -136,14 +146,14 @@ def get_encoding_speed(frame_height, codec, extra_quality):
 # Returns null if there's no problem while getting progress of an ffmpeg
 # operation. If there's an error, the error details will be returned.
 def get_progress(
-    file_input,
-    ffmpeg_cmd,
-    output_fn,
-    frame_count,
-    pass_num,
-    last_pass_avg_fps,
-    cancel_event
-):
+    file_input: str,
+    ffmpeg_cmd: List[str],
+    output_fn: Callable[[float, Optional[int]], None],
+    frame_count: int,
+    pass_num: Optional[int],
+    last_pass_avg_fps: Optional[float],
+    cancel_event: Callable
+) -> Tuple[Optional[float], Optional[str]]:
     with TemporaryFile() as err_file:
         proc = subprocess.Popen(
             ffmpeg_cmd,
@@ -152,60 +162,66 @@ def get_progress(
             stderr=err_file
         )
 
+        # TODO: fix terminal weirdness after running
+
         frame = 0
-        fps_sum = 0
+        fps_sum = 0.0
         pulse_counter = 0
         avg_counter = 0
 
-        for line in proc.stdout:
-            line_string = line.decode('utf-8')
+        if proc.stdout is not None:
+            for line in proc.stdout:
+                line_string = line.decode('utf-8')
 
-            if re.search('^frame=.*$', line_string):
-                frame_match = re.search('[0-9]+', line_string)
-                frame = int(frame_match.group())
-            elif re.search('^fps=.*$', line_string):
-                total_frames = frame_count * (1 if pass_num is None else 2)
-                current_frame = frame_count * (pass_num or 0) + frame
-                progress_fraction = current_frame / total_frames
-                pulse_counter += 1
+                if re.search('^frame=.*$', line_string):
+                    frame_match = re.search('[0-9]+', line_string)
+                    if frame_match:
+                        frame = int(frame_match.group())
+                elif re.search('^fps=.*$', line_string):
+                    total_frames = frame_count * (1 if pass_num is None else 2)
+                    current_frame = frame_count * (pass_num or 0) + frame
+                    progress_fraction = current_frame / total_frames
+                    pulse_counter += 1
 
-                if pulse_counter < 10 or (pass_num == 1 and pulse_counter < 20):
-                    # The first few frames of a pass are kind of unpredictable.
-                    # The average FPS is anomalously low compared before it
-                    # starts to 'warm up' to a relatively consistent value.
-                    # Therefore, we don't display the time remaining on the
-                    # first few frames of the first pass, and we just use the
-                    # last pass' average FPS to calculate time remaining on the
-                    # first few frames of the second pass.
+                    if pulse_counter < 10 or (pass_num == 1 and pulse_counter < 20):
+                        # The first few frames of a pass are kind of
+                        # unpredictable. The average FPS is anomalously low
+                        # compared before it starts to 'warm up' to a
+                        # relatively consistent value. Therefore, we don't
+                        # display the time remaining on the first few frames of
+                        # the first pass, and we just use the last pass'
+                        # average FPS to calculate time remaining on the first
+                        # few frames of the second pass.
 
-                    # We are slightly more lenient on the first pass, since
-                    # it's more important the user can see the estimated time
-                    # earlier on. We are more careful with pass 2, because it
-                    # suddenly makes the estimated time look jumpy and
-                    # inconsistent once progress reaches 50%, if using
-                    # anomalous FPS values.
-                    fps = last_pass_avg_fps
-                else:
-                    fps_match = re.search('[0-9]+[.]?[0-9]*', line_string)
-                    fps = float(fps_match.group())
+                        # We are slightly more lenient on the first pass, since
+                        # it's more important the user can see the estimated
+                        # time earlier on. We are more careful with pass 2,
+                        # because it suddenly makes the estimated time look
+                        # jumpy and inconsistent once progress reaches 50%, if
+                        # using anomalous FPS values.
+                        fps = last_pass_avg_fps
+                    else:
+                        fps_match = re.search('[0-9]+[.]?[0-9]*', line_string)
+                        if fps_match:
+                            fps = float(fps_match.group())
 
-                    avg_counter += 1
-                    fps_sum += fps
+                            avg_counter += 1
+                            fps_sum += fps
 
-                frames_left = total_frames - current_frame
+                    frames_left = total_frames - current_frame
 
-                seconds_left = None
+                    seconds_left = None
 
-                if fps:
-                    seconds_left = int(frames_left // fps)
-                    if seconds_left < 0:
-                        seconds_left = 0
+                    if fps:
+                        seconds_left = int(frames_left // fps)
+                        if seconds_left < 0:
+                            seconds_left = 0
 
-                output_fn(progress_fraction, seconds_left)
+                    output_fn(progress_fraction, seconds_left)
 
-            if cancel_event() == True:
-                proc.kill()
-                return (None, None)
+                if cancel_event() == True:
+                    proc.kill()
+                    return (None, None)
 
         avg = fps_sum / avg_counter if avg_counter else None
 
@@ -228,20 +244,20 @@ def get_progress(
 # If there's an error while transcoding, it'll return with the details of the
 # error.
 def transcode(
-    file_input,
-    file_output,
-    video_bitrate,
-    audio_bitrate,
-    width,
-    height,
-    framerate,
-    codec,
-    extra_quality,
-    output_fn,
-    frame_count,
-    log_path,
-    cancel_event
-):
+    file_input: str,
+    file_output: str,
+    video_bitrate: int,
+    audio_bitrate: int,
+    width: int,
+    height: int,
+    framerate: float,
+    codec: int,
+    extra_quality: bool,
+    output_fn: Callable[[float, Optional[int]], None],
+    frame_count: int,
+    log_path: str,
+    cancel_event: Callable[[], bool]
+) -> Optional[str]:
     portrait = height > width
     frame_height = width if portrait else height
 
@@ -293,7 +309,7 @@ def transcode(
     ])
 
     if cancel_event():
-        return
+        return None
 
     print(" ".join(pass1_cmd))
     print(' Transcoding... (pass 1/2)')
@@ -369,7 +385,7 @@ def transcode(
     return None
 
 
-def get_framerate(file_input):
+def get_framerate(file_input: str) -> float:
     cmd = [
         'ffprobe',
         '-v', '0',
@@ -385,11 +401,11 @@ def get_framerate(file_input):
     fps_fraction_split = fps_fraction.split('/')
     fps_numerator = int(fps_fraction_split[0])
     fps_denominator = int(fps_fraction_split[1])
-    fps_float = round(fps_numerator / fps_denominator)
+    fps_float = fps_numerator / fps_denominator
     return fps_float
 
 
-def get_resolution(file_input):
+def get_resolution(file_input: str) -> Tuple[int, int]:
     cmd = [
         'ffprobe',
         '-v', 'error',
@@ -408,7 +424,7 @@ def get_resolution(file_input):
     return (width, height)
 
 
-def get_rotation(file_input):
+def get_rotation(file_input: str) -> int:
     cmd = [
         'ffprobe',
         '-v', 'error',
@@ -419,16 +435,15 @@ def get_rotation(file_input):
     ]
 
     rotation_bytes = subprocess.check_output(cmd)
-    rotation = rotation_bytes.decode('utf-8')
 
     try:
-        rotation = int(rotation)
+        rotation = int(rotation_bytes.decode('utf-8'))
     except ValueError:
         rotation = 0
 
     return rotation
 
-def get_frame_count(file_input):
+def get_frame_count(file_input: str) -> int:
     cmd = [
         'ffprobe',
         '-v', 'error',
@@ -440,66 +455,23 @@ def get_frame_count(file_input):
     ]
 
     frame_count_bytes = subprocess.check_output(cmd)
-    frame_count = frame_count_bytes.decode('utf-8')
 
     try:
-        frame_count = int(frame_count)
+        frame_count = int(frame_count_bytes.decode('utf-8'))
     except ValueError:
         frame_count = 1
 
     return frame_count
 
-
-def bold(text):
-    return f'\033[1m{text}\033[0m'
-
-
-def heading(text):
-    return f':: {bold(text)}'
-
-
-def table(data):
-    max_key_len = 0
-    max_value_len = 0
-
-    for row in data:
-        row[0] += ':'
-
-        if len(row[0]) > max_key_len:
-            max_key_len
-
-        max_key_len = (
-            len(row[0]) if len(row[0]) > max_key_len else max_key_len
-        )
-        max_value_len = (
-            len(row[1]) if len(row[1]) > max_value_len else max_value_len
-        )
-
-    msg = ""
-
-    for row in data:
-        spaces_to_add = max_key_len - len(row[0])
-        for i in range(spaces_to_add):
-            row[0] += ' '
-
-        spaces_to_add = max_value_len - len(row[1])
-        for i in range(spaces_to_add):
-            row[1] = ' ' + row[1]
-
-        msg += f' {row[0]}  {row[1]}'
-
-    return msg
-
-
 def get_encode_settings(
-    target_size_MiB,
-    fps_mode,
-    width,
-    height,
-    fps,
-    duration,
-    factor=1
-):
+    target_size_MiB: int,
+    fps_mode: int,
+    width: int,
+    height: int,
+    fps: float,
+    duration: float,
+    factor: float = 1.0
+) -> Tuple[int, int, int, float]:
     target_size_KiB = target_size_MiB * 1024
     target_size_bytes = target_size_KiB * 1024
     target_size_bits = target_size_bytes * 8
@@ -539,31 +511,31 @@ def get_encode_settings(
     target_video_bitrate = target_bitrate - target_audio_bitrate
 
     preset_height = None
-    max_fps = None
+    max_fps = 60.0
 
     if crush_mode:
-        max_fps = 24
+        max_fps = 24.0
     elif fps_mode == FpsMode.PREFER_CLEAR:
-        max_fps = 30
+        max_fps = 30.0
     elif fps_mode == FpsMode.PREFER_SMOOTH:
-        max_fps = 60
+        max_fps = 60.0
     elif fps_mode == FpsMode.AUTO:
         preset_height_30fps = get_res_preset(
             target_video_bitrate,
             width,
             height,
-            30
+            30.0
         )
         preset_height_60fps = get_res_preset(
             target_video_bitrate,
             width,
             height,
-            60
+            60.0
         )
 
         preset_height = preset_height_30fps
         heights_match = preset_height_30fps == preset_height_60fps
-        max_fps = 60 if heights_match and preset_height >= 720 else 30
+        max_fps = 60.0 if heights_match and preset_height >= 720 else 30.0
 
     target_fps = fps if fps <= max_fps else max_fps
 
@@ -593,24 +565,25 @@ improve text formatting
 # TODO: change return values to passed functions -- makes more sense
 # TODO: make error msgs translatable
 def compress(
-    file_input,
-    file_output,
-    target_size_MiB,
-    framerate_option,
-    extra_quality,
-    codec,
-    tolerance,
-    output_fn,
-    log_path,
-    cancel_event,
-    on_new_attempt,
-    on_attempt_fail
-):
+    file_input: str,
+    file_output: str,
+    target_size_MiB: int,
+    framerate_option: int,
+    extra_quality: bool,
+    codec: int,
+    tolerance: int,
+    output_fn: Callable[[float, Optional[int]], None],
+    log_path: str,
+    cancel_event: Callable,
+    on_new_attempt: Callable[[int, int, bool, int, float], None],
+    on_attempt_fail: Callable[[int, int, bool, int, float, int, int], None]
+) -> Tuple[Optional[str], Optional[int], Optional[str]]:
     start_time = datetime.datetime.now().replace(microsecond=0)
     output_fn(0, None)
 
     target_size_bytes = target_size_MiB * 1024 * 1024
     before_size_bytes = os.stat(file_input).st_size
+    after_size_bytes = 0
 
     if before_size_bytes <= target_size_bytes:
         return (None, None, "Constrict: File already meets the target size.")
@@ -624,11 +597,6 @@ def compress(
     except subprocess.CalledProcessError:
         return (None, None, "Constrict: Could not retrieve video properties. Source video may be missing or corrupted.")
 
-    print(f'width heigher than height: {width < height}')
-    print(f'rotation = {get_rotation(file_input)}')
-    print(f'rotated = {get_rotation(file_input) == -90}')
-    print(f'portrait = {portrait}')
-
     try:
         Path(file_output).touch(exist_ok=False)
     except FileExistsError:
@@ -638,9 +606,17 @@ def compress(
     except PermissionError:
         return (None, None, "Constrict: Could not create exported file. There are insufficient permissions to create a file at the requested export path.")
 
-    factor = 1
+    # initialise values
+    factor = 1.0
     attempt = 0
-    percent_of_target = 200
+    percent_of_target = 200.0
+
+    target_video_bitrate = 0
+    target_audio_bitrate = 0
+    target_height = 0
+    target_fps = 0.0
+    is_hq_audio = False
+
     while (percent_of_target < 100 - tolerance) or (percent_of_target > 100):
         if attempt > 0:
             on_attempt_fail(
@@ -653,7 +629,7 @@ def compress(
                 target_size_bytes
             )
 
-        attempt = attempt + 1
+        attempt += 1
 
         encode_settings = get_encode_settings(
             target_size_MiB,
@@ -664,8 +640,6 @@ def compress(
             duration_seconds,
             factor
         )
-
-        print(encode_settings)
 
         target_video_bitrate, target_audio_bitrate, target_height, target_fps = encode_settings
 
@@ -697,7 +671,7 @@ def compress(
 
         displayed_res = target_width if portrait else target_height
 
-        dest_frame_count = source_frame_count // (source_fps / target_fps)
+        dest_frame_count = int(source_frame_count // (source_fps / target_fps))
 
         transcode_error = transcode(
             file_input,

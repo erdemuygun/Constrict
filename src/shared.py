@@ -19,8 +19,9 @@
 
 from gi.repository import GLib
 from pathlib import Path
+from typing import Optional, Any, Callable
 
-def get_tmp_dir():
+def get_tmp_dir() -> Optional[Path]:
     tmp_dir = GLib.get_tmp_dir()
     constrict_tmp_dir = Path(tmp_dir) / 'constrict'
 
@@ -32,7 +33,7 @@ def get_tmp_dir():
 
     return constrict_tmp_dir if successful else None
 
-def update_ui(function, arg, daemon):
+def update_ui(function: Callable, arg: Any, daemon: bool) -> None:
     if daemon:
         if arg is not None:
             GLib.idle_add(function, arg)

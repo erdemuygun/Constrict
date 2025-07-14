@@ -100,7 +100,7 @@ if __name__ == '__main__':
     )
     args = arg_parser.parse_args()
 
-    def get_fps_mode():
+    def get_fps_mode() -> int:
         match args.framerate_option:
             case 'auto':
                 return FpsMode.AUTO
@@ -109,7 +109,9 @@ if __name__ == '__main__':
             case 'prefer-smooth':
                 return FpsMode.PREFER_SMOOTH
 
-    def get_video_codec():
+        return FpsMode.AUTO
+
+    def get_video_codec() -> int:
         match args.codec:
             case 'h264':
                 return VideoCodec.H264
@@ -120,7 +122,9 @@ if __name__ == '__main__':
             case 'vp9':
                 return VideoCodec.VP9
 
-    def print_progress(fraction, seconds_left):
+        return VideoCodec.H264
+
+    def print_progress(fraction: float, seconds_left: int) -> None:
         percent = int(round(fraction * 100, 0))
 
         if seconds_left is None:
@@ -137,23 +141,23 @@ if __name__ == '__main__':
         print(f'{percent}% ({time_str})')
 
     def show_attempt_details(
-        attempt,
-        vid_bitrate,
-        audio_bitrate,
-        height,
-        fps
-    ):
-        print(f'Attempt {attempt} -- {vid_bitrate // 1000}Kbps ({height}p@{fps}, {audio_bitrate // 1000}Kbps audio)')
+        attempt: int,
+        vid_bitrate: int,
+        audio_bitrate: int,
+        height: int,
+        fps: float
+    ) -> None:
+        print(f'Attempt {attempt} -- {vid_bitrate // 1000}Kbps ({height}p@{int(round(fps, 0))}, {audio_bitrate // 1000}Kbps audio)')
 
     def show_attempt_fail(
-        attempt,
-        vid_bitrate,
-        audio_bitrate,
-        height,
-        fps,
-        after_size_bytes,
-        target_size_bytes
-    ):
+        attempt: int,
+        vid_bitrate: int,
+        audio_bitrate: int,
+        height: int,
+        fps: float,
+        after_size_bytes: int,
+        target_size_bytes: int
+    ) -> None:
         print(f'Attempt fail: compressed size is {after_size_bytes / 1024 // 1024}MB')
 
     file_output, final_size, error = compress(

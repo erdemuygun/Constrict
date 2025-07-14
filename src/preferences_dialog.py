@@ -20,6 +20,7 @@
 from gi.repository import Adw, Gtk, GLib
 from constrict.shared import update_ui
 from constrict import PREFIX
+from typing import Any
 
 
 @Gtk.Template(resource_path=f'{PREFIX}/preferences_dialog.ui')
@@ -31,7 +32,7 @@ class PreferencesDialog(Adw.PreferencesDialog):
     suffix_preferences_group = Gtk.Template.Child()
     suffix_entry_row = Gtk.Template.Child()
 
-    def __init__(self, application, **kwargs):
+    def __init__(self, application: Adw.Application, **kwargs: Any) -> None:
         super().__init__(**kwargs)
 
         self.suffix_preferences_group.set_description(
@@ -47,7 +48,7 @@ class PreferencesDialog(Adw.PreferencesDialog):
 
         self.suffix_entry_row.connect('apply', self.update_custom_suffix)
 
-    def update_custom_suffix(self, widget):
+    def update_custom_suffix(self, widget: Gtk.Widget) -> None:
         self.settings.set_string('custom-export-suffix', widget.get_text())
 
         toast = Adw.Toast.new(_('Changes applied'))

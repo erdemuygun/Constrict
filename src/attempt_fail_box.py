@@ -33,15 +33,15 @@ class AttemptFailBox(Gtk.Box):
 
     def __init__(
         self,
-        attempt_no,
-        vid_bitrate,
-        is_hq_audio,
-        vid_height,
-        vid_fps,
-        compressed_size_bytes,
-        target_size_bytes,
+        attempt_no: int,
+        vid_bitrate: int,
+        is_hq_audio: bool,
+        vid_height: int,
+        vid_fps: float,
+        compressed_size_bytes: int,
+        target_size_bytes: int,
         **kwargs
-    ):
+    ) -> None:
         super().__init__(**kwargs)
 
         # TRANSLATORS: {} represents the attempt number.
@@ -58,7 +58,7 @@ class AttemptFailBox(Gtk.Box):
         # {audio_quality} represents audio quality (i.e. 'HQ' or 'LQ')
         target_str = _("{vid_br} ({res_fps}, {audio_quality} audio)").format(
             vid_br = f'{str(vid_bitrate // 1000)} Kbps',
-            res_fps = f'{vid_height}p@{vid_fps}',
+            res_fps = f'{vid_height}p@{int(round(vid_fps, 0))}',
             audio_quality = hq_label if is_hq_audio else lq_label
         )
         self.target_label.set_label(target_str)
