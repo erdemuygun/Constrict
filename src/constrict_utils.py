@@ -157,12 +157,10 @@ def get_progress(
     with TemporaryFile() as err_file:
         proc = subprocess.Popen(
             ffmpeg_cmd,
-            stdin=None,
+            stdin=subprocess.PIPE,
             stdout=subprocess.PIPE,
             stderr=err_file
         )
-
-        # TODO: fix terminal weirdness after running
 
         frame = 0
         fps_sum = 0.0
