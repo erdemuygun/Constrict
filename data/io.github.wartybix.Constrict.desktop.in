@@ -1,7 +1,7 @@
 [Desktop Entry]
 Name=Constrict
 GenericName=Video Compressor
-Comment=Compress videos to target file sizes
+Comment=Compress videos to target sizes
 Exec=constrict --new-window %U
 Icon=@ICON@
 Terminal=false

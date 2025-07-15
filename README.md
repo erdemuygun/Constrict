@@ -2,7 +2,7 @@
 
 ![Application Screenshot](https://github.com/Wartybix/Constrict/blob/main/screenshots/queued.png?raw=true)
 
-### Compress videos to target file sizes
+### Compress videos to target sizes
 
 Constrict compresses your videos to your chosen file size — useful for uploading to services with specific file size limits. No more relying on online services for video compression, or the manual trial-and-error of re-encoding at various bitrates yourself.
 

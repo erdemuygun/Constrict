@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Constrict 1.0.1\n"
 "Report-Msgid-Bugs-To: 34974060+Wartybix@users.noreply.github.com\n"
-"POT-Creation-Date: 2025-07-15 04:23+0100\n"
-"PO-Revision-Date: 2025-07-15 02:34+0100\n"
+"POT-Creation-Date: 2025-07-15 13:36+0100\n"
+"PO-Revision-Date: 2025-07-15 13:40+0100\n"
 "Last-Translator: Wartybix <34974060+Wartybix@users.noreply.github.com>\n"
 "Language-Team: English\n"
 "Language: en_GB\n"
@@ -31,8 +31,8 @@ msgstr "Video Compressor"
 
 #: data/io.github.wartybix.Constrict.desktop.in:4
 #: data/io.github.wartybix.Constrict.metainfo.xml.in:9
-msgid "Compress videos to target file sizes"
-msgstr "Compress videos to target file sizes"
+msgid "Compress videos to target sizes"
+msgstr "Compress videos to target sizes"
 
 #: data/io.github.wartybix.Constrict.desktop.in:10
 msgid "Compress;Video;Movie;Film;Clip;"
