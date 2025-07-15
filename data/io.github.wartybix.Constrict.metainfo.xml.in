@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright 2025 Wartybix -->
 <component type="desktop-application">
   <id>@APPLICATION_ID@</id>
   <metadata_license>CC0-1.0</metadata_license>
@@ -19,9 +20,9 @@
     <p>The app attempts to retain as much audiovisual quality as possible for the file size given. However, extremely steep reductions in file size can cause significant loss of quality in the output file, and sometimes compression may not be possible at all. All processing is done locally — and as such, compression speeds are only as fast as your hardware allows.</p>
   </description>
 
-  <developer id="tld.vendor">
+  <developer id="io.github">
     <!-- TRANSLATORS: developer name, please do not translate. -->
-    <name>Wartybix</name>
+    <name translate="no">Wartybix</name>
   </developer>
 
   <!-- Requered: Should be a link to the upstream homepage for the component -->
@@ -70,32 +71,28 @@
 
   <screenshots>
     <screenshot type="default">
-      <image>https://github.com/Wartybix/Constrict/blob/main/screenshots/queued.png?raw=true</image>
+      <image>https://github.com/Wartybix/Constrict/blob/209eb5d8e275aaf49cc412c557fd568a123d7aa7/screenshots/queued.png?raw=true</image>
       <caption>Source videos queued for compression</caption>
     </screenshot>
     <screenshot>
-      <image>https://github.com/Wartybix/Constrict/blob/main/screenshots/compressing.png?raw=true</image>
+      <image>https://github.com/Wartybix/Constrict/blob/209eb5d8e275aaf49cc412c557fd568a123d7aa7/screenshots/compressing.png?raw=true</image>
       <caption>The application mid-compression</caption>
     </screenshot>
     <screenshot>
-      <image>https://github.com/Wartybix/Constrict/blob/main/screenshots/queued_mobile.png?raw=true</image>
+      <image>https://github.com/Wartybix/Constrict/blob/209eb5d8e275aaf49cc412c557fd568a123d7aa7/screenshots/queued_mobile.png?raw=true</image>
       <caption>A mobile friendly UI</caption>
     </screenshot>
     <screenshot>
-      <image>https://github.com/Wartybix/Constrict/blob/main/screenshots/settings_mobile.png?raw=true</image>
+      <image>https://github.com/Wartybix/Constrict/blob/209eb5d8e275aaf49cc412c557fd568a123d7aa7/screenshots/settings_mobile.png?raw=true</image>
       <caption>Compression settings in the mobile friendly UI</caption>
     </screenshot>
   </screenshots>
 
   <releases>
-    <release version="1.0.1" date="2024-01-18">
-      <url type="details">https://example.org/changelog.html#version_1.0.1</url>
+    <release version="25.7" date="2025-07-15">
+      <url type="details">https://github.com/Wartybix/Constrict/releases/tag/25.7</url>
       <description translate="no">
-        <p>Release description</p>
-        <ul>
-          <li>List of changes</li>
-          <li>List of changes</li>
-        </ul>
+        <p>Initial release.</p>
       </description>
     </release>
   </releases>

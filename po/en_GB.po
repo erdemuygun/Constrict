@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Constrict 1.0.1\n"
 "Report-Msgid-Bugs-To: 34974060+Wartybix@users.noreply.github.com\n"
-"POT-Creation-Date: 2025-07-15 01:25+0100\n"
+"POT-Creation-Date: 2025-07-15 04:23+0100\n"
 "PO-Revision-Date: 2025-07-15 02:34+0100\n"
 "Last-Translator: Wartybix <34974060+Wartybix@users.noreply.github.com>\n"
 "Language-Team: English\n"
@@ -20,7 +20,7 @@ msgstr ""
 "X-Generator: Gtranslator 48.0\n"
 
 #: data/io.github.wartybix.Constrict.desktop.in:2
-#: data/io.github.wartybix.Constrict.metainfo.xml.in:7 src/main.py:158
+#: data/io.github.wartybix.Constrict.metainfo.xml.in:8 src/main.py:158
 #: src/window.py:316 src/window.ui:6
 msgid "Constrict"
 msgstr "Constrict"
@@ -30,7 +30,7 @@ msgid "Video Compressor"
 msgstr "Video Compressor"
 
 #: data/io.github.wartybix.Constrict.desktop.in:4
-#: data/io.github.wartybix.Constrict.metainfo.xml.in:8
+#: data/io.github.wartybix.Constrict.metainfo.xml.in:9
 msgid "Compress videos to target file sizes"
 msgstr "Compress videos to target file sizes"
 
@@ -42,7 +42,7 @@ msgstr "Compress;Video;Movie;Film;Clip;"
 msgid "New Window"
 msgstr "New Window"
 
-#: data/io.github.wartybix.Constrict.metainfo.xml.in:10
+#: data/io.github.wartybix.Constrict.metainfo.xml.in:11
 msgid ""
 "Constrict compresses your videos to your chosen file size — useful for "
 "uploading to services with specific file size limits. No more relying on "
@@ -54,15 +54,15 @@ msgstr ""
 "online services for video compression, or the manual trial-and-error of re-"
 "encoding at various bitrates yourself."
 
-#: data/io.github.wartybix.Constrict.metainfo.xml.in:11
+#: data/io.github.wartybix.Constrict.metainfo.xml.in:12
 msgid "Features include:"
 msgstr "Features include:"
 
-#: data/io.github.wartybix.Constrict.metainfo.xml.in:13
+#: data/io.github.wartybix.Constrict.metainfo.xml.in:14
 msgid "An intuitive, easy to use interface."
 msgstr "An intuitive, easy to use interface."
 
-#: data/io.github.wartybix.Constrict.metainfo.xml.in:14
+#: data/io.github.wartybix.Constrict.metainfo.xml.in:15
 msgid ""
 "Automatic calculation of average bitrate (ABR), resolution, framerate, and "
 "audio quality each video is re-encoded with to meet the target file size."
@@ -70,17 +70,17 @@ msgstr ""
 "Automatic calculation of average bitrate (ABR), resolution, framerate, and "
 "audio quality each video is re-encoded with to meet the target file size."
 
-#: data/io.github.wartybix.Constrict.metainfo.xml.in:15
+#: data/io.github.wartybix.Constrict.metainfo.xml.in:16
 msgid "Bulk compression of multiple videos to one output directory."
 msgstr "Bulk compression of multiple videos to one output directory."
 
-#: data/io.github.wartybix.Constrict.metainfo.xml.in:16
+#: data/io.github.wartybix.Constrict.metainfo.xml.in:17
 msgid ""
 "Customization of framerate limits, to ensure a clearer or smoother image."
 msgstr ""
 "Customisation of framerate limits, to ensure a clearer or smoother image."
 
-#: data/io.github.wartybix.Constrict.metainfo.xml.in:17
+#: data/io.github.wartybix.Constrict.metainfo.xml.in:18
 msgid ""
 "A choice of codecs to encode output files with, including H.264, HEVC, AV1, "
 "and VP9."
@@ -88,7 +88,7 @@ msgstr ""
 "A choice of codecs to encode output files with, including H.264, HEVC, AV1, "
 "and VP9."
 
-#: data/io.github.wartybix.Constrict.metainfo.xml.in:19
+#: data/io.github.wartybix.Constrict.metainfo.xml.in:20
 msgid ""
 "The app attempts to retain as much audiovisual quality as possible for the "
 "file size given. However, extremely steep reductions in file size can cause "
@@ -102,24 +102,19 @@ msgstr ""
 "may not be possible at all. All processing is done locally — and as such, "
 "compression speeds are only as fast as your hardware allows."
 
-#. TRANSLATORS: developer name, please do not translate.
-#: data/io.github.wartybix.Constrict.metainfo.xml.in:24
-msgid "Wartybix"
-msgstr "Wartybix"
-
-#: data/io.github.wartybix.Constrict.metainfo.xml.in:74
+#: data/io.github.wartybix.Constrict.metainfo.xml.in:75
 msgid "Source videos queued for compression"
 msgstr "Source videos queued for compression"
 
-#: data/io.github.wartybix.Constrict.metainfo.xml.in:78
+#: data/io.github.wartybix.Constrict.metainfo.xml.in:79
 msgid "The application mid-compression"
 msgstr "The application mid-compression"
 
-#: data/io.github.wartybix.Constrict.metainfo.xml.in:82
+#: data/io.github.wartybix.Constrict.metainfo.xml.in:83
 msgid "A mobile friendly UI"
 msgstr "A mobile friendly UI"
 
-#: data/io.github.wartybix.Constrict.metainfo.xml.in:86
+#: data/io.github.wartybix.Constrict.metainfo.xml.in:87
 msgid "Compression settings in the mobile friendly UI"
 msgstr "Compression settings in the mobile friendly UI"
 
@@ -683,6 +678,9 @@ msgstr "{percent} % — About {time_shown} left"
 #: src/current_attempt_box.ui:26
 msgid "Initializing…"
 msgstr "Initialising…"
+
+#~ msgid "Wartybix"
+#~ msgstr "Wartybix"
 
 #~ msgid "A caption"
 #~ msgstr "A caption"
