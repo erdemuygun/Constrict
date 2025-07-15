@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Constrict 1.0.1\n"
 "Report-Msgid-Bugs-To: 34974060+Wartybix@users.noreply.github.com\n"
-"POT-Creation-Date: 2025-07-14 23:10+0100\n"
-"PO-Revision-Date: 2025-07-14 23:10+0100\n"
+"POT-Creation-Date: 2025-07-15 01:25+0100\n"
+"PO-Revision-Date: 2025-07-15 02:34+0100\n"
 "Last-Translator: Wartybix <34974060+Wartybix@users.noreply.github.com>\n"
 "Language-Team: English\n"
 "Language: en_GB\n"
@@ -107,10 +107,21 @@ msgstr ""
 msgid "Wartybix"
 msgstr "Wartybix"
 
-#: data/io.github.wartybix.Constrict.metainfo.xml.in:75
-#: data/io.github.wartybix.Constrict.metainfo.xml.in:79
-msgid "A caption"
-msgstr "A caption"
+#: data/io.github.wartybix.Constrict.metainfo.xml.in:74
+msgid "Source videos queued for compression"
+msgstr "Source videos queued for compression"
+
+#: data/io.github.wartybix.Constrict.metainfo.xml.in:78
+msgid "The application mid-compression"
+msgstr "The application mid-compression"
+
+#: data/io.github.wartybix.Constrict.metainfo.xml.in:82
+msgid "A mobile friendly UI"
+msgstr "A mobile friendly UI"
+
+#: data/io.github.wartybix.Constrict.metainfo.xml.in:86
+msgid "Compression settings in the mobile friendly UI"
+msgstr "Compression settings in the mobile friendly UI"
 
 #: data/io.github.wartybix.Constrict.gschema.xml.in:31 src/window.ui:78
 msgid "Framerate Limit"
@@ -672,6 +683,9 @@ msgstr "{percent} % — About {time_shown} left"
 #: src/current_attempt_box.ui:26
 msgid "Initializing…"
 msgstr "Initialising…"
+
+#~ msgid "A caption"
+#~ msgstr "A caption"
 
 #, python-brace-format
 #~ msgid "Compressing to {vid_br} ({res_fps}, {audio_quality} audio)"

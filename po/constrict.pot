@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Constrict 1.0.1\n"
 "Report-Msgid-Bugs-To: 34974060+Wartybix@users.noreply.github.com\n"
-"POT-Creation-Date: 2025-07-14 23:16+0100\n"
+"POT-Creation-Date: 2025-07-15 01:25+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -92,9 +92,20 @@ msgstr ""
 msgid "Wartybix"
 msgstr ""
 
-#: data/io.github.wartybix.Constrict.metainfo.xml.in:75
-#: data/io.github.wartybix.Constrict.metainfo.xml.in:79
-msgid "A caption"
+#: data/io.github.wartybix.Constrict.metainfo.xml.in:74
+msgid "Source videos queued for compression"
+msgstr ""
+
+#: data/io.github.wartybix.Constrict.metainfo.xml.in:78
+msgid "The application mid-compression"
+msgstr ""
+
+#: data/io.github.wartybix.Constrict.metainfo.xml.in:82
+msgid "A mobile friendly UI"
+msgstr ""
+
+#: data/io.github.wartybix.Constrict.metainfo.xml.in:86
+msgid "Compression settings in the mobile friendly UI"
 msgstr ""
 
 #: data/io.github.wartybix.Constrict.gschema.xml.in:31 src/window.ui:78
