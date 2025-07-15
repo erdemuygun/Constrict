@@ -89,6 +89,12 @@
   </screenshots>
 
   <releases>
+    <release version="27.7.2" date="2025-07-15">
+      <url type="details">https://github.com/Wartybix/Constrict/releases/tag/25.7.2</url>
+      <description translate="no">
+        <p>Fixed a crash caused by a video being compressed significantly below target.</p>
+      </description>
+    </release>
     <release version="25.7.1" date="2025-07-15">
       <url type="details">https://github.com/Wartybix/Constrict/releases/tag/25.7.1</url>
       <description translate="no">
