@@ -89,6 +89,12 @@
   </screenshots>
 
   <releases>
+    <release version="25.7.1" date="2025-07-15">
+      <url type="details">https://github.com/Wartybix/Constrict/releases/tag/25.7.1</url>
+      <description translate="no">
+        <p>Shortened the Metainfo and desktop file summary from 'Compress videos to target file sizes' to 'Compress videos to target sizes'.</p>
+      </description>
+    </release>
     <release version="25.7" date="2025-07-15">
       <url type="details">https://github.com/Wartybix/Constrict/releases/tag/25.7</url>
       <description translate="no">
