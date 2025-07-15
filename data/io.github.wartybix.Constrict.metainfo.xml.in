@@ -33,12 +33,11 @@
   <!-- Should link a FAQ page for this software, to answer some of the most-asked questions in detail -->
   <!-- <url type="faq">https://example.org/faq</url> -->
   <!-- URLs of this type should point to a webpage where users can submit or modify translations of the upstream project -->
-  <!-- TODO: set up translation page -->
   <!-- <url type="translate">https://example.org/translate</url> -->
   <!--Sould provide a web link to an online user's reference, a software manual or help page -->
   <!-- <url type="help">https://example.org/help</url> -->
   <!-- URLs of this type should point to a webpage showing information on how to donate to the described software project -->
-  <!-- <url type="donation">https://example.org/donate</url> -->
+  <url type="donation">https://ko-fi.com/wartybix/</url>
   <!--This could for example be an HTTPS URL to an online form or a page describing how to contact the developer -->
   <!-- <url type="contact">https://example.org/contact</url> -->
   <!--URLs of this type should point to a webpage showing information on how to contribute to the described software project -->
@@ -71,12 +70,20 @@
 
   <screenshots>
     <screenshot type="default">
-      <image>https://example.org/example1.png</image>
-      <caption>A caption</caption>
+      <image>https://github.com/Wartybix/Constrict/blob/main/screenshots/queued.png?raw=true</image>
+      <caption>Source videos queued for compression</caption>
     </screenshot>
     <screenshot>
-      <image>https://example.org/example2.png</image>
-      <caption>A caption</caption>
+      <image>https://github.com/Wartybix/Constrict/blob/main/screenshots/compressing.png?raw=true</image>
+      <caption>The application mid-compression</caption>
+    </screenshot>
+    <screenshot>
+      <image>https://github.com/Wartybix/Constrict/blob/main/screenshots/queued_mobile.png?raw=true</image>
+      <caption>A mobile friendly UI</caption>
+    </screenshot>
+    <screenshot>
+      <image>https://github.com/Wartybix/Constrict/blob/main/screenshots/settings_mobile.png?raw=true</image>
+      <caption>Compression settings in the mobile friendly UI</caption>
     </screenshot>
   </screenshots>
 
