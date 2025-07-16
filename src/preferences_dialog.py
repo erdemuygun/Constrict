@@ -31,6 +31,8 @@ class PreferencesDialog(Adw.PreferencesDialog):
     suffix_info_label = Gtk.Template.Child()
     suffix_entry_row = Gtk.Template.Child()
 
+    # TODO: Maybe do add a megabyte/mebibyte preference.
+
     def __init__(self, application: Adw.Application, **kwargs: Any) -> None:
         super().__init__(**kwargs)
 

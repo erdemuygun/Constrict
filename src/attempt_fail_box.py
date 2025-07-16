@@ -79,7 +79,7 @@ class AttemptFailBox(Gtk.Box):
             # (' ') between size and unit.
             fail_msg = _('Compressed file size was too large ({size} {unit})').format(
                 size = f'{compressed_size_mb}',
-                unit = 'MB'
+                unit = 'MiB'
             )
             self.failure_details_label.set_label(fail_msg)
         else:
@@ -89,6 +89,6 @@ class AttemptFailBox(Gtk.Box):
             # (' ') between size and unit.
             fail_msg = _('Compressed file size was too small ({size} {unit})').format(
                 size = f'{compressed_size_mb}',
-                unit = 'MB'
+                unit = 'MiB'
             )
             self.failure_details_label.set_label(fail_msg)

@@ -88,6 +88,7 @@
     </screenshot>
   </screenshots>
 
+  <!-- TODO: don't forget to make new screenshots for next release -->
   <releases>
     <release version="27.7.2" date="2025-07-15">
       <url type="details">https://github.com/Wartybix/Constrict/releases/tag/25.7.2</url>

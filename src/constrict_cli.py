@@ -36,7 +36,7 @@ if __name__ == '__main__':
     arg_parser.add_argument(
         '-s',
         dest='target_size',
-        help='Desired size of the compressed video in MB',
+        help='Desired size of the compressed video in MiB',
         type=int,
         required=True
     )
@@ -158,7 +158,7 @@ if __name__ == '__main__':
         after_size_bytes: int,
         target_size_bytes: int
     ) -> None:
-        print(f'Attempt fail: compressed size is {after_size_bytes / 1024 // 1024}MB')
+        print(f'Attempt fail: compressed size is {after_size_bytes / 1024 // 1024}MiB')
 
     compression_result = compress(
         args.file_path,
@@ -181,5 +181,5 @@ if __name__ == '__main__':
     elif type(compression_result) is int:
         end_size_bytes = compression_result
         end_size_mb = round(end_size_bytes / 1024 / 1024, 1)
-        print(f'Video compressed to {end_size_mb} MB.')
+        print(f'Video compressed to {end_size_mb} MiB.')
 

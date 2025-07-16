@@ -581,6 +581,9 @@ def get_encode_settings(
         target_fps
     )
 
+# FIXME: fix some videos being rallied back and forth with compression attempts
+# Use a sliding window method to determine best bitrate after going above and
+# below target.
 
 def compress(
     file_input: str,

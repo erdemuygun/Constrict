@@ -407,7 +407,7 @@ class SourcesRow(Adw.ActionRow):
             # narrow no-break space (' ') between size and unit.
             _('Video compressed to {size} {unit}.').format(
                 size = compressed_size_mb,
-                unit = 'MB'
+                unit = 'MiB'
             ),
             daemon
         )
@@ -434,9 +434,9 @@ class SourcesRow(Adw.ActionRow):
                 _('Video file size ({original_size} {unit_original}) already meets the target size ({target_size} {unit_target}).')
                     .format(
                         original_size = size_mb,
-                        unit_original = 'MB',
+                        unit_original = 'MiB',
                         target_size = target_size,
-                        unit_target = 'MB'
+                        unit_target = 'MiB'
                     ),
                 daemon
             )
@@ -452,7 +452,7 @@ class SourcesRow(Adw.ActionRow):
                 # Please use U+202F Narrow no-break space (' ') between value
                 # and unit.
                 _('Target size ({size} {unit}) is too low for this file.')
-                    .format(size = target_size, unit = 'MB'),
+                    .format(size = target_size, unit = 'MiB'),
                 daemon
             )
         else:
