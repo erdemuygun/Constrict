@@ -580,15 +580,17 @@ msgstr "Copia Dettagli"
 msgid "Attempt {}"  
 msgstr "Tentativo {}"  
   
+# (Alta Qualità)
 #. TRANSLATORS: this is an abbreviation of 'High Quality'  
 #: src/attempt_fail_box.py:54 src/current_attempt_box.py:70  
 msgid "HQ"  
-msgstr "AQ" (Alta Qualità)  
+msgstr "AQ"
   
+# (Bassa Qualità)
 #. TRANSLATORS: this is an abbreviation of 'Low Quality'  
 #: src/attempt_fail_box.py:57 src/current_attempt_box.py:73  
 msgid "LQ"  
-msgstr "BQ" (Bassa Qualità)  
+msgstr "BQ"
   
 #. TRANSLATORS: {vid_br} represents an integer.  
 #. {vid_br_unit} represents a bitrate unit, like 'Kbps'.  
