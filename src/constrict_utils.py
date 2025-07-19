@@ -31,6 +31,7 @@ try:
     from constrict.enums import FpsMode, VideoCodec
 except ModuleNotFoundError:
     from enums import FpsMode, VideoCodec
+from gettext import gettext as _
 
 
 # Module responsible for compression logic. Other scripts communicate with it
@@ -616,14 +617,14 @@ def compress(
 
     file_input_path = Path(file_input)
     if not file_input_path.is_file():
-        return "Constrict: Could not read input file. Was it moved or deleted before compression?"
+        return _("Constrict: Could not read input file. Was it moved or deleted before compression?")
 
     target_size_bytes = target_size_MiB * 1024 * 1024
     before_size_bytes = os.stat(file_input).st_size
     after_size_bytes = 0
 
     if before_size_bytes <= target_size_bytes:
-        return "Constrict: File already meets the target size."
+        return _("Constrict: File already meets the target size.")
 
     try:
         duration_seconds = get_duration(file_input)
@@ -632,16 +633,16 @@ def compress(
         source_frame_count = get_frame_count(file_input)
         portrait = (width < height) ^ (get_rotation(file_input) == -90)
     except subprocess.CalledProcessError:
-        return "Constrict: Could not retrieve video properties. Source video may be missing or corrupted."
+        return _("Constrict: Could not retrieve video properties. Source video may be missing or corrupted.")
 
     try:
         Path(file_output).touch(exist_ok=False)
     except FileExistsError:
         # This should never happen if a unique file name has been passed to
         # this function as file_output.
-        return "Constrict: Could not create exported file. A file with the reserved name already exists."
+        return _("Constrict: Could not create exported file. A file with the reserved name already exists.")
     except PermissionError:
-        return "Constrict: Could not create exported file. There are insufficient permissions to create a file at the requested export path."
+        return _("Constrict: Could not create exported file. There are insufficient permissions to create a file at the requested export path.")
 
     # initialise values
     factor = 1.0
@@ -693,7 +694,7 @@ def compress(
 
         # Below 5 Kbps, barely anything is perceptible in the video anymore.
         if target_video_bitrate < 5000:
-            return "Constrict: Video bitrate got too low (<5 Kbps). The target size may be too low for this file."
+            return _("Constrict: Video bitrate got too low (<5 Kbps). The target size may be too low for this file.")
 
         scaling_factor = height / target_height
         target_width = int(((width / scaling_factor + 1) // 2) * 2)
@@ -733,7 +734,7 @@ def compress(
         try:
             after_size_bytes = os.stat(file_output).st_size
         except FileNotFoundError:
-            return "Constrict: Cannot read output file. Was it moved or deleted mid-compression?"
+            return _("Constrict: Cannot read output file. Was it moved or deleted mid-compression?")
         percent_of_target = (100 / target_size_bytes) * after_size_bytes
 
         factor *= 100 / percent_of_target
