@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Constrict 1.0.1\n"
 "Report-Msgid-Bugs-To: 34974060+Wartybix@users.noreply.github.com\n"
-"POT-Creation-Date: 2025-07-15 13:36+0100\n"
+"POT-Creation-Date: 2025-07-19 17:16+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -19,7 +19,7 @@ msgstr ""
 "Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
 
 #: data/io.github.wartybix.Constrict.desktop.in:2
-#: data/io.github.wartybix.Constrict.metainfo.xml.in:8 src/main.py:158
+#: data/io.github.wartybix.Constrict.metainfo.xml.in:8 src/main.py:164
 #: src/window.py:316 src/window.ui:6
 msgid "Constrict"
 msgstr ""
@@ -122,25 +122,25 @@ msgstr ""
 
 #. TRANSLATORS: used in parentheses for the default suffix of exported
 #. files.
-#: src/main.py:81
+#: src/main.py:87
 msgid "compressed"
 msgstr ""
 
 #. TRANSLATORS: Braces represent the name of the repository (e.g. 8mb)
 #. Please use ‘’ characters instead of '', if applicable to your language.
-#: src/main.py:170
+#: src/main.py:176
 msgid "‘{}’ repository by"
 msgstr ""
 
-#: src/main.py:177
+#: src/main.py:183
 msgid "Circular progress indicator (C version) by"
 msgstr ""
 
-#: src/main.py:181
+#: src/main.py:187
 msgid "GApplication local option handling by"
 msgstr ""
 
-#: src/main.py:185
+#: src/main.py:191
 msgid "translator-credits"
 msgstr ""
 
@@ -506,13 +506,13 @@ msgid "Add Vide_os…"
 msgstr ""
 
 #. TRANSLATORS: {} represents the value of the default suffix.
-#: src/preferences_dialog.py:39
+#: src/preferences_dialog.py:41
 msgid ""
 "Used in file names for exported videos, between the base name and extension. "
 "If the custom suffix is left empty, the default suffix of “{}” will be used."
 msgstr ""
 
-#: src/preferences_dialog.py:54
+#: src/preferences_dialog.py:56
 msgid "Changes applied"
 msgstr ""
 
