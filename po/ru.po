@@ -1,23 +1,22 @@
 # SOME DESCRIPTIVE TITLE.
 # Copyright (C) YEAR Wartybix
 # This file is distributed under the same license as the Constrict package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+# Anton Palgunov <toxblh@gmail.com>, 2025.
 #
-#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: Constrict 1.0.1\n"
 "Report-Msgid-Bugs-To: 34974060+Wartybix@users.noreply.github.com\n"
 "POT-Creation-Date: 2025-07-15 13:36+0100\n"
-"PO-Revision-Date: 2025-07-18 21:36+0100\n"
+"PO-Revision-Date: 2025-07-19 10:18+0100\n"
 "Last-Translator: Anton Palgunov <toxblh@gmail.com>\n"
 "Language-Team: \n"
 "Language: ru\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n"
-"%10<=4 && (n%100<12 || n%100>14) ? 1 : 2);\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
+"n%10<=4 && (n%100<12 || n%100>14) ? 1 : 2);\n"
 "X-Generator: Poedit 3.6\n"
 
 #: data/io.github.wartybix.Constrict.desktop.in:2
@@ -130,7 +129,7 @@ msgstr "Предел частоты кадров"
 msgid ""
 "Limits framerates of compressed videos automatically, or to 30 FPS or 60 FPS."
 msgstr ""
-"Автоматически ограничивает частоту кадров сжатых видео до 30 FPS или 60 FPS."
+"Автоматически ограничивает частоту кадров сжатых видео до 30 FPS или 60 FPS."
 
 #: data/io.github.wartybix.Constrict.gschema.xml.in:38
 msgid "Video Codec"
@@ -161,6 +160,7 @@ msgid "GApplication local option handling by"
 msgstr "Обработка локальных опций GApplication"
 
 #: src/main.py:185
+#, fuzzy
 msgid "translator-credits"
 msgstr "переводчики"
 
@@ -169,7 +169,7 @@ msgstr "переводчики"
 #. Please use U+202F Narrow no-break space (' ') between value and unit.
 #: src/window.py:166
 msgid "{} FPS"
-msgstr "{} FPS"
+msgstr "{} FPS"
 
 #. TRANSLATORS: FPS meaning 'frames per second'. {} represents an
 #. integer. Please use U+202F narrow no-break space (' ') between
@@ -179,7 +179,7 @@ msgid ""
 "Videos compressed to low bitrates may be capped to {} FPS, regardless of the "
 "option set."
 msgstr ""
-"Видео, сжатые до низкого битрейта, могут быть ограничены {}FPS, независимо "
+"Видео, сжатые до низкого битрейта, могут быть ограничены {} FPS, независимо "
 "от установленной опции."
 
 #. TRANSLATORS: {} represents an integer. Please use U+202F Narrow
@@ -468,7 +468,7 @@ msgstr "Показать Настройки"
 #: src/sources_row.py:408
 #, python-brace-format
 msgid "Video compressed to {size} {unit}."
-msgstr "Видео сжато до {size}{unit}."
+msgstr "Видео сжато до {size} {unit}."
 
 #. TRANSLATORS: {original_size} and {target_size} represent
 #. integers. {unit_original} and {unit_target} represent file
@@ -480,8 +480,8 @@ msgid ""
 "Video file size ({original_size} {unit_original}) already meets the target "
 "size ({target_size} {unit_target})."
 msgstr ""
-"Размер видеофайла ({original_size}{unit_original}) уже соответствует "
-"целевому размеру ({target_size}{unit_target})."
+"Размер видеофайла ({original_size} {unit_original}) уже соответствует "
+"целевому размеру ({target_size} {unit_target})."
 
 #. TRANSLATORS: {size} represents an integer. {unit} represents
 #. a file size unit like 'MB'.
@@ -490,7 +490,7 @@ msgstr ""
 #: src/sources_row.py:454
 #, python-brace-format
 msgid "Target size ({size} {unit}) is too low for this file."
-msgstr "Целевой размер ({size}{unit}) слишком мал для этого файла."
+msgstr "Целевой размер ({size} {unit}) слишком мал для этого файла."
 
 #: src/sources_row.ui:36 src/sources_row.ui:49 src/sources_row.ui:78
 msgid "View Error Details"
@@ -615,7 +615,7 @@ msgstr "{vid_br} {vid_br_unit} ({res_fps}, {audio_quality} аудио)"
 #: src/attempt_fail_box.py:80
 #, python-brace-format
 msgid "Compressed file size was too large ({size} {unit})"
-msgstr "Размер сжатого файла слишком большой ({size}{unit})"
+msgstr "Размер сжатого файла слишком большой ({size} {unit})"
 
 #. TRANSLATORS: {size} represents an integer. {unit} represents a
 #. file size unit like 'MB'. Please use U+202F Narrow no-break space
@@ -623,7 +623,7 @@ msgstr "Размер сжатого файла слишком большой ({s
 #: src/attempt_fail_box.py:90
 #, python-brace-format
 msgid "Compressed file size was too small ({size} {unit})"
-msgstr "Размер сжатого файла слишком мал ({size}{unit})"
+msgstr "Размер сжатого файла слишком мал ({size} {unit})"
 
 #. TRANSLATORS: {vid_br} represents an integer.
 #. {vid_br_unit} represents a bitrate unit, like 'Kbps'.
@@ -635,7 +635,7 @@ msgstr "Размер сжатого файла слишком мал ({size}{uni
 #, python-brace-format
 msgid ""
 "Compressing to {vid_br} {vid_br_unit} ({res_fps}, {audio_quality} audio)"
-msgstr "Сжатие в {vid_br}{vid_br_unit} ({res_fps}, {audio_quality} аудио)"
+msgstr "Сжатие в {vid_br} {vid_br_unit} ({res_fps}, {audio_quality} аудио)"
 
 #. TRANSLATORS: {} represents an integer.
 #. Used as part of a larger string, like:
@@ -679,7 +679,7 @@ msgstr[2] "{} часов"
 #: src/current_attempt_box.py:156
 #, python-brace-format
 msgid "{percent} % — About {time_shown} left"
-msgstr "{percent}% — осталось около {time_shown}"
+msgstr "{percent} % — осталось около {time_shown}"
 
 #. TRANSLATORS: please use U+2026 Horizontal ellipsis (…) instead of '...', if applicable to your language.
 #: src/current_attempt_box.ui:26
