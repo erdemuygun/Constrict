@@ -160,9 +160,8 @@ msgid "GApplication local option handling by"
 msgstr "Обработка локальных опций GApplication"
 
 #: src/main.py:185
-#, fuzzy
 msgid "translator-credits"
-msgstr "переводчики"
+msgstr "Anton Palgunov https://github.com/Toxblh/"
 
 #. TRANSLATORS: 'FPS' meaning 'frames per second'.
 #. {} represents the FPS value, for example 30 or 60.
