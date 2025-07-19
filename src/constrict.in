@@ -33,6 +33,8 @@ sys.path.insert(1, pkgdatadir)
 signal.signal(signal.SIGINT, signal.SIG_DFL)
 locale.bindtextdomain('constrict', localedir)
 locale.textdomain('constrict')
+gettext.bindtextdomain('constrict', localedir)
+gettext.textdomain('constrict')
 gettext.install('constrict', localedir)
 
 if __name__ == '__main__':

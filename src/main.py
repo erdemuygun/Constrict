@@ -33,6 +33,12 @@ from typing import List, Sequence, Callable, Any
 # FIXME: occasional segmentation fault on compression completion? No idea what
 # the cause is yet. It's seemingly random.
 
+# FIXME: app hangs when clicking 'complete' notification for window that no
+# longer exists.
+
+# FIXME: some reports of portrait videos not being compressed properly, and
+# changed to landscape.
+
 class ConstrictApplication(Adw.Application):
     """The main application singleton class."""
 
