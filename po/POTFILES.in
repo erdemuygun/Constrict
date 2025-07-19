@@ -17,3 +17,4 @@ src/error_dialog.ui
 src/attempt_fail_box.py
 src/current_attempt_box.py
 src/current_attempt_box.ui
+src/constrict_utils.py

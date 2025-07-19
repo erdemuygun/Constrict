@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Constrict 1.0.1\n"
 "Report-Msgid-Bugs-To: 34974060+Wartybix@users.noreply.github.com\n"
-"POT-Creation-Date: 2025-07-19 17:16+0100\n"
-"PO-Revision-Date: 2025-07-15 13:40+0100\n"
+"POT-Creation-Date: 2025-07-19 18:25+0100\n"
+"PO-Revision-Date: 2025-07-19 18:26+0100\n"
 "Last-Translator: Wartybix <34974060+Wartybix@users.noreply.github.com>\n"
 "Language-Team: English\n"
 "Language: en_GB\n"
@@ -678,6 +678,56 @@ msgstr "{percent} % — About {time_shown} left"
 #: src/current_attempt_box.ui:26
 msgid "Initializing…"
 msgstr "Initialising…"
+
+#: src/constrict_utils.py:620
+msgid ""
+"Constrict: Could not read input file. Was it moved or deleted before "
+"compression?"
+msgstr ""
+"Constrict: Could not read input file. Was it moved or deleted before "
+"compression?"
+
+#: src/constrict_utils.py:627
+msgid "Constrict: File already meets the target size."
+msgstr "Constrict: File already meets the target size."
+
+#: src/constrict_utils.py:636
+msgid ""
+"Constrict: Could not retrieve video properties. Source video may be missing "
+"or corrupted."
+msgstr ""
+"Constrict: Could not retrieve video properties. Source video may be missing "
+"or corrupted."
+
+#: src/constrict_utils.py:643
+msgid ""
+"Constrict: Could not create exported file. A file with the reserved name "
+"already exists."
+msgstr ""
+"Constrict: Could not create exported file. A file with the reserved name "
+"already exists."
+
+#: src/constrict_utils.py:645
+msgid ""
+"Constrict: Could not create exported file. There are insufficient "
+"permissions to create a file at the requested export path."
+msgstr ""
+"Constrict: Could not create exported file. There are insufficient "
+"permissions to create a file at the requested export path."
+
+#: src/constrict_utils.py:697
+msgid ""
+"Constrict: Video bitrate got too low (<5 Kbps). The target size may be too "
+"low for this file."
+msgstr ""
+"Constrict: Video bitrate got too low (<5 Kbps). The target size may be too "
+"low for this file."
+
+#: src/constrict_utils.py:737
+msgid ""
+"Constrict: Cannot read output file. Was it moved or deleted mid-compression?"
+msgstr ""
+"Constrict: Cannot read output file. Was it moved or deleted mid-compression?"
 
 #~ msgid "Wartybix"
 #~ msgstr "Wartybix"
