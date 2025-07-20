@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Constrict 1.0.1\n"
 "Report-Msgid-Bugs-To: 34974060+Wartybix@users.noreply.github.com\n"
-"POT-Creation-Date: 2025-07-19 18:25+0100\n"
+"POT-Creation-Date: 2025-07-20 05:25+0100\n"
 "PO-Revision-Date: 2025-07-19 18:26+0100\n"
 "Last-Translator: Wartybix <34974060+Wartybix@users.noreply.github.com>\n"
 "Language-Team: English\n"
@@ -20,7 +20,7 @@ msgstr ""
 "X-Generator: Gtranslator 48.0\n"
 
 #: data/io.github.wartybix.Constrict.desktop.in:2
-#: data/io.github.wartybix.Constrict.metainfo.xml.in:8 src/main.py:164
+#: data/io.github.wartybix.Constrict.metainfo.xml.in:8 src/main.py:166
 #: src/window.py:316 src/window.ui:6
 msgid "Constrict"
 msgstr "Constrict"
@@ -144,19 +144,15 @@ msgstr "compressed"
 
 #. TRANSLATORS: Braces represent the name of the repository (e.g. 8mb)
 #. Please use ‘’ characters instead of '', if applicable to your language.
-#: src/main.py:176
+#: src/main.py:178
 msgid "‘{}’ repository by"
 msgstr "‘{}’ repository by"
 
-#: src/main.py:183
+#: src/main.py:185
 msgid "Circular progress indicator (C version) by"
 msgstr "Circular progress indicator (C version) by"
 
-#: src/main.py:187
-msgid "GApplication local option handling by"
-msgstr "GApplication local option handling by"
-
-#: src/main.py:191
+#: src/main.py:189
 msgid "translator-credits"
 msgstr "Wartybix https://github.com/Wartybix/"
 
@@ -728,6 +724,9 @@ msgid ""
 "Constrict: Cannot read output file. Was it moved or deleted mid-compression?"
 msgstr ""
 "Constrict: Cannot read output file. Was it moved or deleted mid-compression?"
+
+#~ msgid "GApplication local option handling by"
+#~ msgstr "GApplication local option handling by"
 
 #~ msgid "Wartybix"
 #~ msgstr "Wartybix"
