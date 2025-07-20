@@ -114,6 +114,8 @@ class ConstrictApplication(Adw.Application):
 
         if window:
             window.present()
+        else:
+            self.do_activate()
 
     def do_open(self, gfiles: List[Gio.File], n_files: int, hint: str) -> None:
         """ Open the application, with the list of files staged for compression
@@ -228,6 +230,8 @@ class ConstrictApplication(Adw.Application):
 
         for window in windows:
             window.close()
+
+        super().quit()
 
 
 def main(version: int) -> int:
