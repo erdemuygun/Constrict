@@ -55,7 +55,7 @@ class ConstrictApplication(Adw.Application):
             None
         )
 
-        self.create_action('new-window', lambda *_: self.do_activate(), ['<primary>n'])
+        self.create_action('new-window', lambda *_: self.new_window(), ['<primary>n'])
         self.create_action('quit', lambda *_: self.quit(), ['<primary>q'])
         self.create_action('about', self.on_about_action)
         self.create_action('preferences', self.on_preferences_action, ['<primary>comma'])
@@ -118,13 +118,23 @@ class ConstrictApplication(Adw.Application):
     def do_open(self, gfiles: List[Gio.File], n_files: int, hint: str) -> None:
         """ Open the application, with the list of files staged for compression
         """
-        self.do_activate(gfiles)
+        self.new_window(gfiles)
 
-    def do_activate(self, gfiles: List[Gio.File] = []) -> None:
+    def do_activate(self) -> None:
         """Called when the application is activated.
 
         We raise the application's main window, creating it if
         necessary.
+        """
+        active_window = self.get_active_window()
+        if active_window:
+            active_window.present()
+        else:
+            self.new_window()
+
+    def new_window(self, gfiles: List[Gio.File] = []) -> None:
+        """ Create a new window for the application, optionally with some
+        videos already staged.
         """
         active_window = self.get_active_window()
         if active_window:
@@ -139,24 +149,14 @@ class ConstrictApplication(Adw.Application):
 
         win.present()
 
-    # do_handle_local_options is taken from kramo's Showtime project and has
-    # been modified slightly:
-    # https://gitlab.gnome.org/GNOME/Incubator/showtime/-/blob/main/showtime/main.py
     def do_handle_local_options(  # pylint: disable=arguments-differ
         self, options: GLib.VariantDict
     ) -> int:
         """Handle local command line arguments."""
-        self.register()  # This is so get_is_remote works
-        if self.get_is_remote():
-            if options.contains("new-window"):
-                return -1
-
-            logging.warning(
-                "Constrict is already running. "
-                "To open a new window, run the app with --new-window."
-            )
+        self.register()
+        if options.contains("new-window"):
+            self.activate_action('new-window')
             return 0
-
         return -1
 
     def on_about_action(self, *args: Any) -> None:
@@ -182,10 +182,6 @@ class ConstrictApplication(Adw.Application):
         about.add_acknowledgement_section(
             _('Circular progress indicator (C version) by'),
             ['Christian Hergert https://gitlab.gnome.org/chergert']
-        )
-        about.add_acknowledgement_section(
-            _('GApplication local option handling by'),
-            ['kramo https://kramo.page']
         )
         # Translators: Replace "translator-credits" with your name/username, and optionally an email or URL.
         about.set_translator_credits(_('translator-credits'))
