@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: Constrict 1.0.1\n"
 "Report-Msgid-Bugs-To: 34974060+Wartybix@users.noreply.github.com\n"
 "POT-Creation-Date: 2025-07-20 05:25+0100\n"
-"PO-Revision-Date: 2025-07-18 15:49+0100\n"
+"PO-Revision-Date: 2025-07-21 19:49+0100\n"
 "Last-Translator: Albano Battistella <albanobattistella@gmail.com>\n"
 "Language-Team: Italian <LL@li.org>\n"
 "Language: it\n"
@@ -284,7 +284,7 @@ msgstr "I video sono in fase di compressione"
 #. instead of '...', if applicable to your language
 #: src/window.py:623
 msgid "Analyzing…"
-msgstr "Analisi…"
+msgstr "Analisi in corso…"
 
 #. TRANSLATORS: {} represents the filename of the video with
 #. the error. Please use “” instead of "", if applicable to
@@ -687,47 +687,57 @@ msgstr "{percent} % — Circa {time_shown} rimanenti"
 #. TRANSLATORS: please use U+2026 Horizontal ellipsis (…) instead of '...', if applicable to your language.
 #: src/current_attempt_box.ui:26
 msgid "Initializing…"
-msgstr "Inizializzazione…"
+msgstr "Inizializzazione in corso…"
 
 #: src/constrict_utils.py:620
 msgid ""
 "Constrict: Could not read input file. Was it moved or deleted before "
 "compression?"
 msgstr ""
+"Constrict: Impossibile leggere il file di input. È stato spostato o eliminato prima "
+"della compressione?"
 
 #: src/constrict_utils.py:627
 msgid "Constrict: File already meets the target size."
-msgstr ""
+msgstr "Constrict: il file raggiunge già la dimensione obbiettivo."
 
 #: src/constrict_utils.py:636
-#, fuzzy
 msgid ""
 "Constrict: Could not retrieve video properties. Source video may be missing "
 "or corrupted."
-msgstr "Impossibile caricare il video. Potrebbe essere mancante o danneggiato."
+msgstr ""
+"Constrict: Impossibile recuperare le proprietà del video. Il video sorgente potrebbe essere mancante" 
+"o danneggiato."
 
 #: src/constrict_utils.py:643
 msgid ""
 "Constrict: Could not create exported file. A file with the reserved name "
 "already exists."
 msgstr ""
+"Constrict: Impossibile creare il file esportato. Un file con il nome riservato "
+"esiste già."
 
 #: src/constrict_utils.py:645
 msgid ""
 "Constrict: Could not create exported file. There are insufficient "
 "permissions to create a file at the requested export path."
 msgstr ""
+"Constrict: Impossibile creare il file esportato. Non ci sono autorizzazioni sufficienti "
+"per creare un file nel percorso di esportazione richiesto."
 
 #: src/constrict_utils.py:697
 msgid ""
 "Constrict: Video bitrate got too low (<5 Kbps). The target size may be too "
 "low for this file."
 msgstr ""
+"Constrict: il bitrate del video è troppo basso (<5 Kbps). La dimensione di destinazione potrebbe essere "
+"troppo bassa per questo file."
 
 #: src/constrict_utils.py:737
 msgid ""
 "Constrict: Cannot read output file. Was it moved or deleted mid-compression?"
 msgstr ""
+"Constrict: Impossibile leggere il file di output. È stato spostato o eliminato durante la compressione?"
 
 #~ msgid "GApplication local option handling by"
 #~ msgstr "Gestione delle opzioni locali di GApplication di"
