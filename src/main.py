@@ -231,8 +231,6 @@ class ConstrictApplication(Adw.Application):
         for window in windows:
             window.close()
 
-        super().quit()
-
 
 def main(version: int) -> int:
     """The application's entry point."""
