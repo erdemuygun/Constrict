@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Constrict 1.0.1\n"
 "Report-Msgid-Bugs-To: 34974060+Wartybix@users.noreply.github.com\n"
-"POT-Creation-Date: 2025-07-20 05:25+0100\n"
-"PO-Revision-Date: 2025-07-19 18:26+0100\n"
+"POT-Creation-Date: 2025-07-22 23:07+0100\n"
+"PO-Revision-Date: 2025-07-22 23:15+0100\n"
 "Last-Translator: Wartybix <34974060+Wartybix@users.noreply.github.com>\n"
 "Language-Team: English\n"
 "Language: en_GB\n"
@@ -17,11 +17,11 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Gtranslator 48.0\n"
+"X-Generator: Poedit 3.6\n"
 
 #: data/io.github.wartybix.Constrict.desktop.in:2
 #: data/io.github.wartybix.Constrict.metainfo.xml.in:8 src/main.py:166
-#: src/window.py:316 src/window.ui:6
+#: src/window.py:318 src/window.ui:6
 msgid "Constrict"
 msgstr "Constrict"
 
@@ -176,7 +176,7 @@ msgstr ""
 
 #. TRANSLATORS: {} represents an integer. Please use U+202F Narrow
 #. no-break space (' ') between {} and '%'.
-#: src/window.py:182
+#: src/window.py:184
 #, python-format
 msgid ""
 "Decreasing the tolerance maximizes image quality by reducing how much "
@@ -190,21 +190,21 @@ msgstr ""
 "tolerance of {} % or more is recommended."
 
 #. TRANSLATORS: {} represents a file size unit (e.g. 'MB')
-#: src/window.py:187
+#: src/window.py:189
 msgid "Target _Size ({})"
 msgstr "Target _Size ({})"
 
 #. TRANSLATORS: {} represents the filename of the video currently
 #. being processed. Please use “” instead of "", if applicable to
 #. your language.
-#: src/window.py:289
+#: src/window.py:291
 msgid "Processing “{}”"
 msgstr "Processing “{}”"
 
 #. TRANSLATORS: {index} represents the index of the video
 #. currently being processed. {total} represents the total
 #. number of videos being processed.
-#: src/window.py:295
+#: src/window.py:297
 #, python-brace-format
 msgid "{index}/{total} Videos Processed"
 msgstr "{index}/{total} Videos Processed"
@@ -212,92 +212,92 @@ msgstr "{index}/{total} Videos Processed"
 #. TRANSLATORS: {} represents the path of the directory being
 #. exported to. Please use “” instead of "", if applicable to your
 #. language.
-#: src/window.py:306
+#: src/window.py:308
 msgid "Exporting to “{}”"
 msgstr "Exporting to “{}”"
 
 #. TRANSLATORS: {} represents the filename of the video currently
 #. queued. Please use “” instead of '', if applicable to your
 #. language.
-#: src/window.py:322
+#: src/window.py:324
 msgid "“{}” Queued"
 msgstr "“{}” Queued"
 
 #. TRANSLATORS: {} represents the number of files queued.
-#: src/window.py:326
+#: src/window.py:328
 msgid "{} Videos Queued"
 msgstr "{} Videos Queued"
 
-#: src/window.py:457
+#: src/window.py:459
 msgid "Stop Compression?"
 msgstr "Stop Compression?"
 
 #. TRANSLATORS: {} represents the filename of the video currently
 #. being compressed. Please use “” instead of "", if applicable to
 #. your language.
-#: src/window.py:461
+#: src/window.py:463
 msgid "Progress made compressing “{}” will be permanently lost"
 msgstr "Progress made compressing “{}” will be permanently lost"
 
-#: src/window.py:467
+#: src/window.py:469
 msgid "_Cancel"
 msgstr "_Cancel"
 
-#: src/window.py:468
+#: src/window.py:470
 msgid "_Stop"
 msgstr "_Stop"
 
-#: src/window.py:522 src/window.py:758
+#: src/window.py:524 src/window.py:760
 msgid "Compression Complete"
 msgstr "Compression Complete"
 
 #. TRANSLATORS: {} represents the filename of the video that has
 #. been processed.
 #. Please use “” instead of "", if applicable to your language.
-#: src/window.py:530
+#: src/window.py:532
 msgid "“{}” processed"
 msgstr "“{}” processed"
 
 #. TRANSLATORS: {} represents the number of files that have been
 #. processed.
-#: src/window.py:535
+#: src/window.py:537
 msgid "{} files processed"
 msgstr "{} files processed"
 
-#: src/window.py:546
+#: src/window.py:548
 msgid "Open Export Directory"
 msgstr "Open Export Directory"
 
-#: src/window.py:603
+#: src/window.py:605
 msgid "Videos are being compressed"
 msgstr "Videos are being compressed"
 
 #. TRANSLATORS: please use U+2026 Horizontal ellipsis (…)
 #. instead of '...', if applicable to your language
-#: src/window.py:623
+#: src/window.py:625
 msgid "Analyzing…"
 msgstr "Analysing…"
 
 #. TRANSLATORS: {} represents the filename of the video with
 #. the error. Please use “” instead of "", if applicable to
 #. your language.
-#: src/window.py:717
+#: src/window.py:719
 msgid "Error compressing “{}”"
 msgstr "Error compressing “{}”"
 
-#: src/window.py:720
+#: src/window.py:722
 msgid "View _Details"
 msgstr "View _Details"
 
-#: src/window.py:754
+#: src/window.py:756
 msgid "Compression Cancelled"
 msgstr "Compression Cancelled"
 
-#: src/window.py:840
+#: src/window.py:842
 msgid "Videos"
 msgstr "Videos"
 
-#: src/window.py:843
+#: src/window.py:845
 msgid "Pick Videos"
 msgstr "Pick Videos"
 
@@ -590,7 +590,7 @@ msgid "LQ"
 msgstr "LQ"
 
 #. TRANSLATORS: {vid_br} represents an integer.
-#. {vid_br_unit} represents a bitrate unit, like 'Kbps'.
+#. {vid_br_unit} represents a bitrate unit, like 'kbps'.
 #. {res_fps} represents a resolution + framerate (e.g. '1080p@30').
 #. {audio_quality} represents audio quality (i.e. 'HQ' or 'LQ').
 #. Please use U+202F Narrow no-break space (' ') between video bitrate
@@ -617,7 +617,7 @@ msgid "Compressed file size was too small ({size} {unit})"
 msgstr "Compressed file size was too small ({size} {unit})"
 
 #. TRANSLATORS: {vid_br} represents an integer.
-#. {vid_br_unit} represents a bitrate unit, like 'Kbps'.
+#. {vid_br_unit} represents a bitrate unit, like 'kbps'.
 #. {res_fps} represents a resolution + framerate (e.g. '1080p@30').
 #. {audio_quality} represents audio quality (i.e. 'HQ' or 'LQ').
 #. Please use U+202F Narrow no-break space (' ') between video bitrate
@@ -675,7 +675,7 @@ msgstr "{percent} % — About {time_shown} left"
 msgid "Initializing…"
 msgstr "Initialising…"
 
-#: src/constrict_utils.py:620
+#: src/constrict_utils.py:625
 msgid ""
 "Constrict: Could not read input file. Was it moved or deleted before "
 "compression?"
@@ -683,11 +683,11 @@ msgstr ""
 "Constrict: Could not read input file. Was it moved or deleted before "
 "compression?"
 
-#: src/constrict_utils.py:627
+#: src/constrict_utils.py:632
 msgid "Constrict: File already meets the target size."
 msgstr "Constrict: File already meets the target size."
 
-#: src/constrict_utils.py:636
+#: src/constrict_utils.py:641
 msgid ""
 "Constrict: Could not retrieve video properties. Source video may be missing "
 "or corrupted."
@@ -695,7 +695,7 @@ msgstr ""
 "Constrict: Could not retrieve video properties. Source video may be missing "
 "or corrupted."
 
-#: src/constrict_utils.py:643
+#: src/constrict_utils.py:648
 msgid ""
 "Constrict: Could not create exported file. A file with the reserved name "
 "already exists."
@@ -703,7 +703,7 @@ msgstr ""
 "Constrict: Could not create exported file. A file with the reserved name "
 "already exists."
 
-#: src/constrict_utils.py:645
+#: src/constrict_utils.py:650
 msgid ""
 "Constrict: Could not create exported file. There are insufficient "
 "permissions to create a file at the requested export path."
@@ -711,15 +711,15 @@ msgstr ""
 "Constrict: Could not create exported file. There are insufficient "
 "permissions to create a file at the requested export path."
 
-#: src/constrict_utils.py:697
+#: src/constrict_utils.py:710
 msgid ""
-"Constrict: Video bitrate got too low (<5 Kbps). The target size may be too "
+"Constrict: Video bitrate got too low (<5 kbps). The target size may be too "
 "low for this file."
 msgstr ""
-"Constrict: Video bitrate got too low (<5 Kbps). The target size may be too "
+"Constrict: Video bitrate got too low (<5 kbps). The target size may be too "
 "low for this file."
 
-#: src/constrict_utils.py:737
+#: src/constrict_utils.py:748
 msgid ""
 "Constrict: Cannot read output file. Was it moved or deleted mid-compression?"
 msgstr ""

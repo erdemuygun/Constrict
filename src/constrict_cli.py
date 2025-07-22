@@ -147,7 +147,7 @@ if __name__ == '__main__':
         height: int,
         fps: float
     ) -> None:
-        print(f'Attempt {attempt} -- {vid_bitrate // 1000}Kbps ({height}p@{int(round(fps, 0))}, {audio_bitrate // 1000}Kbps audio)')
+        print(f'Attempt {attempt} -- {vid_bitrate // 1000}kbps ({height}p@{int(round(fps, 0))}, {audio_bitrate // 1000}kbps audio)')
 
     def show_attempt_fail(
         attempt: int,

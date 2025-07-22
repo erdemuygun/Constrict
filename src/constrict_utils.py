@@ -66,7 +66,7 @@ def get_res_preset(
     """
 
     source_pixels = source_width * source_height  # Get pixel count
-    bitrate_Kbps = bitrate / 1000  # Convert to kilobits
+    bitrate_kbps = bitrate / 1000  # Convert to kilobits
     """
     Bitrate-resolution recommendations are taken from:
     https://developers.google.com/media/vp9/settings/vod
@@ -100,7 +100,7 @@ def get_res_preset(
         preset_width, preset_height = res_preset[0], res_preset[1]
         preset_pixels = preset_width * preset_height
         if (
-            bitrate_Kbps >= bitrate_lower_bound and
+            bitrate_kbps >= bitrate_lower_bound and
             source_pixels >= preset_pixels
         ):
             return preset_height
@@ -519,22 +519,22 @@ def get_encode_settings(
     bitrate.
 
     Why is the threshold 150 + 96 (= 246)? It's the sum of the lowest
-    recommended bitrate for 240p (150Kbps), plus a 'good quality' bitrate for
-    Opus audio (96Kbps). It means that it shouldn't be possible to 'downgrade'
+    recommended bitrate for 240p (150kbps), plus a 'good quality' bitrate for
+    Opus audio (96kbps). It means that it shouldn't be possible to 'downgrade'
     the video to 144p without applying crush mode. Additionally, footage can be
     'saved' from being downgraded to 144p where, for example:
 
-    Total target bitrate = 200Kbps
+    Total target bitrate = 200kbps
     Bitrate less than threshold, therefore apply crush mode.
-    Target audio bitrate set to 6Kbps (rather than 96Kbps) due to crush mode.
-    Therefore, video bitrate is 194Kbps
-    This is *above* 150Kbps, therefore preset resolution is 240p@24
+    Target audio bitrate set to 6kbps (rather than 96kbps) due to crush mode.
+    Therefore, video bitrate is 194kbps
+    This is *above* 150kbps, therefore preset resolution is 240p@24
 
     And if there was no crush mode:
-    Total target bitrate = 200Kbps
-    Target audio bitrate set to 96Kbps
-    Therefore, video bitrate is 104Kbps
-    This is *below* 150Kbps, therefore preset resolution is 144p@?
+    Total target bitrate = 200kbps
+    Target audio bitrate set to 96kbps
+    Therefore, video bitrate is 104kbps
+    This is *below* 150kbps, therefore preset resolution is 144p@?
     '''
     crush_mode = (target_bitrate / 1000) < 150 + 96 or force_crush
     target_audio_bitrate = 6000 if crush_mode else 96000
@@ -705,9 +705,9 @@ def compress(
         )
         output_fn(0, None)
 
-        # Below 5 Kbps, barely anything is perceptible in the video anymore.
+        # Below 5 kbps, barely anything is perceptible in the video anymore.
         if target_video_bitrate < 5000:
-            return _("Constrict: Video bitrate got too low (<5 Kbps). The target size may be too low for this file.")
+            return _("Constrict: Video bitrate got too low (<5 kbps). The target size may be too low for this file.")
 
         scaling_factor = height / target_height
         target_width = int(((width / scaling_factor + 1) // 2) * 2)
