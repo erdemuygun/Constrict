@@ -84,6 +84,7 @@ class CurrentAttemptBox(Gtk.Box):
             res_fps = f'{vid_height}p@{int(round(vid_fps, 0))}',
             audio_quality = hq_label if is_hq_audio else lq_label
         )
+        # TODO: Kbps -> kbps
         update_ui(
             self.target_details_label.set_label,
             target_details_label,

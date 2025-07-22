@@ -176,11 +176,13 @@ class ConstrictWindow(Adw.ApplicationWindow):
                 .format('24')
         )
 
+        default_tolerance = self.settings.get_default_value('tolerance')
+
         self.adv_options_help_label.set_label(
             # TRANSLATORS: {} represents an integer. Please use U+202F Narrow
             # no-break space (' ') between {} and '%'.
             _('Decreasing the tolerance maximizes image quality by reducing how much compressed file sizes can be under target. However, this can increase the number of attempts needed to meet the target, increasing compression time. A tolerance of {} % or more is recommended.')
-                .format('10')
+                .format(default_tolerance)
         )
 
         # TRANSLATORS: {} represents a file size unit (e.g. 'MB')
