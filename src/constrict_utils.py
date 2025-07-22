@@ -495,8 +495,10 @@ def get_encode_settings(
     height: int,
     fps: float,
     duration: float,
-    factor: float = 1.0
-) -> Tuple[int, int, int, float]:
+    factor: float = 1.0,
+    force_crush: bool = False,
+    locked_in_height: int = None
+) -> Tuple[int, int, int, float, bool]:
     """ Return recommended encode settings for a given video and user
     preferences, in order to meet the target file size """
 
@@ -507,7 +509,7 @@ def get_encode_settings(
     target_bitrate = round(target_size_bits / duration) * factor
 
     # To account for metadata and such to prevent overshooting
-    target_bitrate = round(target_bitrate * 0.99)
+    target_bitrate = round(target_bitrate * 0.965)
 
     '''
     crush mode tries to save some image clarity by significantly reducing audio
@@ -534,7 +536,7 @@ def get_encode_settings(
     Therefore, video bitrate is 104Kbps
     This is *below* 150Kbps, therefore preset resolution is 144p@?
     '''
-    crush_mode = (target_bitrate / 1000) < 150 + 96
+    crush_mode = (target_bitrate / 1000) < 150 + 96 or force_crush
     target_audio_bitrate = 6000 if crush_mode else 96000
     target_video_bitrate = target_bitrate - target_audio_bitrate
 
@@ -575,16 +577,19 @@ def get_encode_settings(
             target_fps
         )
 
+    res_reduction_applied = False
+
+    if locked_in_height and preset_height > locked_in_height:
+        preset_height = locked_in_height
+        res_reduction_applied = True
+
     return (
         target_video_bitrate,
         target_audio_bitrate,
         preset_height,
-        target_fps
+        target_fps,
+        res_reduction_applied
     )
-
-# FIXME: fix some videos being rallied back and forth with compression attempts
-# Use a sliding window method to determine best bitrate after going above and
-# below target.
 
 def compress(
     file_input: str,
@@ -655,6 +660,9 @@ def compress(
     target_fps = 0.0
     is_hq_audio = False
 
+    force_crush = False
+    lowest_res = None
+
     while (percent_of_target < 100 - tolerance) or (percent_of_target > 100):
         if attempt > 0:
             on_attempt_fail(
@@ -676,12 +684,17 @@ def compress(
             height,
             source_fps,
             duration_seconds,
-            factor
+            factor,
+            force_crush,
+            lowest_res
         )
 
-        target_video_bitrate, target_audio_bitrate, target_height, target_fps = encode_settings
+        target_video_bitrate, target_audio_bitrate, target_height, target_fps, res_reduction_applied = encode_settings
 
         is_hq_audio = target_audio_bitrate > 48000
+
+        if not is_hq_audio:
+            force_crush = True
 
         on_new_attempt(
             attempt,
@@ -704,8 +717,6 @@ def compress(
             buffer = target_width
             target_width = target_height
             target_height = buffer
-
-        displayed_res = target_width if portrait else target_height
 
         dest_frame_count = int(source_frame_count // (source_fps / target_fps))
 
@@ -737,11 +748,18 @@ def compress(
             return _("Constrict: Cannot read output file. Was it moved or deleted mid-compression?")
         percent_of_target = (100 / target_size_bytes) * after_size_bytes
 
-        factor *= 100 / percent_of_target
+        if res_reduction_applied and percent_of_target < 100:
+            # The quality's not likely to get better than this, so quit now.
+            # Another attempt would be pointless.
+            break
 
-        if (percent_of_target > 100):
-            # Prevent a lot of attempts resulting in above-target sizes
-            factor *= 0.95
+        if percent_of_target > 50:
+            # Don't transcode to higher resolutions in future attempts
+            lowest_res = target_height
+
+        # We multiply by 0.98 to prevent lots of attempts with sizes just
+        # bordering above the target.
+        factor *= 0.98 * (100 / percent_of_target)
 
     return after_size_bytes
 

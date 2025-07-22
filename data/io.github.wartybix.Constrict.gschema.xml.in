@@ -44,7 +44,7 @@
 			<default>false</default>
 		</key>
 		<key name="tolerance" type="i">
-			<default>10</default>
+			<default>25</default>
 		</key>
 		<key name="open-initial-folder" type="s">
 			<default>""</default>
