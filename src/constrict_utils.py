@@ -502,7 +502,7 @@ def get_encode_settings(
     duration: float,
     factor: float = 1.0,
     force_crush: bool = False,
-    locked_in_height: int = None
+    locked_in_height: Optional[int] = None
 ) -> Tuple[int, int, int, float, bool]:
     """ Return recommended encode settings for a given video and user
     preferences, in order to meet the target file size """
@@ -641,7 +641,6 @@ def compress(
         source_fps = get_framerate(file_input)
         width, height = get_resolution(file_input)
         source_frame_count = get_frame_count(file_input)
-        # TODO: fix mypy flags
         rotation = get_rotation(file_input)
     except subprocess.CalledProcessError:
         return _("Constrict: Could not retrieve video properties. Source video may be missing or corrupted.")
