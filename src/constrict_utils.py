@@ -642,7 +642,6 @@ def compress(
         width, height = get_resolution(file_input)
         source_frame_count = get_frame_count(file_input)
         # TODO: fix mypy flags
-        # TODO: is using -2 scale more performant? investigate
         rotation = get_rotation(file_input)
     except subprocess.CalledProcessError:
         return _("Constrict: Could not retrieve video properties. Source video may be missing or corrupted.")
