@@ -420,7 +420,7 @@ def get_framerate(file_input: str) -> float:
         'default=noprint_wrappers=1:nokey=1',
         '-select_streams', 'v:0',
         '-show_entries',
-        'stream=r_frame_rate',
+        'stream=avg_frame_rate',
         file_input
     ]
     fps_bytes = subprocess.check_output(cmd)
@@ -638,12 +638,9 @@ def compress(
 
     try:
         duration_seconds = get_duration(file_input)
-        # print(f'my duration: {duration_seconds}')
         source_fps = get_framerate(file_input)
         width, height = get_resolution(file_input)
         source_frame_count = get_frame_count(file_input)
-        # print(f'my frame count: {source_frame_count}')
-        # FIXME: strangeness in some framerates found...
         # TODO: fix mypy flags
         # TODO: is using -2 scale more performant? investigate
         rotation = get_rotation(file_input)
@@ -729,7 +726,7 @@ def compress(
             scaling_factor = height / target_height
             target_width = int(((width / scaling_factor + 1) // 2) * 2)
 
-        dest_frame_count = int(source_frame_count // (source_fps / target_fps))
+        dest_frame_count = int(source_frame_count // (source_fps / target_fps)) or 1
 
         transcode_error = transcode(
             file_input,
