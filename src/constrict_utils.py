@@ -270,6 +270,7 @@ def transcode(
     audio_bitrate: int,
     width: int,
     height: int,
+    rotation: int,
     framerate: float,
     codec: int,
     extra_quality: bool,
@@ -302,6 +303,8 @@ def transcode(
         'ffmpeg',
         '-y',
         '-progress', '-',
+        '-display_rotation', f'{rotation}',
+        '-noautorotate',
         '-i', f'{file_input}',
         f'{preset_name}', f'{"4" if codec == VideoCodec.VP9 else preset}',
         '-vf', f'scale={width}:{height}',
@@ -355,9 +358,11 @@ def transcode(
         'ffmpeg',
         '-y',
         '-progress', '-',
+        '-display_rotation', f'{rotation}',
+        '-noautorotate',
         '-i', f'{file_input}',
         f'{preset_name}', f'{preset}',
-        '-vf', f'scale={width}:{height}',
+        '-vf', f'scale={width}:{height}'
     ]
 
     if log_path is not None:
@@ -633,10 +638,15 @@ def compress(
 
     try:
         duration_seconds = get_duration(file_input)
+        # print(f'my duration: {duration_seconds}')
         source_fps = get_framerate(file_input)
         width, height = get_resolution(file_input)
         source_frame_count = get_frame_count(file_input)
-        portrait = (width < height) ^ (get_rotation(file_input) == -90)
+        # print(f'my frame count: {source_frame_count}')
+        # FIXME: strangeness in some framerates found...
+        # TODO: fix mypy flags
+        # TODO: is using -2 scale more performant? investigate
+        rotation = get_rotation(file_input)
     except subprocess.CalledProcessError:
         return _("Constrict: Could not retrieve video properties. Source video may be missing or corrupted.")
 
@@ -656,7 +666,7 @@ def compress(
 
     target_video_bitrate = 0
     target_audio_bitrate = 0
-    target_height = 0
+    displayed_res = 0
     target_fps = 0.0
     is_hq_audio = False
 
@@ -669,7 +679,7 @@ def compress(
                 attempt,
                 target_video_bitrate,
                 is_hq_audio,
-                target_height,
+                displayed_res,
                 target_fps,
                 after_size_bytes,
                 target_size_bytes
@@ -696,11 +706,13 @@ def compress(
         if not is_hq_audio:
             force_crush = True
 
+        displayed_res = target_height
+
         on_new_attempt(
             attempt,
             target_video_bitrate,
             is_hq_audio,
-            target_height,
+            displayed_res,
             target_fps
         )
         output_fn(0, None)
@@ -709,14 +721,13 @@ def compress(
         if target_video_bitrate < 5000:
             return _("Constrict: Video bitrate got too low (<5 kbps). The target size may be too low for this file.")
 
-        scaling_factor = height / target_height
-        target_width = int(((width / scaling_factor + 1) // 2) * 2)
-
-        if portrait:
-            # Swap height and width
-            buffer = target_width
+        if height > width:
             target_width = target_height
-            target_height = buffer
+            scaling_factor = width / target_width
+            target_height = int(((height / scaling_factor + 1) // 2) * 2)
+        else:
+            scaling_factor = height / target_height
+            target_width = int(((width / scaling_factor + 1) // 2) * 2)
 
         dest_frame_count = int(source_frame_count // (source_fps / target_fps))
 
@@ -727,6 +738,7 @@ def compress(
             target_audio_bitrate,
             target_width,
             target_height,
+            rotation,
             target_fps,
             codec,
             extra_quality,
