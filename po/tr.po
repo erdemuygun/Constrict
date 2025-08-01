@@ -1,45 +1,45 @@
-# SOME DESCRIPTIVE TITLE.
-# Copyright (C) YEAR Wartybix
+# Turkish translations for Constrict package.
+# Copyright (C) 2025 THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the Constrict package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+# erdem uygun <uygun.erdem@proton.me>, 2025.
 #
-#, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: Constrict 1.0.1\n"
+"Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: 34974060+Wartybix@users.noreply.github.com\n"
 "POT-Creation-Date: 2025-08-01 15:13+0100\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: LANGUAGE <LL@li.org>\n"
-"Language: \n"
+"PO-Revision-Date: 2025-08-01 17:47+0300\n"
+"Last-Translator: Erdem Uygun <uygun.erdem@proton.me>\n"
+"Language-Team: Turkish <gnome-turk@gnome.org>\n"
+"Language: tr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: Poedit 3.4.2\n"
 
 #: data/io.github.wartybix.Constrict.desktop.in:2
 #: data/io.github.wartybix.Constrict.metainfo.xml.in:8 src/main.py:162
 #: src/window.py:318 src/window.ui:6
 msgid "Constrict"
-msgstr ""
+msgstr "Constrict"
 
 #: data/io.github.wartybix.Constrict.desktop.in:3
 msgid "Video Compressor"
-msgstr ""
+msgstr "Video Sıkıştırıcı"
 
 #: data/io.github.wartybix.Constrict.desktop.in:4
 #: data/io.github.wartybix.Constrict.metainfo.xml.in:9
 msgid "Compress videos to target sizes"
-msgstr ""
+msgstr "Videoları hedef boyutlara sıkıştır"
 
 #: data/io.github.wartybix.Constrict.desktop.in:10
 msgid "Compress;Video;Movie;Film;Clip;"
-msgstr ""
+msgstr "Sıkıştır;Video;Film;Klip;"
 
 #: data/io.github.wartybix.Constrict.desktop.in:20
 msgid "New Window"
-msgstr ""
+msgstr "Yeni Pencere"
 
 #: data/io.github.wartybix.Constrict.metainfo.xml.in:11
 msgid ""
@@ -48,35 +48,47 @@ msgid ""
 "online services for video compression, or the manual trial-and-error of re-"
 "encoding at various bitrates yourself."
 msgstr ""
+"Constrict, videolarınızı seçtiğiniz dosya boyutuna sıkıştırır. Bu, belirli "
+"dosya boyutu sınırları olan hizmetlere yüklemek için kullanışlıdır. Artık "
+"video sıkıştırmak için çevrimiçi hizmetlere veya farklı bit hızlarında "
+"yeniden kodlamanın manuel deneme yanılma yöntemine güvenmek zorunda "
+"kalmayacaksınız."
 
 #: data/io.github.wartybix.Constrict.metainfo.xml.in:12
 msgid "Features include:"
-msgstr ""
+msgstr "Özellikleri:"
 
 #: data/io.github.wartybix.Constrict.metainfo.xml.in:14
 msgid "An intuitive, easy to use interface."
-msgstr ""
+msgstr "Sezgisel, kullanımı kolay bir arayüz."
 
 #: data/io.github.wartybix.Constrict.metainfo.xml.in:15
 msgid ""
 "Automatic calculation of average bitrate (ABR), resolution, framerate, and "
 "audio quality each video is re-encoded with to meet the target file size."
 msgstr ""
+"Her videonun hedef dosya boyutunu karşılamak için yeniden kodlanacağı "
+"ortalama bit hızı (ABR), çözünürlük, kare hızı ve ses kalitesinin otomatik "
+"hesaplanması."
 
 #: data/io.github.wartybix.Constrict.metainfo.xml.in:16
 msgid "Bulk compression of multiple videos to one output directory."
-msgstr ""
+msgstr "Birden fazla videonun tek bir çıktı dizinine toplu sıkıştırılması."
 
 #: data/io.github.wartybix.Constrict.metainfo.xml.in:17
 msgid ""
 "Customization of framerate limits, to ensure a clearer or smoother image."
 msgstr ""
+"Daha net veya daha akıcı bir görüntü sağlamak için kare hızı sınırlarının "
+"özelleştirilmesi."
 
 #: data/io.github.wartybix.Constrict.metainfo.xml.in:18
 msgid ""
 "A choice of codecs to encode output files with, including H.264, HEVC, AV1, "
 "and VP9."
 msgstr ""
+"Çıktı dosyalarını H.264, HEVC, AV1 ve VP9 gibi çeşitli kodeklerle kodlama "
+"seçeneği."
 
 #: data/io.github.wartybix.Constrict.metainfo.xml.in:20
 msgid ""
@@ -86,60 +98,67 @@ msgid ""
 "may not be possible at all. All processing is done locally — and as such, "
 "compression speeds are only as fast as your hardware allows."
 msgstr ""
+"Uygulama, verilen dosya boyutu için mümkün olduğunca görsel-işitsel kaliteyi "
+"korumaya çalışır. Ancak, dosya boyutunda aşırı düşüşler, çıktı dosyasında "
+"önemli bir kalite kaybına neden olabilir ve bazen sıkıştırma hiç mümkün "
+"olmayabilir. Tüm işlemler yerel olarak yapılır; bu nedenle sıkıştırma hızı, "
+"yalnızca donanımınızın izin verdiği kadar hızlıdır."
 
 #: data/io.github.wartybix.Constrict.metainfo.xml.in:75
 msgid "Source videos queued for compression"
-msgstr ""
+msgstr "Sıkıştırma için sıraya alınan kaynak videolar"
 
 #: data/io.github.wartybix.Constrict.metainfo.xml.in:79
 msgid "The application mid-compression"
-msgstr ""
+msgstr "Sıkıştırma sırasında uygulama"
 
 #: data/io.github.wartybix.Constrict.metainfo.xml.in:83
 msgid "A mobile friendly UI"
-msgstr ""
+msgstr "Mobil uyumlu bir arayüz"
 
 #: data/io.github.wartybix.Constrict.metainfo.xml.in:87
 msgid "Compression settings in the mobile friendly UI"
-msgstr ""
+msgstr "Mobil uyumlu arayüzdeki sıkıştırma ayarları"
 
 #: data/io.github.wartybix.Constrict.gschema.xml.in:31 src/window.ui:78
 msgid "Framerate Limit"
-msgstr ""
+msgstr "Kare Hızı Sınırı"
 
 #: data/io.github.wartybix.Constrict.gschema.xml.in:32
 msgid ""
 "Limits framerates of compressed videos automatically, or to 30 FPS or 60 FPS."
 msgstr ""
+"Sıkıştırılmış videoların kare hızlarını otomatik olarak veya 30 FPS ya da "
+"60 FPS ile sınırlar."
 
 #: data/io.github.wartybix.Constrict.gschema.xml.in:38
 msgid "Video Codec"
-msgstr ""
+msgstr "Video Kodeği"
 
 #: data/io.github.wartybix.Constrict.gschema.xml.in:39
 msgid "The codec used to encode with during compression"
-msgstr ""
+msgstr "Sıkıştırma sırasında kodlama için kullanılan kodek"
 
 #. TRANSLATORS: used in parentheses for the default suffix of exported
 #. files.
 #: src/main.py:83
 msgid "compressed"
-msgstr ""
+msgstr "sıkıştırılmış"
 
 #. TRANSLATORS: Braces represent the name of the repository (e.g. 8mb)
 #. Please use ‘’ characters instead of '', if applicable to your language.
 #: src/main.py:174
 #, python-brace-format
 msgid "‘{}’ repository by"
-msgstr ""
+msgstr "‘{}’ deposu, yazan"
 
 #: src/main.py:181
 msgid "Circular progress indicator (C version) by"
-msgstr ""
+msgstr "Dairesel ilerleme göstergesi (C sürümü), yazan"
 
 #: src/main.py:185
 msgid "translator-credits"
-msgstr ""
+msgstr "erdem uygun <uygun.erdem@proton.me>"
 
 #. TRANSLATORS: 'FPS' meaning 'frames per second'.
 #. {} represents the FPS value, for example 30 or 60.
@@ -147,7 +166,7 @@ msgstr ""
 #: src/window.py:166
 #, python-brace-format
 msgid "{} FPS"
-msgstr ""
+msgstr "{} FPS"
 
 #. TRANSLATORS: FPS meaning 'frames per second'. {} represents an
 #. integer. Please use U+202F narrow no-break space (' ') between
@@ -158,6 +177,8 @@ msgid ""
 "Videos compressed to low bitrates may be capped to {} FPS, regardless of the "
 "option set."
 msgstr ""
+"Düşük bit hızında sıkıştırılan videolar, ayarlanan seçenekten bağımsız "
+"olarak {} FPS ile sınırlanabilir."
 
 #. TRANSLATORS: {} represents an integer. Please use U+202F Narrow
 #. no-break space (' ') between {} and '%'.
@@ -169,12 +190,16 @@ msgid ""
 "number of attempts needed to meet the target, increasing compression time. A "
 "tolerance of {} % or more is recommended."
 msgstr ""
+"Toleransı düşürmek, sıkıştırılmış dosya boyutlarının hedefin ne kadar "
+"altında kalabileceğini azaltarak görüntü kalitesini en üst düzeye çıkarır. "
+"Ancak bu, hedefi karşılamak için gereken deneme sayısını artırarak "
+"sıkıştırma süresini uzatabilir. {} % veya daha fazla bir tolerans önerilir."
 
 #. TRANSLATORS: {} represents a file size unit (e.g. 'MB')
 #: src/window.py:189
 #, python-brace-format
 msgid "Target _Size ({})"
-msgstr ""
+msgstr "Hedef Büyüklük ({})"
 
 #. TRANSLATORS: {} represents the filename of the video currently
 #. being processed. Please use “” instead of "", if applicable to
@@ -182,7 +207,7 @@ msgstr ""
 #: src/window.py:291
 #, python-brace-format
 msgid "Processing “{}”"
-msgstr ""
+msgstr "“{}” işleniyor"
 
 #. TRANSLATORS: {index} represents the index of the video
 #. currently being processed. {total} represents the total
@@ -190,7 +215,7 @@ msgstr ""
 #: src/window.py:297
 #, python-brace-format
 msgid "{index}/{total} Videos Processed"
-msgstr ""
+msgstr "{index}/{total} video işlendi"
 
 #. TRANSLATORS: {} represents the path of the directory being
 #. exported to. Please use “” instead of "", if applicable to your
@@ -198,7 +223,7 @@ msgstr ""
 #: src/window.py:308
 #, python-brace-format
 msgid "Exporting to “{}”"
-msgstr ""
+msgstr "“{}” dışa aktarılıyor"
 
 #. TRANSLATORS: {} represents the filename of the video currently
 #. queued. Please use “” instead of '', if applicable to your
@@ -206,17 +231,17 @@ msgstr ""
 #: src/window.py:324
 #, python-brace-format
 msgid "“{}” Queued"
-msgstr ""
+msgstr "“{}” kuyruğa alındı"
 
 #. TRANSLATORS: {} represents the number of files queued.
 #: src/window.py:328
 #, python-brace-format
 msgid "{} Videos Queued"
-msgstr ""
+msgstr "{} video kuyruğa alındı"
 
 #: src/window.py:459
 msgid "Stop Compression?"
-msgstr ""
+msgstr "Sıkıştırma Durdurulsun mu?"
 
 #. TRANSLATORS: {} represents the filename of the video currently
 #. being compressed. Please use “” instead of "", if applicable to
@@ -225,18 +250,19 @@ msgstr ""
 #, python-brace-format
 msgid "Progress made compressing “{}” will be permanently lost"
 msgstr ""
+"“{}” videosunu sıkıştırma sürecindeki ilerleme kalıcı olarak kaybedilecek"
 
 #: src/window.py:469
 msgid "_Cancel"
-msgstr ""
+msgstr "_İptal"
 
 #: src/window.py:470
 msgid "_Stop"
-msgstr ""
+msgstr "_Durdur"
 
 #: src/window.py:524 src/window.py:760
 msgid "Compression Complete"
-msgstr ""
+msgstr "Sıkıştırma Tamamlandı"
 
 #. TRANSLATORS: {} represents the filename of the video that has
 #. been processed.
@@ -244,213 +270,213 @@ msgstr ""
 #: src/window.py:532
 #, python-brace-format
 msgid "“{}” processed"
-msgstr ""
+msgstr "“{}” işlendi"
 
 #. TRANSLATORS: {} represents the number of files that have been
 #. processed.
 #: src/window.py:537
 #, python-brace-format
 msgid "{} files processed"
-msgstr ""
+msgstr "{} dosya işlendi"
 
 #: src/window.py:548
 msgid "Open Export Directory"
-msgstr ""
+msgstr "Dışa Aktarma Dizinini Aç"
 
 #: src/window.py:605
 msgid "Videos are being compressed"
-msgstr ""
+msgstr "Videolar sıkıştırılıyor"
 
 #. TRANSLATORS: please use U+2026 Horizontal ellipsis (…)
 #. instead of '...', if applicable to your language
 #: src/window.py:625
 msgid "Analyzing…"
-msgstr ""
+msgstr "Analiz ediliyor…"
 
 #. TRANSLATORS: {} represents the filename of the video with
 #. the error. Please use “” instead of "", if applicable to
-#. your language.
+#. your language
 #: src/window.py:719
 #, python-brace-format
 msgid "Error compressing “{}”"
-msgstr ""
+msgstr "“{}” sıkıştırılırken hata oluştu"
 
 #: src/window.py:722
 msgid "View _Details"
-msgstr ""
+msgstr "_Ayrıntıları Görüntüle"
 
 #: src/window.py:756
 msgid "Compression Cancelled"
-msgstr ""
+msgstr "Sıkıştırma İptal Edildi"
 
 #: src/window.py:842
 msgid "Videos"
-msgstr ""
+msgstr "Videolar"
 
 #: src/window.py:845
 msgid "Pick Videos"
-msgstr ""
+msgstr "Video Seç"
 
 #: src/window.ui:26
 msgid "Toggle Settings Pane"
-msgstr ""
+msgstr "Ayarlar Bölmesini Aç/Kapa"
 
 #: src/window.ui:34
 msgid "Main Menu"
-msgstr ""
+msgstr "Ana Menü"
 
 #: src/window.ui:82 src/window.ui:194 src/preferences_dialog.ui:14
 msgid "More Information"
-msgstr ""
+msgstr "Daha Fazla Bilgi"
 
 #: src/window.ui:107
 msgid "_Automatic"
-msgstr ""
+msgstr "_Otomatik"
 
 #: src/window.ui:109
 msgid "Use the highest framerate without sacrificing resolution"
-msgstr ""
+msgstr "Çözünürlükten ödün vermeden en yüksek kare hızını kullan"
 
 #: src/window.ui:121
 msgid "Ensure higher image clarity"
-msgstr ""
+msgstr "Daha yüksek görüntü netliği sağla"
 
 #: src/window.ui:133
 msgid "Ensure smoother motion"
-msgstr ""
+msgstr "Daha akıcı hareketler sağla"
 
 #: src/window.ui:145
 msgid "Encoding Options"
-msgstr ""
+msgstr "Kodlama Seçenekleri"
 
 #: src/window.ui:148
 msgid "_Video Codec"
-msgstr ""
+msgstr "_Video Kodeği"
 
 #: src/window.ui:164
 msgid "Extra _Quality"
-msgstr ""
+msgstr "Ekstra _Kalite"
 
 #: src/window.ui:166
 msgid "Increase image quality at the cost of compression time"
-msgstr ""
+msgstr "Sıkıştırma süresi pahasına görüntü kalitesini artır"
 
 #: src/window.ui:173
 msgid "Advanced Options"
-msgstr ""
+msgstr "Gelişmiş Seçenekler"
 
 #: src/window.ui:176
 msgid "_Tolerance (%)"
-msgstr ""
+msgstr "_Tolerans (%)"
 
 #: src/window.ui:178
 msgid "How far end file sizes can be below target"
-msgstr ""
+msgstr "Son dosya boyutlarının hedefin ne kadar altında kalabileceği"
 
 #: src/window.ui:230
 msgid "Compress Videos"
-msgstr ""
+msgstr "Videoları Sıkıştır"
 
 #: src/window.ui:231
 msgid "Drag and drop videos here"
-msgstr ""
+msgstr "Videoları buraya sürükleyip bırakın"
 
 #. TRANSLATORS: please use U+2026 Horizontal ellipsis (…) instead of '...', if applicable to your language
 #: src/window.ui:235
 msgid "_Open…"
-msgstr ""
+msgstr "_Aç…"
 
 #. TRANSLATORS: Please use U+2014 em dash ('—') instead of '-', if applicable to your language.
 #: src/window.ui:258
 msgid "Issues with video sources — fix before compressing"
-msgstr ""
+msgstr "Video kaynaklarıyla ilgili sorunlar — sıkıştırmadan önce düzeltin"
 
 #: src/window.ui:278
 msgid "Video Sources"
-msgstr ""
+msgstr "Video Kaynakları"
 
 #: src/window.ui:281
 msgid "_Clear All"
-msgstr ""
+msgstr "Tümünü _Temizle"
 
 #. TRANSLATORS: please use U+2026 Horizontal ellipsis (…) instead of '...', if applicable to your language
 #: src/window.ui:308
 msgid "_Export To…"
-msgstr ""
+msgstr "Dışa _Aktar…"
 
 #. TRANSLATORS: please use U+2026 Horizontal ellipsis (…) instead of '...', if applicable to your language
 #: src/window.ui:328
 msgid "_Cancel…"
-msgstr ""
+msgstr "_İptal…"
 
 #: src/window.ui:357
 msgid "_New Window"
-msgstr ""
+msgstr "_Yeni Pencere"
 
 #: src/window.ui:363
 msgid "_Preferences"
-msgstr ""
+msgstr "_Tercihler"
 
 #: src/window.ui:367
 msgid "_Keyboard Shortcuts"
-msgstr ""
+msgstr "_Klavye Kısayolları"
 
 #: src/window.ui:371
 msgid "_About Constrict"
-msgstr ""
+msgstr "Constrict _Hakkında"
 
 #: src/gtk/help-overlay.ui:11
 msgctxt "shortcut window"
 msgid "Video Management"
-msgstr ""
+msgstr "Video Yönetimi"
 
 #: src/gtk/help-overlay.ui:14
 msgctxt "shortcut window"
 msgid "Open"
-msgstr ""
+msgstr "Aç"
 
 #: src/gtk/help-overlay.ui:20
 msgctxt "shortcut window"
 msgid "Export"
-msgstr ""
+msgstr "Dışa Aktar"
 
 #: src/gtk/help-overlay.ui:28
 msgctxt "shortcut window"
 msgid "General"
-msgstr ""
+msgstr "Genel"
 
 #: src/gtk/help-overlay.ui:31
 msgctxt "shortcut window"
 msgid "Toggle Settings Pane"
-msgstr ""
+msgstr "Ayarlar Bölmesini Aç/Kapa"
 
 #: src/gtk/help-overlay.ui:37
 msgctxt "shortcut window"
 msgid "Show Shortcuts"
-msgstr ""
+msgstr "Kısayolları Göster"
 
 #: src/gtk/help-overlay.ui:43
 msgctxt "shortcut window"
 msgid "Close Window"
-msgstr ""
+msgstr "Pencereyi Kapat"
 
 #: src/gtk/help-overlay.ui:49
 msgctxt "shortcut window"
 msgid "Quit"
-msgstr ""
+msgstr "Çık"
 
 #: src/gtk/help-overlay.ui:55
 msgctxt "shortcut window"
 msgid "Show Preferences"
-msgstr ""
+msgstr "Tercihleri Göster"
 
 #. TRANSLATORS: {size} represents a file size value in MB.
 #. {unit} represents a file size unit, like 'MB'. Please use U+202F
-#. narrow no-break space (' ') between size and unit.
+#. narrow no-break space (' ') between size and unit.
 #: src/sources_row.py:408
 #, python-brace-format
 msgid "Video compressed to {size} {unit}."
-msgstr ""
+msgstr "Video {size} {unit} olarak sıkıştırıldı."
 
 #. TRANSLATORS: {original_size} and {target_size} represent
 #. integers. {unit_original} and {unit_target} represent file
@@ -462,6 +488,8 @@ msgid ""
 "Video file size ({original_size} {unit_original}) already meets the target "
 "size ({target_size} {unit_target})."
 msgstr ""
+"Video dosya boyutu ({original_size} {unit_original}) zaten hedef boyutu "
+"({target_size} {unit_target}) karşılıyor."
 
 #. TRANSLATORS: {size} represents an integer. {unit} represents
 #. a file size unit like 'MB'.
@@ -470,48 +498,48 @@ msgstr ""
 #: src/sources_row.py:454
 #, python-brace-format
 msgid "Target size ({size} {unit}) is too low for this file."
-msgstr ""
+msgstr "Hedef boyut ({size} {unit}) bu dosya için çok düşük."
 
 #: src/sources_row.ui:36 src/sources_row.ui:49 src/sources_row.ui:78
 msgid "View Error Details"
-msgstr ""
+msgstr "Hata Ayrıntılarını Görüntüle"
 
 #: src/sources_row.ui:56
 msgid "Cannot load video. It may be missing or corrupted."
-msgstr ""
+msgstr "Video yüklenemiyor. Eksik veya bozuk olabilir."
 
 #: src/sources_row.ui:106
 msgid "View Compression Progress"
-msgstr ""
+msgstr "Sıkıştırma İlerlemesini Görüntüle"
 
 #: src/sources_row.ui:143
 msgid "More Details"
-msgstr ""
+msgstr "Daha Fazla Ayrıntı"
 
 #: src/sources_row.ui:164
 msgid "Show File Location"
-msgstr ""
+msgstr "Dosya Konumunu Göster"
 
 #: src/sources_row.ui:181
 msgid "View More"
-msgstr ""
+msgstr "Daha Fazlasını Görüntüle"
 
 #: src/sources_row.ui:210
 msgid "Move _Up"
-msgstr ""
+msgstr "_Yukarı Taşı"
 
 #: src/sources_row.ui:214
 msgid "Move _Down"
-msgstr ""
+msgstr "_Aşağı Taşı"
 
 #: src/sources_row.ui:220
 msgid "_Remove"
-msgstr ""
+msgstr "_Kaldır"
 
 #. TRANSLATORS: please use U+2026 Horizontal ellipsis (…) instead of '...', if applicable to your language
 #: src/sources_list_box.ui:11
 msgid "Add Vide_os…"
-msgstr ""
+msgstr "_Video Ekle…"
 
 #. TRANSLATORS: {} represents the value of the default suffix.
 #: src/preferences_dialog.py:41
@@ -520,22 +548,24 @@ msgid ""
 "Used in file names for exported videos, between the base name and extension. "
 "If the custom suffix is left empty, the default suffix of “{}” will be used."
 msgstr ""
+"Dışa aktarılan videoların dosya adlarında, ana ad ile uzantı arasında "
+"kullanılır. Özel son ek boş bırakılırsa, “{}” varsayılan son eki kullanılır."
 
 #: src/preferences_dialog.py:56
 msgid "Changes applied"
-msgstr ""
+msgstr "Değişiklikler uygulandı"
 
 #: src/preferences_dialog.ui:6
 msgid "Preferences"
-msgstr ""
+msgstr "Tercihler"
 
 #: src/preferences_dialog.ui:11
 msgid "Exported Video Suffix"
-msgstr ""
+msgstr "Dışa Aktarılan Video Son Eki"
 
 #: src/preferences_dialog.ui:39
 msgid "Custom Suffix"
-msgstr ""
+msgstr "Özel Son Ek"
 
 #. TRANSLATORS: {} represents the filename of the video with the
 #. error. Please use “” instead of "", if applicable to your
@@ -543,40 +573,40 @@ msgstr ""
 #: src/error_dialog.py:48
 #, python-brace-format
 msgid "There was a problem compressing “{}”"
-msgstr ""
+msgstr "“{}” sıkıştırılırken bir sorun oluştu"
 
 #: src/error_dialog.py:70
 msgid "Details copied to clipboard"
-msgstr ""
+msgstr "Ayrıntılar panoya kopyalandı"
 
 #: src/error_dialog.ui:8
 msgid "Compression Error"
-msgstr ""
+msgstr "Sıkıştırma Hatası"
 
 #: src/error_dialog.ui:22
 msgid "Details"
-msgstr ""
+msgstr "Ayrıntılar"
 
 #: src/error_dialog.ui:25
 msgid "Copy Details"
-msgstr ""
+msgstr "Ayrıntıları Kopyala"
 
 #. TRANSLATORS: {} represents the attempt number.
 #: src/attempt_fail_box.py:51 src/current_attempt_box.py:42
 #: src/current_attempt_box.py:66
 #, python-brace-format
 msgid "Attempt {}"
-msgstr ""
+msgstr "Deneme {}"
 
 #. TRANSLATORS: this is an abbreviation of 'High Quality'
 #: src/attempt_fail_box.py:54 src/current_attempt_box.py:70
 msgid "HQ"
-msgstr ""
+msgstr "YK"
 
 #. TRANSLATORS: this is an abbreviation of 'Low Quality'
 #: src/attempt_fail_box.py:57 src/current_attempt_box.py:73
 msgid "LQ"
-msgstr ""
+msgstr "DK"
 
 #. TRANSLATORS: {vid_br} represents an integer.
 #. {vid_br_unit} represents a bitrate unit, like 'kbps'.
@@ -587,7 +617,7 @@ msgstr ""
 #: src/attempt_fail_box.py:65
 #, python-brace-format
 msgid "{vid_br} {vid_br_unit} ({res_fps}, {audio_quality} audio)"
-msgstr ""
+msgstr "{vid_br} {vid_br_unit} ({res_fps}, {audio_quality} ses)"
 
 #. TRANSLATORS: {size} represents an integer. {unit} represents a
 #. file size unit like 'MB'. Please use U+202F Narrow no-break space
@@ -595,7 +625,7 @@ msgstr ""
 #: src/attempt_fail_box.py:80
 #, python-brace-format
 msgid "Compressed file size was too large ({size} {unit})"
-msgstr ""
+msgstr "Sıkıştırılan dosya boyutu çok büyüktü ({size} {unit})"
 
 #. TRANSLATORS: {size} represents an integer. {unit} represents a
 #. file size unit like 'MB'. Please use U+202F Narrow no-break space
@@ -603,7 +633,7 @@ msgstr ""
 #: src/attempt_fail_box.py:90
 #, python-brace-format
 msgid "Compressed file size was too small ({size} {unit})"
-msgstr ""
+msgstr "Sıkıştırılan dosya boyutu çok küçüktü ({size} {unit})"
 
 #. TRANSLATORS: {vid_br} represents an integer.
 #. {vid_br_unit} represents a bitrate unit, like 'kbps'.
@@ -616,6 +646,7 @@ msgstr ""
 msgid ""
 "Compressing to {vid_br} {vid_br_unit} ({res_fps}, {audio_quality} audio)"
 msgstr ""
+"{vid_br} {vid_br_unit} ({res_fps}, {audio_quality} ses) olarak sıkıştırılıyor"
 
 #. TRANSLATORS: {} represents an integer.
 #. Used as part of a larger string, like:
@@ -624,8 +655,8 @@ msgstr ""
 #, python-brace-format
 msgid "{} second"
 msgid_plural "{} seconds"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{} saniye"
+msgstr[1] "{} saniye"
 
 #. TRANSLATORS: {} represents an integer.
 #. Used as part of a larger string, like:
@@ -637,8 +668,8 @@ msgstr[1] ""
 #, python-brace-format
 msgid "{} minute"
 msgid_plural "{} minutes"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{} dakika"
+msgstr[1] "{} dakika"
 
 #. TRANSLATORS: {} represents an integer. Used as part of a
 #. larger string, like:
@@ -647,8 +678,8 @@ msgstr[1] ""
 #, python-brace-format
 msgid "{} hour"
 msgid_plural "{} hours"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{} saat"
+msgstr[1] "{} saat"
 
 #. TRANSLATORS: {percent} represents the progress percentage value.
 #. {time_shown} represents a string showing the estimated time to
@@ -659,48 +690,60 @@ msgstr[1] ""
 #: src/current_attempt_box.py:156
 #, python-brace-format
 msgid "{percent} % — About {time_shown} left"
-msgstr ""
+msgstr "%{percent} — Yaklaşık {time_shown} kaldı"
 
 #. TRANSLATORS: please use U+2026 Horizontal ellipsis (…) instead of '...', if applicable to your language.
 #: src/current_attempt_box.ui:26
 msgid "Initializing…"
-msgstr ""
+msgstr "Başlatılıyor…"
 
 #: src/constrict_utils.py:630
 msgid ""
 "Constrict: Could not read input file. Was it moved or deleted before "
 "compression?"
 msgstr ""
+"Constrict: Giriş dosyası okunamadı. Sıkıştırmadan önce taşındı veya silindi "
+"mi?"
 
 #: src/constrict_utils.py:637
 msgid "Constrict: File already meets the target size."
-msgstr ""
+msgstr "Constrict: Dosya zaten hedef boyutu karşılıyor."
 
 #: src/constrict_utils.py:646
 msgid ""
 "Constrict: Could not retrieve video properties. Source video may be missing "
 "or corrupted."
 msgstr ""
+"Constrict: Video özellikleri alınamadı. Kaynak video eksik veya bozuk "
+"olabilir."
 
 #: src/constrict_utils.py:653
 msgid ""
 "Constrict: Could not create exported file. A file with the reserved name "
 "already exists."
 msgstr ""
+"Constrict: Dışa aktarılan dosya oluşturulamadı. Ayrılmış ada sahip bir dosya "
+"zaten mevcut."
 
 #: src/constrict_utils.py:655
 msgid ""
 "Constrict: Could not create exported file. There are insufficient "
 "permissions to create a file at the requested export path."
 msgstr ""
+"Constrict: Dışa aktarılan dosya oluşturulamadı. İstenen dışa aktarma yolunda "
+"bir dosya oluşturmak için yetersiz izinler var."
 
 #: src/constrict_utils.py:717
 msgid ""
 "Constrict: Video bitrate got too low (<5 kbps). The target size may be too "
 "low for this file."
 msgstr ""
+"Constrict: Video bit hızı çok düştü (<5 kbps). Hedef boyut bu dosya için çok "
+"düşük olabilir."
 
 #: src/constrict_utils.py:755
 msgid ""
 "Constrict: Cannot read output file. Was it moved or deleted mid-compression?"
 msgstr ""
+"Constrict: Çıkış dosyası okunamıyor. Sıkıştırma sırasında taşındı veya "
+"silindi mi?"
