@@ -33,8 +33,6 @@ from typing import List, Sequence, Callable, Any
 # FIXME: occasional segmentation fault on compression completion? No idea what
 # the cause is yet. It's seemingly random.
 
-# TODO: Fix spelling of 'cancelled' to US 'canceled'
-
 class ConstrictApplication(Adw.Application):
     """The main application singleton class."""
 
