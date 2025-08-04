@@ -713,7 +713,7 @@ def compress(
     force_crush = False
     lowest_res = None
 
-    can_ha = use_ha and will_ha_work(codec)
+    can_ha = use_ha and not extra_quality and will_ha_work(codec)
 
     while (percent_of_target < 100 - tolerance) or (percent_of_target > 100):
         if attempt > 0:
