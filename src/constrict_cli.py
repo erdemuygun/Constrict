@@ -24,6 +24,8 @@ from constrict_utils import compress
 from enums import FpsMode, VideoCodec
 import datetime
 
+# TODO: force container?
+
 if __name__ == '__main__':
     arg_parser = argparse.ArgumentParser("constrict-cli")
     arg_parser.add_argument(

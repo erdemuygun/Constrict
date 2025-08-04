@@ -13,6 +13,8 @@
               <object class="AdwSwitchRow" id="gpu_encoding_row">
                 <!-- TRANSLATORS: GPU as in 'graphics processing unit' -->
                 <property name="title" translatable="true">GPU Encoding</property>
+                <!-- TRANSLATORS: GPU as in 'graphics processing unit' -->
+                <property name="subtitle" translatable="true">Use the GPU to speed up encoding when available</property>
               </object>
             </child>
           </object>
