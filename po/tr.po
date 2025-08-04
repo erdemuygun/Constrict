@@ -2,13 +2,14 @@
 # Copyright (C) 2025 THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the Constrict package.
 # erdem uygun <uygun.erdem@proton.me>, 2025.
+# Erdem Uygun <uygun.erdem@proton.me>, 2025.
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: \n"
+"Project-Id-Version: unnamed project\n"
 "Report-Msgid-Bugs-To: 34974060+Wartybix@users.noreply.github.com\n"
-"POT-Creation-Date: 2025-08-01 15:13+0100\n"
-"PO-Revision-Date: 2025-08-01 17:47+0300\n"
+"POT-Creation-Date: 2025-08-04 10:42+0100\n"
+"PO-Revision-Date: 2025-08-04 10:44+0100\n"
 "Last-Translator: Erdem Uygun <uygun.erdem@proton.me>\n"
 "Language-Team: Turkish <gnome-turk@gnome.org>\n"
 "Language: tr\n"
@@ -16,10 +17,10 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Poedit 3.4.2\n"
+"X-Generator: Gtranslator 48.0\n"
 
 #: data/io.github.wartybix.Constrict.desktop.in:2
-#: data/io.github.wartybix.Constrict.metainfo.xml.in:8 src/main.py:162
+#: data/io.github.wartybix.Constrict.metainfo.xml.in:8 src/main.py:160
 #: src/window.py:318 src/window.ui:6
 msgid "Constrict"
 msgstr "Constrict"
@@ -141,22 +142,22 @@ msgstr "Sıkıştırma sırasında kodlama için kullanılan kodek"
 
 #. TRANSLATORS: used in parentheses for the default suffix of exported
 #. files.
-#: src/main.py:83
+#: src/main.py:81
 msgid "compressed"
 msgstr "sıkıştırılmış"
 
 #. TRANSLATORS: Braces represent the name of the repository (e.g. 8mb)
 #. Please use ‘’ characters instead of '', if applicable to your language.
-#: src/main.py:174
+#: src/main.py:172
 #, python-brace-format
 msgid "‘{}’ repository by"
 msgstr "‘{}’ deposu, yazan"
 
-#: src/main.py:181
+#: src/main.py:179
 msgid "Circular progress indicator (C version) by"
 msgstr "Dairesel ilerleme göstergesi (C sürümü), yazan"
 
-#: src/main.py:185
+#: src/main.py:183
 msgid "translator-credits"
 msgstr "erdem uygun <uygun.erdem@proton.me>"
 
@@ -260,7 +261,7 @@ msgstr "_İptal"
 msgid "_Stop"
 msgstr "_Durdur"
 
-#: src/window.py:524 src/window.py:760
+#: src/window.py:524 src/window.py:763
 msgid "Compression Complete"
 msgstr "Sıkıştırma Tamamlandı"
 
@@ -289,31 +290,31 @@ msgstr "Videolar sıkıştırılıyor"
 
 #. TRANSLATORS: please use U+2026 Horizontal ellipsis (…)
 #. instead of '...', if applicable to your language
-#: src/window.py:625
+#: src/window.py:627
 msgid "Analyzing…"
 msgstr "Analiz ediliyor…"
 
 #. TRANSLATORS: {} represents the filename of the video with
 #. the error. Please use “” instead of "", if applicable to
-#. your language
-#: src/window.py:719
+#. your language.
+#: src/window.py:722
 #, python-brace-format
 msgid "Error compressing “{}”"
 msgstr "“{}” sıkıştırılırken hata oluştu"
 
-#: src/window.py:722
+#: src/window.py:725
 msgid "View _Details"
 msgstr "_Ayrıntıları Görüntüle"
 
-#: src/window.py:756
-msgid "Compression Cancelled"
+#: src/window.py:759
+msgid "Compression Canceled"
 msgstr "Sıkıştırma İptal Edildi"
 
-#: src/window.py:842
+#: src/window.py:845
 msgid "Videos"
 msgstr "Videolar"
 
-#: src/window.py:845
+#: src/window.py:848
 msgid "Pick Videos"
 msgstr "Video Seç"
 
@@ -325,7 +326,7 @@ msgstr "Ayarlar Bölmesini Aç/Kapa"
 msgid "Main Menu"
 msgstr "Ana Menü"
 
-#: src/window.ui:82 src/window.ui:194 src/preferences_dialog.ui:14
+#: src/window.ui:82 src/window.ui:194 src/preferences_dialog.ui:25
 msgid "More Information"
 msgstr "Daha Fazla Bilgi"
 
@@ -472,7 +473,7 @@ msgstr "Tercihleri Göster"
 
 #. TRANSLATORS: {size} represents a file size value in MB.
 #. {unit} represents a file size unit, like 'MB'. Please use U+202F
-#. narrow no-break space (' ') between size and unit.
+#. narrow no-break space (' ') between size and unit.
 #: src/sources_row.py:408
 #, python-brace-format
 msgid "Video compressed to {size} {unit}."
@@ -542,7 +543,7 @@ msgid "Add Vide_os…"
 msgstr "_Video Ekle…"
 
 #. TRANSLATORS: {} represents the value of the default suffix.
-#: src/preferences_dialog.py:41
+#: src/preferences_dialog.py:42
 #, python-brace-format
 msgid ""
 "Used in file names for exported videos, between the base name and extension. "
@@ -551,7 +552,7 @@ msgstr ""
 "Dışa aktarılan videoların dosya adlarında, ana ad ile uzantı arasında "
 "kullanılır. Özel son ek boş bırakılırsa, “{}” varsayılan son eki kullanılır."
 
-#: src/preferences_dialog.py:56
+#: src/preferences_dialog.py:64
 msgid "Changes applied"
 msgstr "Değişiklikler uygulandı"
 
@@ -560,10 +561,19 @@ msgid "Preferences"
 msgstr "Tercihler"
 
 #: src/preferences_dialog.ui:11
+msgid "Hardware Acceleration"
+msgstr ""
+
+#. TRANSLATORS: GPU as in 'graphics processing unit'
+#: src/preferences_dialog.ui:15
+msgid "GPU Encoding"
+msgstr ""
+
+#: src/preferences_dialog.ui:22
 msgid "Exported Video Suffix"
 msgstr "Dışa Aktarılan Video Son Eki"
 
-#: src/preferences_dialog.ui:39
+#: src/preferences_dialog.ui:50
 msgid "Custom Suffix"
 msgstr "Özel Son Ek"
 
@@ -697,7 +707,7 @@ msgstr "%{percent} — Yaklaşık {time_shown} kaldı"
 msgid "Initializing…"
 msgstr "Başlatılıyor…"
 
-#: src/constrict_utils.py:630
+#: src/constrict_utils.py:675
 msgid ""
 "Constrict: Could not read input file. Was it moved or deleted before "
 "compression?"
@@ -705,11 +715,11 @@ msgstr ""
 "Constrict: Giriş dosyası okunamadı. Sıkıştırmadan önce taşındı veya silindi "
 "mi?"
 
-#: src/constrict_utils.py:637
+#: src/constrict_utils.py:682
 msgid "Constrict: File already meets the target size."
 msgstr "Constrict: Dosya zaten hedef boyutu karşılıyor."
 
-#: src/constrict_utils.py:646
+#: src/constrict_utils.py:691
 msgid ""
 "Constrict: Could not retrieve video properties. Source video may be missing "
 "or corrupted."
@@ -717,7 +727,7 @@ msgstr ""
 "Constrict: Video özellikleri alınamadı. Kaynak video eksik veya bozuk "
 "olabilir."
 
-#: src/constrict_utils.py:653
+#: src/constrict_utils.py:698
 msgid ""
 "Constrict: Could not create exported file. A file with the reserved name "
 "already exists."
@@ -725,7 +735,7 @@ msgstr ""
 "Constrict: Dışa aktarılan dosya oluşturulamadı. Ayrılmış ada sahip bir dosya "
 "zaten mevcut."
 
-#: src/constrict_utils.py:655
+#: src/constrict_utils.py:700
 msgid ""
 "Constrict: Could not create exported file. There are insufficient "
 "permissions to create a file at the requested export path."
@@ -733,7 +743,7 @@ msgstr ""
 "Constrict: Dışa aktarılan dosya oluşturulamadı. İstenen dışa aktarma yolunda "
 "bir dosya oluşturmak için yetersiz izinler var."
 
-#: src/constrict_utils.py:717
+#: src/constrict_utils.py:764
 msgid ""
 "Constrict: Video bitrate got too low (<5 kbps). The target size may be too "
 "low for this file."
@@ -741,7 +751,7 @@ msgstr ""
 "Constrict: Video bit hızı çok düştü (<5 kbps). Hedef boyut bu dosya için çok "
 "düşük olabilir."
 
-#: src/constrict_utils.py:755
+#: src/constrict_utils.py:803
 msgid ""
 "Constrict: Cannot read output file. Was it moved or deleted mid-compression?"
 msgstr ""

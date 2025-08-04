@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Constrict 1.0.1\n"
 "Report-Msgid-Bugs-To: 34974060+Wartybix@users.noreply.github.com\n"
-"POT-Creation-Date: 2025-08-01 15:13+0100\n"
+"POT-Creation-Date: 2025-08-04 10:42+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -19,7 +19,7 @@ msgstr ""
 "Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
 
 #: data/io.github.wartybix.Constrict.desktop.in:2
-#: data/io.github.wartybix.Constrict.metainfo.xml.in:8 src/main.py:162
+#: data/io.github.wartybix.Constrict.metainfo.xml.in:8 src/main.py:160
 #: src/window.py:318 src/window.ui:6
 msgid "Constrict"
 msgstr ""
@@ -122,22 +122,22 @@ msgstr ""
 
 #. TRANSLATORS: used in parentheses for the default suffix of exported
 #. files.
-#: src/main.py:83
+#: src/main.py:81
 msgid "compressed"
 msgstr ""
 
 #. TRANSLATORS: Braces represent the name of the repository (e.g. 8mb)
 #. Please use ‘’ characters instead of '', if applicable to your language.
-#: src/main.py:174
+#: src/main.py:172
 #, python-brace-format
 msgid "‘{}’ repository by"
 msgstr ""
 
-#: src/main.py:181
+#: src/main.py:179
 msgid "Circular progress indicator (C version) by"
 msgstr ""
 
-#: src/main.py:185
+#: src/main.py:183
 msgid "translator-credits"
 msgstr ""
 
@@ -234,7 +234,7 @@ msgstr ""
 msgid "_Stop"
 msgstr ""
 
-#: src/window.py:524 src/window.py:760
+#: src/window.py:524 src/window.py:763
 msgid "Compression Complete"
 msgstr ""
 
@@ -263,31 +263,31 @@ msgstr ""
 
 #. TRANSLATORS: please use U+2026 Horizontal ellipsis (…)
 #. instead of '...', if applicable to your language
-#: src/window.py:625
+#: src/window.py:627
 msgid "Analyzing…"
 msgstr ""
 
 #. TRANSLATORS: {} represents the filename of the video with
 #. the error. Please use “” instead of "", if applicable to
 #. your language.
-#: src/window.py:719
+#: src/window.py:722
 #, python-brace-format
 msgid "Error compressing “{}”"
 msgstr ""
 
-#: src/window.py:722
+#: src/window.py:725
 msgid "View _Details"
 msgstr ""
 
-#: src/window.py:756
-msgid "Compression Cancelled"
-msgstr ""
-
-#: src/window.py:842
-msgid "Videos"
+#: src/window.py:759
+msgid "Compression Canceled"
 msgstr ""
 
 #: src/window.py:845
+msgid "Videos"
+msgstr ""
+
+#: src/window.py:848
 msgid "Pick Videos"
 msgstr ""
 
@@ -299,7 +299,7 @@ msgstr ""
 msgid "Main Menu"
 msgstr ""
 
-#: src/window.ui:82 src/window.ui:194 src/preferences_dialog.ui:14
+#: src/window.ui:82 src/window.ui:194 src/preferences_dialog.ui:25
 msgid "More Information"
 msgstr ""
 
@@ -514,14 +514,14 @@ msgid "Add Vide_os…"
 msgstr ""
 
 #. TRANSLATORS: {} represents the value of the default suffix.
-#: src/preferences_dialog.py:41
+#: src/preferences_dialog.py:42
 #, python-brace-format
 msgid ""
 "Used in file names for exported videos, between the base name and extension. "
 "If the custom suffix is left empty, the default suffix of “{}” will be used."
 msgstr ""
 
-#: src/preferences_dialog.py:56
+#: src/preferences_dialog.py:64
 msgid "Changes applied"
 msgstr ""
 
@@ -530,10 +530,19 @@ msgid "Preferences"
 msgstr ""
 
 #: src/preferences_dialog.ui:11
+msgid "Hardware Acceleration"
+msgstr ""
+
+#. TRANSLATORS: GPU as in 'graphics processing unit'
+#: src/preferences_dialog.ui:15
+msgid "GPU Encoding"
+msgstr ""
+
+#: src/preferences_dialog.ui:22
 msgid "Exported Video Suffix"
 msgstr ""
 
-#: src/preferences_dialog.ui:39
+#: src/preferences_dialog.ui:50
 msgid "Custom Suffix"
 msgstr ""
 
@@ -666,41 +675,41 @@ msgstr ""
 msgid "Initializing…"
 msgstr ""
 
-#: src/constrict_utils.py:630
+#: src/constrict_utils.py:675
 msgid ""
 "Constrict: Could not read input file. Was it moved or deleted before "
 "compression?"
 msgstr ""
 
-#: src/constrict_utils.py:637
+#: src/constrict_utils.py:682
 msgid "Constrict: File already meets the target size."
 msgstr ""
 
-#: src/constrict_utils.py:646
+#: src/constrict_utils.py:691
 msgid ""
 "Constrict: Could not retrieve video properties. Source video may be missing "
 "or corrupted."
 msgstr ""
 
-#: src/constrict_utils.py:653
+#: src/constrict_utils.py:698
 msgid ""
 "Constrict: Could not create exported file. A file with the reserved name "
 "already exists."
 msgstr ""
 
-#: src/constrict_utils.py:655
+#: src/constrict_utils.py:700
 msgid ""
 "Constrict: Could not create exported file. There are insufficient "
 "permissions to create a file at the requested export path."
 msgstr ""
 
-#: src/constrict_utils.py:717
+#: src/constrict_utils.py:764
 msgid ""
 "Constrict: Video bitrate got too low (<5 kbps). The target size may be too "
 "low for this file."
 msgstr ""
 
-#: src/constrict_utils.py:755
+#: src/constrict_utils.py:803
 msgid ""
 "Constrict: Cannot read output file. Was it moved or deleted mid-compression?"
 msgstr ""

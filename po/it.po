@@ -2,13 +2,14 @@
 # Copyright (C) YEAR Wartybix
 # This file is distributed under the same license as the Constrict package.
 # ALBANO BATTISTELLA <ALBANOBATTISTELLA@GMAIL.COM>, 2025.
+# Albano Battistella <albanobattistella@gmail.com>, 2025.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: Constrict 1.0.1\n"
 "Report-Msgid-Bugs-To: 34974060+Wartybix@users.noreply.github.com\n"
-"POT-Creation-Date: 2025-07-22 23:07+0100\n"
-"PO-Revision-Date: 2025-07-22 23:09+0100\n"
+"POT-Creation-Date: 2025-08-04 10:42+0100\n"
+"PO-Revision-Date: 2025-08-04 10:43+0100\n"
 "Last-Translator: Albano Battistella <albanobattistella@gmail.com>\n"
 "Language-Team: Italian <LL@li.org>\n"
 "Language: it\n"
@@ -16,10 +17,10 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Poedit 3.6\n"
+"X-Generator: Gtranslator 48.0\n"
 
 #: data/io.github.wartybix.Constrict.desktop.in:2
-#: data/io.github.wartybix.Constrict.metainfo.xml.in:8 src/main.py:166
+#: data/io.github.wartybix.Constrict.metainfo.xml.in:8 src/main.py:160
 #: src/window.py:318 src/window.ui:6
 msgid "Constrict"
 msgstr "Constrict"
@@ -144,21 +145,22 @@ msgstr "Il codec utilizzato per la codifica durante la compressione"
 
 #. TRANSLATORS: used in parentheses for the default suffix of exported
 #. files.
-#: src/main.py:87
+#: src/main.py:81
 msgid "compressed"
 msgstr "compresso"
 
 #. TRANSLATORS: Braces represent the name of the repository (e.g. 8mb)
 #. Please use ‘’ characters instead of '', if applicable to your language.
-#: src/main.py:178
+#: src/main.py:172
+#, python-brace-format
 msgid "‘{}’ repository by"
 msgstr "Repository ‘{}’ di"
 
-#: src/main.py:185
+#: src/main.py:179
 msgid "Circular progress indicator (C version) by"
 msgstr "Indicatore di avanzamento circolare (versione C) di"
 
-#: src/main.py:189
+#: src/main.py:183
 msgid "translator-credits"
 msgstr "Albano Battistella"
 
@@ -166,6 +168,7 @@ msgstr "Albano Battistella"
 #. {} represents the FPS value, for example 30 or 60.
 #. Please use U+202F Narrow no-break space (' ') between value and unit.
 #: src/window.py:166
+#, python-brace-format
 msgid "{} FPS"
 msgstr "{} FPS"
 
@@ -173,6 +176,7 @@ msgstr "{} FPS"
 #. integer. Please use U+202F narrow no-break space (' ') between
 #. the {} and translated equivalent of 'FPS'.
 #: src/window.py:175
+#, python-brace-format
 msgid ""
 "Videos compressed to low bitrates may be capped to {} FPS, regardless of the "
 "option set."
@@ -183,7 +187,7 @@ msgstr ""
 #. TRANSLATORS: {} represents an integer. Please use U+202F Narrow
 #. no-break space (' ') between {} and '%'.
 #: src/window.py:184
-#, python-format
+#, python-brace-format
 msgid ""
 "Decreasing the tolerance maximizes image quality by reducing how much "
 "compressed file sizes can be under target. However, this can increase the "
@@ -198,6 +202,7 @@ msgstr ""
 
 #. TRANSLATORS: {} represents a file size unit (e.g. 'MB')
 #: src/window.py:189
+#, python-brace-format
 msgid "Target _Size ({})"
 msgstr "_Dimensione Obiettivo ({})"
 
@@ -205,6 +210,7 @@ msgstr "_Dimensione Obiettivo ({})"
 #. being processed. Please use “” instead of "", if applicable to
 #. your language.
 #: src/window.py:291
+#, python-brace-format
 msgid "Processing “{}”"
 msgstr "Elaborazione di “{}”"
 
@@ -220,6 +226,7 @@ msgstr "{index}/{total} Video Elaborati"
 #. exported to. Please use “” instead of "", if applicable to your
 #. language.
 #: src/window.py:308
+#, python-brace-format
 msgid "Exporting to “{}”"
 msgstr "Esportazione in “{}”"
 
@@ -227,11 +234,13 @@ msgstr "Esportazione in “{}”"
 #. queued. Please use “” instead of '', if applicable to your
 #. language.
 #: src/window.py:324
+#, python-brace-format
 msgid "“{}” Queued"
 msgstr "“{}” In Coda"
 
 #. TRANSLATORS: {} represents the number of files queued.
 #: src/window.py:328
+#, python-brace-format
 msgid "{} Videos Queued"
 msgstr "{} Video In Coda"
 
@@ -243,6 +252,7 @@ msgstr "Interrompere la compressione?"
 #. being compressed. Please use “” instead of "", if applicable to
 #. your language.
 #: src/window.py:463
+#, python-brace-format
 msgid "Progress made compressing “{}” will be permanently lost"
 msgstr ""
 "I progressi compiuti nella compressione di “{}” andranno persi "
@@ -256,7 +266,7 @@ msgstr "_Annulla"
 msgid "_Stop"
 msgstr "_Interrompi"
 
-#: src/window.py:524 src/window.py:760
+#: src/window.py:524 src/window.py:763
 msgid "Compression Complete"
 msgstr "Compressione Completata"
 
@@ -264,12 +274,14 @@ msgstr "Compressione Completata"
 #. been processed.
 #. Please use “” instead of "", if applicable to your language.
 #: src/window.py:532
+#, python-brace-format
 msgid "“{}” processed"
 msgstr "“{}” elaborato"
 
 #. TRANSLATORS: {} represents the number of files that have been
 #. processed.
 #: src/window.py:537
+#, python-brace-format
 msgid "{} files processed"
 msgstr "{} file elaborati"
 
@@ -283,30 +295,31 @@ msgstr "I video sono in fase di compressione"
 
 #. TRANSLATORS: please use U+2026 Horizontal ellipsis (…)
 #. instead of '...', if applicable to your language
-#: src/window.py:625
+#: src/window.py:627
 msgid "Analyzing…"
 msgstr "Analisi in corso…"
 
 #. TRANSLATORS: {} represents the filename of the video with
 #. the error. Please use “” instead of "", if applicable to
 #. your language.
-#: src/window.py:719
+#: src/window.py:722
+#, python-brace-format
 msgid "Error compressing “{}”"
 msgstr "Errore durante la compressione di “{}”"
 
-#: src/window.py:722
+#: src/window.py:725
 msgid "View _Details"
 msgstr "Visualizza _Dettagli"
 
-#: src/window.py:756
-msgid "Compression Cancelled"
+#: src/window.py:759
+msgid "Compression Canceled"
 msgstr "Compressione Annullata"
 
-#: src/window.py:842
+#: src/window.py:845
 msgid "Videos"
 msgstr "Video"
 
-#: src/window.py:845
+#: src/window.py:848
 msgid "Pick Videos"
 msgstr "Scegli Video"
 
@@ -318,7 +331,7 @@ msgstr "Attiva/Disattiva Pannello Impostazioni"
 msgid "Main Menu"
 msgstr "Menu Principale"
 
-#: src/window.ui:82 src/window.ui:194 src/preferences_dialog.ui:14
+#: src/window.ui:82 src/window.ui:194 src/preferences_dialog.ui:25
 msgid "More Information"
 msgstr "Maggiori Informazioni"
 
@@ -538,7 +551,8 @@ msgid "Add Vide_os…"
 msgstr "Aggiungi Vide_o…"
 
 #. TRANSLATORS: {} represents the value of the default suffix.
-#: src/preferences_dialog.py:41
+#: src/preferences_dialog.py:42
+#, python-brace-format
 msgid ""
 "Used in file names for exported videos, between the base name and extension. "
 "If the custom suffix is left empty, the default suffix of “{}” will be used."
@@ -547,7 +561,7 @@ msgstr ""
 "l'estensione. Se il suffisso personalizzato viene lasciato vuoto, verrà "
 "utilizzato il suffisso predefinito “{}”."
 
-#: src/preferences_dialog.py:56
+#: src/preferences_dialog.py:64
 msgid "Changes applied"
 msgstr "Modifiche applicate"
 
@@ -556,10 +570,19 @@ msgid "Preferences"
 msgstr "Preferenze"
 
 #: src/preferences_dialog.ui:11
+msgid "Hardware Acceleration"
+msgstr ""
+
+#. TRANSLATORS: GPU as in 'graphics processing unit'
+#: src/preferences_dialog.ui:15
+msgid "GPU Encoding"
+msgstr ""
+
+#: src/preferences_dialog.ui:22
 msgid "Exported Video Suffix"
 msgstr "Suffisso Video Esportato"
 
-#: src/preferences_dialog.ui:39
+#: src/preferences_dialog.ui:50
 msgid "Custom Suffix"
 msgstr "Suffisso Personalizzato"
 
@@ -567,6 +590,7 @@ msgstr "Suffisso Personalizzato"
 #. error. Please use “” instead of "", if applicable to your
 #. language.
 #: src/error_dialog.py:48
+#, python-brace-format
 msgid "There was a problem compressing “{}”"
 msgstr "Si è verificato un problema durante la compressione di “{}”"
 
@@ -589,6 +613,7 @@ msgstr "Copia Dettagli"
 #. TRANSLATORS: {} represents the attempt number.
 #: src/attempt_fail_box.py:51 src/current_attempt_box.py:42
 #: src/current_attempt_box.py:66
+#, python-brace-format
 msgid "Attempt {}"
 msgstr "Tentativo {}"
 
@@ -648,6 +673,7 @@ msgstr ""
 #. Used as part of a larger string, like:
 #. '5% -- About 30 seconds left'
 #: src/current_attempt_box.py:117
+#, python-brace-format
 msgid "{} second"
 msgid_plural "{} seconds"
 msgstr[0] "{} secondo"
@@ -660,6 +686,7 @@ msgstr[1] "{} secondi"
 #. larger string, like:
 #. '10% -- About 2 hours, 30 minutes left'
 #: src/current_attempt_box.py:125 src/current_attempt_box.py:138
+#, python-brace-format
 msgid "{} minute"
 msgid_plural "{} minutes"
 msgstr[0] "{} minuto"
@@ -669,6 +696,7 @@ msgstr[1] "{} minuti"
 #. larger string, like:
 #. '10% -- About 2 hours, 30 minutes left'
 #: src/current_attempt_box.py:133 src/current_attempt_box.py:147
+#, python-brace-format
 msgid "{} hour"
 msgid_plural "{} hours"
 msgstr[0] "{} ora"
@@ -690,7 +718,7 @@ msgstr "{percent} % — Circa {time_shown} rimanenti"
 msgid "Initializing…"
 msgstr "Inizializzazione in corso…"
 
-#: src/constrict_utils.py:625
+#: src/constrict_utils.py:675
 msgid ""
 "Constrict: Could not read input file. Was it moved or deleted before "
 "compression?"
@@ -698,11 +726,11 @@ msgstr ""
 "Constrict: Impossibile leggere il file di input. È stato spostato o "
 "eliminato prima della compressione?"
 
-#: src/constrict_utils.py:632
+#: src/constrict_utils.py:682
 msgid "Constrict: File already meets the target size."
 msgstr "Constrict: il file raggiunge già la dimensione obbiettivo."
 
-#: src/constrict_utils.py:641
+#: src/constrict_utils.py:691
 msgid ""
 "Constrict: Could not retrieve video properties. Source video may be missing "
 "or corrupted."
@@ -710,7 +738,7 @@ msgstr ""
 "Constrict: Impossibile recuperare le proprietà del video. Il video sorgente "
 "potrebbe essere mancanteo danneggiato."
 
-#: src/constrict_utils.py:648
+#: src/constrict_utils.py:698
 msgid ""
 "Constrict: Could not create exported file. A file with the reserved name "
 "already exists."
@@ -718,7 +746,7 @@ msgstr ""
 "Constrict: Impossibile creare il file esportato. Un file con il nome "
 "riservato esiste già."
 
-#: src/constrict_utils.py:650
+#: src/constrict_utils.py:700
 msgid ""
 "Constrict: Could not create exported file. There are insufficient "
 "permissions to create a file at the requested export path."
@@ -726,7 +754,7 @@ msgstr ""
 "Constrict: Impossibile creare il file esportato. Non ci sono autorizzazioni "
 "sufficienti per creare un file nel percorso di esportazione richiesto."
 
-#: src/constrict_utils.py:710
+#: src/constrict_utils.py:764
 msgid ""
 "Constrict: Video bitrate got too low (<5 kbps). The target size may be too "
 "low for this file."
@@ -734,7 +762,7 @@ msgstr ""
 "Constrict: il bitrate del video è troppo basso (<5 kbps). La dimensione di "
 "destinazione potrebbe essere troppo bassa per questo file."
 
-#: src/constrict_utils.py:748
+#: src/constrict_utils.py:803
 msgid ""
 "Constrict: Cannot read output file. Was it moved or deleted mid-compression?"
 msgstr ""
