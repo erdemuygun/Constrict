@@ -20,6 +20,8 @@ The app attempts to retain as much audiovisual quality as possible for the file 
 - Python
 - FFmpeg (full)
 - Totem (particularly `totem-video-thumbnailer`)
+- `libva-utils` (for `vainfo`)
+- drivers specific to GPUs to allow VA-API encoding. 
 
 ## Acknowledgements
 Thanks to Matthew Baggett for creating the original ['8mb' repository](https://github.com/matthewbaggett/8mb) which this project used as its foundation.

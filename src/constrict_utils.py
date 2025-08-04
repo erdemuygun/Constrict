@@ -273,6 +273,7 @@ def transcode(
     rotation: int,
     framerate: float,
     codec: int,
+    use_ha: bool,
     extra_quality: bool,
     output_fn: Callable[[float, Optional[int]], None],
     frame_count: int,
@@ -292,23 +293,31 @@ def transcode(
     preset_name = '-cpu-used' if codec == VideoCodec.VP9 else '-preset'
     preset = get_encoding_speed(frame_height, codec, extra_quality)
 
+    gpu_filters = ',format=nv12,hwupload' if use_ha else ''
+
     cv_params = {
-        VideoCodec.H264: 'libx264',
-        VideoCodec.HEVC: 'libx265',
-        VideoCodec.AV1: 'libsvtav1',
-        VideoCodec.VP9: 'libvpx-vp9'
+        VideoCodec.H264: 'h264_vaapi' if use_ha else 'libx264',
+        VideoCodec.HEVC: 'hevc_vaapi' if use_ha else 'libx265',
+        VideoCodec.AV1: 'av1_vaapi' if use_ha else 'libsvtav1',
+        VideoCodec.VP9: 'vp9_vaapi' if use_ha else 'libvpx-vp9'
     }
 
     pass1_cmd = [
         'ffmpeg',
         '-y',
         '-progress', '-',
+    ]
+
+    if use_ha:
+        pass1_cmd.extend(['-vaapi_device', '/dev/dri/renderD128'])
+
+    pass1_cmd.extend([
         '-display_rotation', f'{rotation}',
         '-noautorotate',
         '-i', f'{file_input}',
         f'{preset_name}', f'{"4" if codec == VideoCodec.VP9 else preset}',
-        '-vf', f'scale={width}:{height}',
-    ]
+        '-vf', f'scale={width}:{height}{gpu_filters}',
+    ])
 
     if log_path is not None:
         pass1_cmd.extend(['-passlogfile', f'{log_path}'])
@@ -344,7 +353,7 @@ def transcode(
         pass1_cmd,
         output_fn,
         frame_count,
-        None if codec == VideoCodec.VP9 else 0,
+        None if codec == VideoCodec.VP9 and not use_ha else 0,
         None,
         cancel_event
     )
@@ -358,12 +367,18 @@ def transcode(
         'ffmpeg',
         '-y',
         '-progress', '-',
+    ]
+
+    if use_ha:
+        pass2_cmd.extend(['-vaapi_device', '/dev/dri/renderD128'])
+
+    pass2_cmd.extend([
         '-display_rotation', f'{rotation}',
         '-noautorotate',
         '-i', f'{file_input}',
         f'{preset_name}', f'{preset}',
-        '-vf', f'scale={width}:{height}'
-    ]
+        '-vf', f'scale={width}:{height}{gpu_filters}',
+    ])
 
     if log_path is not None:
         pass2_cmd.extend(['-passlogfile', f'{log_path}'])
@@ -400,7 +415,7 @@ def transcode(
         pass2_cmd,
         output_fn,
         frame_count,
-        None if codec == VideoCodec.VP9 else 1,
+        None if codec == VideoCodec.VP9 and not use_ha else 1,
         avg_fps,
         cancel_event
     )
@@ -596,6 +611,35 @@ def get_encode_settings(
         res_reduction_applied
     )
 
+def will_ha_work(codec):
+    profiles = {
+        VideoCodec.H264: 'VAProfileH264Main',
+        VideoCodec.HEVC: 'VAProfileHEVCMain',
+        VideoCodec.AV1: 'VAProfileAV1Profile0',
+        VideoCodec.VP9: 'VAProfileVP9Profile0'
+    }
+
+    cmd = ['vainfo', '--display', 'drm']
+
+    vainfo_bytes = subprocess.check_output(cmd)
+    vainfo_str = vainfo_bytes.decode('utf-8')
+    vainfo_list = vainfo_str.replace(' ', '').replace('\t', '').split('\n')
+
+    profile = profiles[codec]
+
+    valid_entries = [
+        f'{profile}:VAEntrypointEncSlice',
+        f'{profile}:VAEntrypointEncSliceLP'
+    ]
+
+    for entry in valid_entries:
+        if entry in vainfo_list:
+            return True
+
+
+    return False
+
+
 def compress(
     file_input: str,
     file_output: str,
@@ -603,6 +647,7 @@ def compress(
     framerate_option: int,
     extra_quality: bool,
     codec: int,
+    use_ha: bool,
     tolerance: int,
     output_fn: Callable[[float, Optional[int]], None],
     log_path: str,
@@ -667,6 +712,8 @@ def compress(
 
     force_crush = False
     lowest_res = None
+
+    can_ha = use_ha and will_ha_work(codec)
 
     while (percent_of_target < 100 - tolerance) or (percent_of_target > 100):
         if attempt > 0:
@@ -736,6 +783,7 @@ def compress(
             rotation,
             target_fps,
             codec,
+            can_ha,
             extra_quality,
             output_fn,
             dest_frame_count,

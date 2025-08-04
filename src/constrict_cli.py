@@ -98,6 +98,11 @@ if __name__ == '__main__':
             'vp9: uses the VP9 codec.'
         )
     )
+    arg_parser.add_argument(
+        '--software-encode',
+        action='store_true',
+        help='Do not use GPU encoding when available'
+    )
     args = arg_parser.parse_args()
 
     def get_fps_mode() -> int:
@@ -167,6 +172,7 @@ if __name__ == '__main__':
         get_fps_mode(),
         args.extra_quality,
         get_video_codec(),
+        not args.software_encode,
         args.tolerance,
         print_progress,
         None,

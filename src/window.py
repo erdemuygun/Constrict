@@ -618,6 +618,8 @@ class ConstrictWindow(Adw.ApplicationWindow):
             progress_box = CurrentAttemptBox()
             video.initiate_popover_box(progress_box, daemon)
 
+            use_ha = self.settings.get_boolean('use-gpu-encoding')
+
             def update_progress(fraction, seconds_left):
                 if fraction == 0.0 and codec == VideoCodec.VP9:
                     # TRANSLATORS: please use U+2026 Horizontal ellipsis (…)
@@ -692,6 +694,7 @@ class ConstrictWindow(Adw.ApplicationWindow):
                 fps_mode,
                 extra_quality,
                 codec,
+                use_ha,
                 tolerance,
                 update_progress,
                 log_path,
