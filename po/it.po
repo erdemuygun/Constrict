@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: Constrict 1.0.1\n"
 "Report-Msgid-Bugs-To: 34974060+Wartybix@users.noreply.github.com\n"
 "POT-Creation-Date: 2025-08-04 11:32+0100\n"
-"PO-Revision-Date: 2025-08-04 10:43+0100\n"
+"PO-Revision-Date: 2025-08-04 20:03+0100\n"
 "Last-Translator: Albano Battistella <albanobattistella@gmail.com>\n"
 "Language-Team: Italian <LL@li.org>\n"
 "Language: it\n"
@@ -571,17 +571,17 @@ msgstr "Preferenze"
 
 #: src/preferences_dialog.ui:11
 msgid "Hardware Acceleration"
-msgstr ""
+msgstr "Accelerazione hardware"
 
 #. TRANSLATORS: GPU as in 'graphics processing unit'
 #: src/preferences_dialog.ui:15
 msgid "GPU Encoding"
-msgstr ""
+msgstr "Codifica GPU"
 
 #. TRANSLATORS: GPU as in 'graphics processing unit'
 #: src/preferences_dialog.ui:17
 msgid "Use the GPU to speed up encoding when available"
-msgstr ""
+msgstr "Utilizzare la GPU per accelerare l'encoding quando disponibile"
 
 #: src/preferences_dialog.ui:24
 msgid "Exported Video Suffix"
